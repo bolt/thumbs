@@ -16,7 +16,7 @@
     "minimum-stability": "dev",
     
     "require": {
-        "bolt/bolt": "dev-path-fixes",
+        "bolt/bolt": "dev-master",
         "symfony/http-foundation": "~2.5",
         "gregwar/cache": "1.0.*",
         "ext-gd": "*"
