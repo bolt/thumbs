@@ -1,5 +1,5 @@
 {
-    "name": "rossriley/bolt-thumbs",
+    "name": "bolt/bolt-thumbs",
     "description": "Small package based on GD to handle thumbnail resizes",
     "license": "MIT",
     "authors": [
