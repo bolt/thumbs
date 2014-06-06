@@ -70,13 +70,15 @@ class ThumbnailCreator implements ResizeInterface
 
         // resize
         if($crop){
-            if($w < $width or $h < $height) return "Picture is too small!";
+            if($w < $width or $h < $height) return false;
             $ratio = max($width/$w, $height/$h);
             $h = $height / $ratio;
             $x = ($w - $width / $ratio) / 2;
             $w = $width / $ratio;
+            $xmid = $width/2;
+            $ymid = $height/2;
         } else {
-            if($w < $width and $h < $height) return "Picture is too small!";
+            if($w < $width and $h < $height) return false;
             $ratio = min($width/$w, $height/$h);
             $width = $w * $ratio;
             $height = $h * $ratio;
@@ -91,8 +93,13 @@ class ThumbnailCreator implements ResizeInterface
             imagealphablending($new, false);
             imagesavealpha($new, true);
         }
-
-        imagecopyresampled($new, $img, 0, 0, $x, 0, $width, $height, $w, $h);
+        
+        if(false === $crop) {
+            imagecopyresampled($new, $img, 0, 0, $x, 0, $width, $height, $w, $h); 
+       } else {
+            imagecopyresampled($new, $img, 0, 0, ($xmid-($width/2)), ($ymid-($height/2)), $width, $height, $w, $h);
+       }
+        
 
         ob_start();
         switch($type){
