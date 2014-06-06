@@ -31,15 +31,14 @@ class ThumbnailCreator implements ResizeInterface
     */
     public function resize($parameters = array())
     {
-        return $this->doResize($this->source->getRealPath(), $parameters['width'], $parameters['height'], 0);
+        return $this->doResize($this->source->getRealPath(), $parameters['width'], $parameters['height'], false);
             
     }
     
 
     public function crop($parameters = array())
     {
-
-        return $this->doResize($this->source->getRealPath(), $parameters['width'], $parameters['height'], 1);
+        return $this->doResize($this->source->getRealPath(), $parameters['width'], $parameters['height'], true);
         
     }
     
@@ -54,7 +53,7 @@ class ThumbnailCreator implements ResizeInterface
     }
     
     
-    protected function doResize($src, $width, $height, $crop=0)
+    protected function doResize($src, $width, $height, $crop=false)
     {
 
         if(!list($w, $h) = getimagesize($src)) return false;
