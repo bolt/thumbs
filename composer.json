@@ -17,7 +17,6 @@
     
     "require": {
         "bolt/bolt": "dev-bolt-thumbs-integration",
-        "silex/silex": "1.*",
         "symfony/http-foundation": "~2.5",
         "gregwar/cache": "1.0.*",
         "ext-gd": "*"

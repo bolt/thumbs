@@ -22,6 +22,6 @@ class ThumbnailProvider implements ControllerProviderInterface
                 $app->pass();
             }
         });
-
+        return $controllers;
     }
 }
