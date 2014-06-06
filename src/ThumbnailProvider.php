@@ -5,7 +5,6 @@ use Silex\ControllerProviderInterface;
 class ThumbnailProvider implements ControllerProviderInterface
 {
     
-    public $app;
     
     public function connect(Application $app)
     {
