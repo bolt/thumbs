@@ -44,18 +44,24 @@ class ThumbnailResponder
     public function parseRequest()
     {
         $path = $this->request->getPathInfo();
-        preg_match("#/thumbs/([0-9]*)x([0-9]*)([a-z]+)/(.*)#", $path, $parsedRequest);
-        array_shift($parsedRequest);
-        if(count($parsedRequest) !== 4) {
+        preg_match(
+            "#/thumbs/(?P<width>[0-9]*)x(?P<height>[0-9]*)(?P<action>[a-z]?)/(?P<file>.*)#", 
+            $path, 
+            $parsedRequest
+        );
+        if(!isset($parsedRequest['width']) || !isset($parsedRequest['file'])) {
             return false;
         }
-        if(array_key_exists($parsedRequest[2], $this->actions)) {
-            $this->action = $this->actions[$parsedRequest[2]];
+        
+        if(isset($parsedRequest['action']) && array_key_exists($parsedRequest['action'], $this->actions)) {
+            $this->action = $this->actions[$parsedRequest['action']];
+        } else {
+            $this->action = 'crop';
         }
         
-        $this->width    = $parsedRequest[0];
-        $this->height   = $parsedRequest[1];
-        $this->file     = $parsedRequest[3];
+        $this->width    = $parsedRequest['width'];
+        $this->height   = $parsedRequest['height'];
+        $this->file     = $parsedRequest['file'];
     }
     
     public function respond()
