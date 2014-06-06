@@ -1,4 +1,6 @@
 <?php
+namespace Bolt\Thumbs;
+
 use Silex\Application;
 use Silex\ControllerProviderInterface;
 
