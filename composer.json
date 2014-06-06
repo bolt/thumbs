@@ -1,0 +1,35 @@
+{
+    "name": "rossriley/bolt-thumbs",
+    "description": "Small package based on GD to handle thumbnail resizes",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ross Riley",
+            "email": "riley.ross@gmail.com"
+        }
+    ],
+    
+    "repositories": [
+        { "type": "vcs","url":  "git://github.com/rossriley/bolt.git"}
+    ],
+    
+    "minimum-stability": "dev",
+    
+    "require": {
+        "bolt/bolt": "dev-path-fixes",
+        "symfony/http-foundation": "~2.5",
+        "gregwar/cache": "1.0.*",
+        "ext-gd": "*"
+    },
+    
+    "autoload": {
+        "psr-4": {
+            "Bolt\\Thumbs\\": "src",
+            "Bolt\\Thumbs\\Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "branch-alias": { "dev-master": "1.0-dev" }
+    }
+    
+}

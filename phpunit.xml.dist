@@ -1,0 +1,21 @@
+<phpunit backupGlobals="true"
+         backupStaticAttributes="false"
+         bootstrap="vendor/autoload.php"
+         cacheTokens="false"
+         colors="true"
+         strict="false"
+         verbose="false">
+
+  <testsuites>
+    <testsuite name="Bolt Thumnail Handler Test Suite">
+      <directory>tests/</directory>
+    </testsuite>
+  </testsuites>
+
+  <filter>
+        <whitelist>
+            <directory suffix=".php">./src/</directory>
+        </whitelist>
+    </filter>
+
+</phpunit>
