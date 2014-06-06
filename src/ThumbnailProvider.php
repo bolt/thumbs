@@ -21,7 +21,7 @@ class ThumbnailProvider implements ControllerProviderInterface
             } else {
                 $app->pass();
             }
-        })->assert('url', '.+');
+        })->assert('thumb', '.+');
         return $controllers;
     }
 }
