@@ -95,13 +95,26 @@ class ThumbnailCreator implements ResizeInterface
 
         imagecopyresampled($new, $img, 0, 0, $x, 0, $width, $height, $w, $h);
 
+        ob_start();
         switch($type){
-            case 'bmp': return imagewbmp($new); break;
-            case 'gif': return imagegif($new);  break;
-            case 'jpg': return imagejpeg($new); break;
-            case 'png': return imagepng($new);  break;
+            case 'bmp': 
+                imagewbmp($new); 
+                break;
+            case 'gif': 
+                imagegif($new);  
+                break;
+            case 'jpg': 
+                imagejpeg($new);
+                break;
+            case 'png': 
+                imagepng($new);  
+                break;
         }
-        
+        $imageData = ob_get_contents();
+        ob_end_clean(); 
+        if($imageData) {
+            return $imageData;
+        }
         return false;
     }
     
