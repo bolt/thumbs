@@ -18,6 +18,11 @@ class ThumbnailCreator implements ResizeInterface
         $this->source = $source;   
     }
     
+    public function getSource()
+    {
+        return $this->source;   
+    }
+    
     public function setDefaultSource(File $source)
     {
         $this->defaultSource = $source;   

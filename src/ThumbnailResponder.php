@@ -71,7 +71,7 @@ class ThumbnailResponder
     public function respond()
     {
         $response = $this->createResponse();
-        return new Response($response,200, array('Content-Type' => $this->source->getMimeType()));
+        return new Response($response,200, array('Content-Type' => $this->resizer->getSource()->getMimeType()));
     }
     
     public function createResponse()
