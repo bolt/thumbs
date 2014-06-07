@@ -35,7 +35,7 @@ class ThumbnailCreator implements ResizeInterface
     
     public function verify($parameters = array())
     {
-        if(!$this->source->isReadable()) {
+        if(!$this->source->isReadable() && $this->defaultSource) {
             $this->source = $this->defaultSource;
         }
         
@@ -119,7 +119,7 @@ class ThumbnailCreator implements ResizeInterface
                 $x = round (($w - ($w / $xratio * $yratio)) / 2);
                 $w = round ($w / $xratio * $yratio);
 
-            } else if ($yratio > $xratio) {
+            } else  {
                 $y = round (($h - ($h / $yratio * $xratio)) / 2);
                 $h = round ($h / $yratio * $xratio);
             }
