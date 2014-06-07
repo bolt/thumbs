@@ -76,6 +76,14 @@ class ThumbnailCreator implements ResizeInterface
                 $this->targetHeight = $this->originalHeight;
             }
         }
+        
+        if(!isset($parameters['width']) || $parameters['width'] < 1) {
+            $this->targetWidth = $this->originalWidth;
+        }
+        
+        if(!isset($parameters['height']) || $parameters['height'] < 1) {
+            $this->targetHeight = $this->originalHeight;
+        }
 
 
 
