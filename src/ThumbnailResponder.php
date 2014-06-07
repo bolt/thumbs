@@ -15,7 +15,7 @@ class ThumbnailResponder
     public $actions = array(
         'c' => 'crop',
         'r' => 'resize',
-        'b' => 'borders',
+        'b' => 'border',
         'f' => 'fit'
     );
     
