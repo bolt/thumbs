@@ -108,7 +108,7 @@ class ThumbnailResponder
     public function getRealFile($relativeFile)
     {
         $base = $this->app['resources']->getPath('files');
-        return $base . "/" . $relativeFile;
+        return $base . "/" . ltrim($relativeFile, "/");
     }
     
     
