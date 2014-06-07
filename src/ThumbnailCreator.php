@@ -8,6 +8,9 @@ class ThumbnailCreator implements ResizeInterface
 {
     
     public $source;
+    public $defaultSource;
+    public $errorSource;
+    public $allowUpscale;
     
     
     public function setSource(File $source)
@@ -15,8 +18,21 @@ class ThumbnailCreator implements ResizeInterface
         $this->source = $source;   
     }
     
+    public function setDefaultSource(File $source)
+    {
+        $this->defaultSource = $source;   
+    }
+    
+    public function setErrorSource(File $source)
+    {
+        $this->errorSource = $source;   
+    }
+    
     public function create($action, $parameters = array())
     {
+        if(!$this->source->isReadable()) {
+            $this->source = $this->defaultSource;
+        }
         if(is_callable(array($this, $action))) {
             $this->$action($parameters);
         }

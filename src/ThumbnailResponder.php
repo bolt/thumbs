@@ -30,7 +30,7 @@ class ThumbnailResponder
         $this->app = $app;
         $this->request = $request;
         $this->parseRequest();
-        $this->source = new File($this->getRealFile($this->file));
+        $this->source = new File($this->getRealFile($this->file), false);
 
         if(null === $resizer) {
             $this->resizer = new ThumbnailCreator;
@@ -38,6 +38,10 @@ class ThumbnailResponder
             $this->resizer = $resizer;
         }
         $this->resizer->setSource($this->source);
+        if(isset($app['config']->get('general/thumbnails/notfound_image')) {
+            $file = $app['resources']->getPath('app'). '/' .$app['config']->get('general/thumbnails/notfound_image');
+            $this->resizer->setDefaultSource(new File($file));
+        }
     }
     
     
