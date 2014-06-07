@@ -165,7 +165,7 @@ class ThumbnailCreator implements ResizeInterface
             }
             
             
-        } elseif($fit) {
+        } else {
             $ratio = min($width/$w, $height/$h);
             $width = $w * $ratio;
             $height = $h * $ratio;
