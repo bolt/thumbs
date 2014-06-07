@@ -8,6 +8,8 @@ interface ResizeInterface
     
     public function setSource(File $source);
     
+    public function getSource();
+    
     public function resize($parameters = array());
     
     public function crop($parameters = array());

@@ -8,25 +8,14 @@ use Bolt\Application;
 use Bolt\Configuration\ResourceManager;
 
 use Bolt\Thumbs\ThumbnailResponder;
-/**
- * Class to test correct operation and locations of resource manager class and extensions.
- *
- * @author Ross Riley <riley.ross@gmail.com>
- **/
+
 
 
 class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
 {
     
-    public $jpg;
-    public $gif;
-    public $png;
-    
     public function setup()
     {
-        $this->jpg = __DIR__."/images/generic-logo.jpg";
-        $this->gif = __DIR__."/images/generic-logo.gif";
-        $this->png = __DIR__."/images/generic-logo.png";
         require_once __DIR__."/../vendor/bolt/bolt/app/classes/lib.php";
     }
     
@@ -72,19 +61,7 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(Response::class, $response);
     }
     
-    public function testBadResponse()
-    {
-        $request = Request::create(
-            "/thumbs/320x240r/noexistent/generic-logo.jpg",
-            "GET"
-        );
-        
-        $this->setExpectedException(FileNotFoundException::class);
-        
-        $responder = $this->initializeResponder($request);
-        $response = $responder->respond();
-        $this->assertInstanceOf(Response::class, $response);
-    }
+    
     
     protected function initializeResponder($request)
     {

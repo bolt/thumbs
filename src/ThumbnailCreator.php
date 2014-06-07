@@ -12,6 +12,9 @@ class ThumbnailCreator implements ResizeInterface
     public $errorSource;
     public $allowUpscale = false;
     
+    public $targetWidth;
+    public $targetHeight;
+    
     
     public function setSource(File $source)
     {
