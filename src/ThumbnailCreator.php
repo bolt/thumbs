@@ -28,15 +28,13 @@ class ThumbnailCreator implements ResizeInterface
         $this->errorSource = $source;   
     }
     
-    public function create($action, $parameters = array())
+    public function verify($parameters = array())
     {
         if(!$this->source->isReadable()) {
             $this->source = $this->defaultSource;
-        }
-        if(is_callable(array($this, $action))) {
-            $this->$action($parameters);
-        }
-        throw new \InvalidArgumentException("$action method is not implemented on ".get_class($this));
+        }        
+
+
         
     }
     
@@ -47,6 +45,7 @@ class ThumbnailCreator implements ResizeInterface
     */
     public function resize($parameters = array())
     {
+        $this->verify();
         return $this->doResize($this->source->getRealPath(), $parameters['width'], $parameters['height'], false);
             
     }
@@ -54,6 +53,7 @@ class ThumbnailCreator implements ResizeInterface
 
     public function crop($parameters = array())
     {
+        $this->verify();
         return $this->doResize($this->source->getRealPath(), $parameters['width'], $parameters['height'], true);
         
     }
