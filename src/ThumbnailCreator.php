@@ -90,37 +90,43 @@ class ThumbnailCreator implements ResizeInterface
         
     }
     
-    /**
-    * Do the image resize
-    *
-    * @return $output // image content
-    */
+
     public function resize($parameters = array())
     {
         $this->verify($parameters);
-        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false);
-            
+        $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false);
+        if(false !== $data) {
+            return $data;
+        }
     }
     
 
     public function crop($parameters = array())
     {
         $this->verify($parameters);
-        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, true);
+        $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, true);
+        if(false !== $data) {
+            return $data;
+        }
         
     }
     
     public function border($parameters = array())
     {
         $this->verify($parameters);
-        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false, true);
+        $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false, true);
+        if(false !== $data) {
+            return $data;
+        }
     }
     
     public function fit($parameters = array())
     {
         $this->verify($parameters);
-        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false);
-
+        $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false);
+        if(false !== $data) {
+            return $data;
+        }
     }
     
     
@@ -163,17 +169,21 @@ class ThumbnailCreator implements ResizeInterface
             $ratio = min($width/$w, $height/$h);
             $width = $w * $ratio;
             $height = $h * $ratio;
-        } elseif($border) {
-            $finheight = $h * ($width / $w);
-
-            if ($finheight > $height) {
-                $width = $width * ($height / $h);
-            } else {
-                $height = $finheight;
-            }
         } 
-
+        
         $new = imagecreatetruecolor($width, $height);
+        
+        if($border) {    
+            $tmpheight = $h * ($width / $w);
+            if ($tmpheight > $height) {
+                $width = $w * ($height / $h);
+                $x = round(($this->targetWidth - $width) / 2);
+            } else {
+                $height = $tmpheight;
+                $y = round(($this->targetHeight - $height) / 2);
+            }
+
+        } 
 
         // preserve transparency
         if($type == "gif" or $type == "png") {
@@ -182,8 +192,10 @@ class ThumbnailCreator implements ResizeInterface
             imagesavealpha($new, true);
         }
         
-        if(false === $crop) {
+        if(false === $crop && false == $border) {
             imagecopyresampled($new, $img, 0, 0, 0, 0, $width, $height, $w, $h); 
+        } elseif($border) {
+            imagecopyresampled($new, $img, $x, $y, 0, 0, $width, $height, $w, $h);
         } else {
             imagecopyresampled($new, $img, 0, 0, $x, $y, $width, $height, $w, $h);
         }
