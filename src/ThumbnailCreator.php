@@ -112,7 +112,8 @@ class ThumbnailCreator implements ResizeInterface
     
     public function border($parameters = array())
     {
-        
+        $this->verify($parameters);
+        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false, true);
     }
     
     public function fit($parameters = array())
@@ -124,7 +125,7 @@ class ThumbnailCreator implements ResizeInterface
     
     
     
-    protected function doResize($src, $width, $height, $crop=false, $proportional = true)
+    protected function doResize($src, $width, $height, $crop=false, $fit = false, $border = false)
     {
 
         if(!list($w, $h) = getimagesize($src)) return false;
@@ -158,10 +159,18 @@ class ThumbnailCreator implements ResizeInterface
             }
             
             
-        } elseif($proportional) {
+        } elseif($fit) {
             $ratio = min($width/$w, $height/$h);
             $width = $w * $ratio;
             $height = $h * $ratio;
+        } elseif($border) {
+            $finheight = $h * ($width / $w);
+
+            if ($finheight > $height) {
+                $width = $width * ($height / $h);
+            } else {
+                $height = $finheight;
+            }
         } 
 
         $new = imagecreatetruecolor($width, $height);
