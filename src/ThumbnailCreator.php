@@ -68,15 +68,26 @@ class ThumbnailCreator implements ResizeInterface
             default : return false;
         }
 
-        // resize
-        if($crop){
-            if($w < $width or $h < $height) return false;
+        if($crop) {
             $ratio = max($width/$w, $height/$h);
-            $h = $height / $ratio;
-            $x = ($w - $width / $ratio) / 2;
-            $w = $width / $ratio;
+            $x = 0;
+            $y = 0;
+            
+            $xratio = $w / $width;
+            $yratio = $h / $height;
+            
+            // calculate x or y coordinate and width or height of source
+            if ($xratio > $yratio) {
+                $x = round (($w - ($w / $xratio * $yratio)) / 2);
+                $w = round ($w / $xratio * $yratio);
+
+            } else if ($yratio > $xratio) {
+                $y = round (($h - ($h / $yratio * $xratio)) / 2);
+                $h = round ($h / $yratio * $xratio);
+            }
+            
+            
         } else {
-            if($w < $width and $h < $height) return false;
             $ratio = min($width/$w, $height/$h);
             $width = $w * $ratio;
             $height = $h * $ratio;
@@ -86,7 +97,7 @@ class ThumbnailCreator implements ResizeInterface
         $new = imagecreatetruecolor($width, $height);
 
         // preserve transparency
-        if($type == "gif" or $type == "png"){
+        if($type == "gif" or $type == "png") {
             imagecolortransparent($new, imagecolorallocatealpha($new, 0, 0, 0, 127));
             imagealphablending($new, false);
             imagesavealpha($new, true);
@@ -94,13 +105,13 @@ class ThumbnailCreator implements ResizeInterface
         
         if(false === $crop) {
             imagecopyresampled($new, $img, 0, 0, $x, 0, $width, $height, $w, $h); 
-       } else {
+        } else {
             imagecopyresampled($new, $img, 0, 0, (($w - $width) / 2), (($h - $height) /2), $width, $height, $w, $h);
-       }
+        }
         
 
         ob_start();
-        switch($type){
+        switch($type) {
             case 'bmp': 
                 imagewbmp($new); 
                 break;
