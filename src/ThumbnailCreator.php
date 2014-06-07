@@ -145,7 +145,7 @@ class ThumbnailCreator implements ResizeInterface
         if(false === $crop) {
             imagecopyresampled($new, $img, 0, 0, 0, 0, $width, $height, $w, $h); 
         } else {
-            imagecopyresampled($new, $img, 0, 0, (($w - $width) / 2), (($h - $height) /2), $width, $height, $w, $h);
+            imagecopyresampled($new, $img, 0, 0, $x, $y, $width, $height, $w, $h);
         }
         
 
