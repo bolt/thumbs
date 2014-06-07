@@ -10,7 +10,7 @@ class ThumbnailCreator implements ResizeInterface
     public $source;
     public $defaultSource;
     public $errorSource;
-    public $allowUpscale;
+    public $allowUpscale = false;
     
     
     public function setSource(File $source)
@@ -37,7 +37,24 @@ class ThumbnailCreator implements ResizeInterface
     {
         if(!$this->source->isReadable()) {
             $this->source = $this->defaultSource;
-        }        
+        }
+        
+        if(isset($parameters['width'])) {
+            $this->targetWidth = $parameters['width'];
+        }
+        
+        if(isset($parameters['height'])) {
+            $this->targetHeight = $parameters['height'];
+        }    
+
+        // Get the original dimensions of the image
+        $imageMetrics = getimagesize($this->source->getRealPath());
+        if(!$imageMetrics) {
+            $this->source = $this->errorSource;
+        } else {
+            $this->originalWidth = $imageMetrics[0];
+            $this->originalHeight = $imageMetrics[1];
+        }
 
 
         
@@ -50,16 +67,16 @@ class ThumbnailCreator implements ResizeInterface
     */
     public function resize($parameters = array())
     {
-        $this->verify();
-        return $this->doResize($this->source->getRealPath(), $parameters['width'], $parameters['height'], false);
+        $this->verify($parameters);
+        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false);
             
     }
     
 
     public function crop($parameters = array())
     {
-        $this->verify();
-        return $this->doResize($this->source->getRealPath(), $parameters['width'], $parameters['height'], true);
+        $this->verify($parameters);
+        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, true);
         
     }
     
