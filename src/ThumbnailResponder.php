@@ -38,7 +38,7 @@ class ThumbnailResponder
             $this->resizer = $resizer;
         }
         $this->resizer->setSource($this->source);
-        if(isset($app['config']->get('general/thumbnails/notfound_image')) {
+        if(null !== $app['config']->get('general/thumbnails/notfound_image') ) {
             $file = $app['resources']->getPath('app'). '/' .$app['config']->get('general/thumbnails/notfound_image');
             $this->resizer->setDefaultSource(new File($file));
         }
