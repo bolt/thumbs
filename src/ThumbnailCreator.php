@@ -118,7 +118,7 @@ class ThumbnailCreator implements ResizeInterface
     public function fit($parameters = array())
     {
         $this->verify($parameters);
-        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, true, false);
+        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false);
 
     }
     
