@@ -75,8 +75,6 @@ class ThumbnailCreator implements ResizeInterface
             $h = $height / $ratio;
             $x = ($w - $width / $ratio) / 2;
             $w = $width / $ratio;
-            $xmid = $w/2;
-            $ymid = $w/2;
         } else {
             if($w < $width and $h < $height) return false;
             $ratio = min($width/$w, $height/$h);
@@ -97,7 +95,7 @@ class ThumbnailCreator implements ResizeInterface
         if(false === $crop) {
             imagecopyresampled($new, $img, 0, 0, $x, 0, $width, $height, $w, $h); 
        } else {
-            imagecopyresampled($new, $img, 0, 0, ($xmid-($width/2)), ($ymid-($height/2)), $width, $height, $w, $h);
+            imagecopyresampled($new, $img, 0, 0, (($w - $width) / 2), (($h - $height) /2), $width, $height, $w, $h);
        }
         
 
