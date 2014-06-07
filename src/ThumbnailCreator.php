@@ -33,6 +33,13 @@ class ThumbnailCreator implements ResizeInterface
         $this->errorSource = $source;   
     }
     
+    /**
+     *  This method performs the basic sanity checks before allowing the operation to continue.
+     *  If there are any problems with the request it can also reset the source to be one of the
+     *  configured fallback images.
+     *
+     **/
+    
     public function verify($parameters = array())
     {
         if(!$this->source->isReadable() && $this->defaultSource) {
@@ -45,8 +52,8 @@ class ThumbnailCreator implements ResizeInterface
         
         if(isset($parameters['height'])) {
             $this->targetHeight = $parameters['height'];
-        }    
-
+        }
+        
         
         // Get the original dimensions of the image
         $imageMetrics = getimagesize($this->source->getRealPath());
@@ -57,6 +64,16 @@ class ThumbnailCreator implements ResizeInterface
             $this->originalWidth = $imageMetrics[0];
             $this->originalHeight = $imageMetrics[1];
         }
+        
+        if(!$this->allowUpscale) {
+            if($this->targetWidth > $this->originalWidth) {
+                $this->targetWidth = $this->originalWidth;
+            }
+            if($this->targetHeight > $this->originalHeight) {
+                $this->targetHeight = $this->originalHeight;
+            }
+        }
+
 
 
         
