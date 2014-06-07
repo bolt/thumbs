@@ -47,8 +47,10 @@ class ThumbnailCreator implements ResizeInterface
             $this->targetHeight = $parameters['height'];
         }    
 
+        
         // Get the original dimensions of the image
         $imageMetrics = getimagesize($this->source->getRealPath());
+        
         if(!$imageMetrics) {
             $this->source = $this->errorSource;
         } else {
@@ -119,7 +121,7 @@ class ThumbnailCreator implements ResizeInterface
                 $x = round (($w - ($w / $xratio * $yratio)) / 2);
                 $w = round ($w / $xratio * $yratio);
 
-            } else  {
+            } else if ($yratio > $xratio) {
                 $y = round (($h - ($h / $yratio * $xratio)) / 2);
                 $h = round ($h / $yratio * $xratio);
             }
@@ -129,7 +131,6 @@ class ThumbnailCreator implements ResizeInterface
             $ratio = min($width/$w, $height/$h);
             $width = $w * $ratio;
             $height = $h * $ratio;
-            $x = 0;
         }
 
         $new = imagecreatetruecolor($width, $height);
@@ -142,7 +143,7 @@ class ThumbnailCreator implements ResizeInterface
         }
         
         if(false === $crop) {
-            imagecopyresampled($new, $img, 0, 0, $x, 0, $width, $height, $w, $h); 
+            imagecopyresampled($new, $img, 0, 0, 0, 0, $width, $height, $w, $h); 
         } else {
             imagecopyresampled($new, $img, 0, 0, (($w - $width) / 2), (($h - $height) /2), $width, $height, $w, $h);
         }
