@@ -117,11 +117,14 @@ class ThumbnailCreator implements ResizeInterface
     
     public function fit($parameters = array())
     {
-        
+        $this->verify($parameters);
+        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, true, false);
+
     }
     
     
-    protected function doResize($src, $width, $height, $crop=false)
+    
+    protected function doResize($src, $width, $height, $crop=false, $proportional = true)
     {
 
         if(!list($w, $h) = getimagesize($src)) return false;
@@ -155,11 +158,11 @@ class ThumbnailCreator implements ResizeInterface
             }
             
             
-        } else {
+        } elseif($proportional) {
             $ratio = min($width/$w, $height/$h);
             $width = $w * $ratio;
             $height = $h * $ratio;
-        }
+        } 
 
         $new = imagecreatetruecolor($width, $height);
 
