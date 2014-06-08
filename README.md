@@ -36,9 +36,11 @@ To do this, just make one modification to the main Bolt\Application file in side
     $this->mount('/thumbs', new \Bolt\Thumbs\ThumbnailProvider());
 ```
 
-#####If you use manually manage your install: 
+#####If you manually manage your install without Composer: 
 
-If you are not using composer all you need to make sure is that the bolt-thumbs package can autoload correctly.
+Download this project and put it somewhere in your project. 
+
+If you are not using composer all you need to di is make sure is that the bolt-thumbs package can autoload correctly.
 
 Add the same line as above to your Bolt\Application `initMountpoints()` method. Then download this package and make sure that the classes can be autoloaded.
 
