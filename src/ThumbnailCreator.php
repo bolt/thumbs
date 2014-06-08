@@ -11,6 +11,8 @@ class ThumbnailCreator implements ResizeInterface
     public $defaultSource;
     public $errorSource;
     public $allowUpscale = false;
+    public $quality = 80;
+    public $canvas  = array(255,255,255);
     
     public $targetWidth;
     public $targetHeight;
@@ -123,14 +125,22 @@ class ThumbnailCreator implements ResizeInterface
     public function fit($parameters = array())
     {
         $this->verify($parameters);
-        $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false);
+        $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, true);
         if(false !== $data) {
             return $data;
         }
     }
     
     
-    
+    /**
+     * Main resizing function.
+     * 
+     * Since the resizing functionality is almost identical across all actions they all delegate here.
+     * Main difference is in plotting the output dimensions where the ratios and position differ slightly.
+     *
+     * @return $imageData
+     **/
+
     protected function doResize($src, $width, $height, $crop=false, $fit = false, $border = false)
     {
 
@@ -145,7 +155,7 @@ class ThumbnailCreator implements ResizeInterface
             case 'png': $img = imagecreatefrompng($src); break;
             default : return false;
         }
-
+        
         if($crop) {
             $ratio = max($width/$w, $height/$h);
             $x = 0;
@@ -165,7 +175,7 @@ class ThumbnailCreator implements ResizeInterface
             }
             
             
-        } elseif(!$border) {
+        } elseif(!$border && !$fit) {
             $ratio = min($width/$w, $height/$h);
             $width = $w * $ratio;
             $height = $h * $ratio;
@@ -173,7 +183,15 @@ class ThumbnailCreator implements ResizeInterface
         
         $new = imagecreatetruecolor($width, $height);
         
-        if($border) {    
+        if($border) { 
+            
+            if(count($this->canvas) == 3) {
+                $canvas = imagecolorallocate($new, $this->canvas[0], $this->canvas[1], $this->canvas[2]);  
+                imagefill($new, 0, 0, $canvas);
+            }
+           
+            $x = 0;
+            $y = 0;
             $tmpheight = $h * ($width / $w);
             if ($tmpheight > $height) {
                 $width = $w * ($height / $h);
@@ -185,14 +203,15 @@ class ThumbnailCreator implements ResizeInterface
 
         } 
 
-        // preserve transparency
+        // Preserve transparency where available
+        
         if($type == "gif" or $type == "png") {
             imagecolortransparent($new, imagecolorallocatealpha($new, 0, 0, 0, 127));
             imagealphablending($new, false);
             imagesavealpha($new, true);
         }
         
-        if(false === $crop && false == $border) {
+        if(false === $crop && false === $border) {
             imagecopyresampled($new, $img, 0, 0, 0, 0, $width, $height, $w, $h); 
         } elseif($border) {
             imagecopyresampled($new, $img, $x, $y, 0, 0, $width, $height, $w, $h);
@@ -200,20 +219,27 @@ class ThumbnailCreator implements ResizeInterface
             imagecopyresampled($new, $img, 0, 0, $x, $y, $width, $height, $w, $h);
         }
         
-
+        return $this->getOutput($new, $type);
+        
+    }
+    
+    protected function getOutput($imageContent, $type)
+    {
+        // This block captures the image data, since these image commands echo out the data
+        // we wrap the operation in output buffering to capture the data as a string.
         ob_start();
         switch($type) {
             case 'bmp': 
-                imagewbmp($new); 
+                imagewbmp($imageContent); 
                 break;
             case 'gif': 
-                imagegif($new);  
+                imagegif($imageContent);  
                 break;
             case 'jpg': 
-                imagejpeg($new);
+                imagejpeg($imageContent, null, $this->quality);
                 break;
             case 'png': 
-                imagepng($new);  
+                imagepng($imageContent);  
                 break;
         }
         $imageData = ob_get_contents();
@@ -223,5 +249,7 @@ class ThumbnailCreator implements ResizeInterface
         }
         return false;
     }
+    
+    
     
 }

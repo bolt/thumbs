@@ -48,6 +48,10 @@ class ThumbnailResponder
         if($app['config']->get('general/thumbnails/allow_upscale')) {
             $this->resizer->allowUpscale = $app['config']->get('general/thumbnails/allow_upscale');
         }
+        
+        if($app['config']->get('general/thumbnails/quality')) {
+            $this->resizer->quality = $app['config']->get('general/thumbnails/quality', 80);
+        }
     }
     
     
