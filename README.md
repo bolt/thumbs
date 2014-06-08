@@ -1,4 +1,4 @@
-bolt-images
+Bolt Thumbs
 ===========
 
-Thumnail handler for Bolt Images
+#### New Improved Thumnail handler for Bolt Images
