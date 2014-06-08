@@ -64,7 +64,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
     }
     
     
-    public function testCrop()
+    public function testLandscapeCrop()
     {
         $sample = __DIR__."/images/timthumbs/sample1.jpg";
         $creator = new ThumbnailCreator();
@@ -72,11 +72,11 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $result = $creator->crop(array('width'=>500,'height'=>200));
         $compare = __DIR__."/images/timthumbs/crop_sample1_500_200.jpg";
         file_put_contents(__DIR__."/tmp/test.jpg", $result);
-        $this->assertEquals(getimagesize(__DIR__."/tmp/test.jpg"), getimagesize($compare));
-        $this->assertEquals(filesize(__DIR__."/tmp/test.jpg"), filesize($compare));
+        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__."/tmp/test.jpg"));
+        $this->assertEquals(filesize($compare), filesize(__DIR__."/tmp/test.jpg"));
     }
     
-    public function testResize()
+    public function testLandscapeResize()
     {
         $sample = __DIR__."/images/timthumbs/sample1.jpg";
         $creator = new ThumbnailCreator();
@@ -84,11 +84,11 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $result = $creator->resize(array('width'=>500,'height'=>200));
         $compare = __DIR__."/images/timthumbs/resize_sample1_500_200.jpg";
         file_put_contents(__DIR__."/tmp/test.jpg", $result);
-        $this->assertEquals(getimagesize(__DIR__."/tmp/test.jpg"), getimagesize($compare));
-        $this->assertEquals(filesize(__DIR__."/tmp/test.jpg"), filesize($compare));
+        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__."/tmp/test.jpg"));
+        $this->assertEquals(filesize($compare), filesize(__DIR__."/tmp/test.jpg") );
     }
     
-    public function testFit()
+    public function testLandscapeFit()
     {
         $sample = __DIR__."/images/timthumbs/sample1.jpg";
         $creator = new ThumbnailCreator();
@@ -96,11 +96,11 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $result = $creator->fit(array('width'=>500,'height'=>200));
         $compare = __DIR__."/images/timthumbs/fit_sample1_500_200.jpg";
         file_put_contents(__DIR__."/tmp/test.jpg", $result);
-        $this->assertEquals(getimagesize(__DIR__."/tmp/test.jpg"), getimagesize($compare));
-        $this->assertEquals(filesize(__DIR__."/tmp/test.jpg"), filesize($compare));
+        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__."/tmp/test.jpg"));
+        $this->assertEquals(filesize($compare), filesize(__DIR__."/tmp/test.jpg"));
     }
     
-    public function testBorder()
+    public function testLandscapeBorder()
     {
         $sample = __DIR__."/images/timthumbs/sample1.jpg";
         $creator = new ThumbnailCreator();
@@ -112,12 +112,61 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals( filesize($compare) , filesize(__DIR__."/tmp/test.jpg") );
     }
     
+    public function testPortraitCrop()
+    {
+        $sample = __DIR__."/images/timthumbs/sample2.jpg";
+        $creator = new ThumbnailCreator();
+        $creator->setSource(new File($sample));
+        $result = $creator->crop(array('width'=>200,'height'=>500));
+        $compare = __DIR__."/images/timthumbs/crop_sample2_200_500.jpg";
+        file_put_contents(__DIR__."/tmp/test.jpg", $result);
+        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__."/tmp/test.jpg") );
+        $this->assertEquals(filesize($compare), filesize(__DIR__."/tmp/test.jpg") );
+    }
+    
+    public function testPortraitResize()
+    {
+        $sample = __DIR__."/images/timthumbs/sample2.jpg";
+        $creator = new ThumbnailCreator();
+        $creator->setSource(new File($sample));
+        $result = $creator->resize(array('width'=>200,'height'=>500));
+        $compare = __DIR__."/images/timthumbs/resize_sample2_200_500.jpg";
+        file_put_contents(__DIR__."/tmp/test.jpg", $result);
+        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__."/tmp/test.jpg"));
+        $this->assertEquals(filesize($compare), filesize(__DIR__."/tmp/test.jpg") );
+    }
+    
+    public function testPortraitFit()
+    {
+        $sample = __DIR__."/images/timthumbs/sample2.jpg";
+        $creator = new ThumbnailCreator();
+        $creator->setSource(new File($sample));
+        $result = $creator->fit(array('width'=>200,'height'=>500));
+        $compare = __DIR__."/images/timthumbs/fit_sample2_200_500.jpg";
+        file_put_contents(__DIR__."/tmp/test.jpg", $result);
+        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__."/tmp/test.jpg") );
+        $this->assertEquals(filesize($compare), filesize(__DIR__."/tmp/test.jpg") );
+    }
+    
+    public function testPortraitBorder()
+    {
+        $sample = __DIR__."/images/timthumbs/sample2.jpg";
+        $creator = new ThumbnailCreator();
+        $creator->setSource(new File($sample));
+        $result = $creator->border(array('width'=>200,'height'=>500));
+        $compare = __DIR__."/images/timthumbs/border_sample2_200_500.jpg";
+        file_put_contents(__DIR__."/tmp/test.jpg", $result);
+        $this->assertEquals( getimagesize($compare), getimagesize(__DIR__."/tmp/test.jpg") );
+        $this->assertEquals( filesize($compare) , filesize(__DIR__."/tmp/test.jpg") );
+    }
+        
     public function tearDown()
     {
         $tmp = __DIR__."/tmp/test.jpg";
         if(is_readable($tmp)) {
             unlink($tmp);
         }
+    
     }
  
     
