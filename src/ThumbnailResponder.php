@@ -12,18 +12,11 @@ class ThumbnailResponder
 {
     public $app;
     public $request;
-    public $actions = array(
-        'c' => 'crop',
-        'r' => 'resize',
-        'b' => 'border',
-        'f' => 'fit'
-    );
     
     public $width;
     public $height;
     public $file;
     public $action;
-    public $source;
     
     
     /**
@@ -39,8 +32,6 @@ class ThumbnailResponder
     {
         $this->app = $app;
         $this->request = $request;
-        $this->parseRequest();
-        $this->source = new File($this->getRealFile($this->file), false);
 
         if(null === $resizer) {
             $this->resizer = new ThumbnailCreator;
@@ -48,7 +39,8 @@ class ThumbnailResponder
             $this->resizer = $resizer;
         }
         
-        $this->resizer->setSource($this->source);
+        $this->parseRequest();
+        $this->resizer->setSource(new File($this->getRealFile($this->file), false) );
         
         if(null !== $app['config']->get('general/thumbnails/notfound_image') ) {
             $file = $app['resources']->getPath('app'). '/' .$app['config']->get('general/thumbnails/notfound_image');
@@ -82,8 +74,9 @@ class ThumbnailResponder
             return false;
         }
         
-        if(isset($parsedRequest['action']) && array_key_exists($parsedRequest['action'], $this->actions)) {
-            $this->action = $this->actions[$parsedRequest['action']];
+        $commands = $this->resizer->provides();
+        if(isset($parsedRequest['action']) && array_key_exists($parsedRequest['action'], $commands)) {
+            $this->action = $commands[$parsedRequest['action']];
         } else {
             $this->action = 'crop';
         }
@@ -113,7 +106,7 @@ class ThumbnailResponder
     public function createResponse()
     {
         $cache = new Cache;
-        $cache->setCacheDirectory($this->app['resources']->getPath('cache').'/thumbs');
+        $cache->setCacheDirectory($this->app['resources']->getPath('cache'));
 
         $params = array(
             'width'  => $this->width,

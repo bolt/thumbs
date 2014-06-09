@@ -17,6 +17,17 @@ class ThumbnailCreator implements ResizeInterface
     public $targetWidth;
     public $targetHeight;
     
+    public function provides()
+    {
+        return array(
+            'c' => 'crop',
+            'r' => 'resize',
+            'b' => 'border',
+            'f' => 'fit'
+        );
+        
+    }
+    
     
     public function setSource(File $source)
     {
@@ -60,9 +71,10 @@ class ThumbnailCreator implements ResizeInterface
         
         
         // Get the original dimensions of the image
-        $imageMetrics = getimagesize($this->source->getRealPath());
+        $imageMetrics = @getimagesize($this->source->getRealPath());
         
         if(!$imageMetrics) {
+            var_dump($this->source->getRealPath());
             $this->source = $this->errorSource;
         } else {
             $this->originalWidth = $imageMetrics[0];

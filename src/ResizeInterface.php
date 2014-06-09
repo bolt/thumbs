@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\File\File;
 interface ResizeInterface
 {
     
+    public function provides();
+
     public function setSource(File $source);
     
     public function getSource();
@@ -16,7 +18,6 @@ interface ResizeInterface
 
     public function border($parameters = array());
     
-    public function fit($parameters = array());
-
+    public function fit($parameters = array());   
 
 }
