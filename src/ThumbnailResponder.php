@@ -25,6 +25,16 @@ class ThumbnailResponder
     public $action;
     public $source;
     
+    
+    /**
+     * Constructor method
+     *
+     * 
+     * @param Application $app an instance of Bolt\Application
+     * @param Request $request
+     * @param ResizeInterface $resizer - uses the built in resizer by default but a custom one can be passed in.
+     * @return void
+     **/
     public function __construct(Application $app, Request $request, ResizeInterface $resizer = null)
     {
         $this->app = $app;
@@ -54,7 +64,12 @@ class ThumbnailResponder
         }
     }
     
-    
+    /**
+     * Takes the request object and separates into required components. The format is:
+     * /thumbs/<width>x<height><command>/<file>
+     *
+     * @return void
+     **/
     public function parseRequest()
     {
         $path = $this->request->getPathInfo();
@@ -78,16 +93,27 @@ class ThumbnailResponder
         $this->file     = $parsedRequest['file'];
     }
     
+    /**
+     * Returns a response object based on the type of image requested.
+     *
+     * @return Response $response
+     **/
     public function respond()
     {
         $response = $this->createResponse();
         return new Response($response,200, array('Content-Type' => $this->resizer->getSource()->getMimeType()));
     }
     
+    /**
+     * Delegates to the defined resizer and command to get image data.
+     * If the data is cached then this returns directly.
+     *
+     * @return $data
+     **/
     public function createResponse()
     {
         $cache = new Cache;
-        $cache->setCacheDirectory($this->app['resources']->getPath('cache'));
+        $cache->setCacheDirectory($this->app['resources']->getPath('cache').'/thumbs');
 
         $params = array(
             'width'  => $this->width,
@@ -102,13 +128,24 @@ class ThumbnailResponder
         return $data;
     }
     
+    /**
+     * Makes a unique key based on all parameters of the url. This is passed to the caching engine.
+     *
+     * @return $key
+     **/
     public function getCacheKey()
     {
         $key = join("-", array(str_replace("/", "_", $this->file), $this->width, $this->height, $this->action));
         return $key;
     }
     
-    
+    /**
+     * Uses the Bolt application path to return the full path from a relative filename.
+     *
+     * @param $relativeFile
+     * @return string
+     **/
+  
     public function getRealFile($relativeFile)
     {
         $base = $this->app['resources']->getPath('files');

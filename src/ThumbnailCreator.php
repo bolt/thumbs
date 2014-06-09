@@ -44,7 +44,6 @@ class ThumbnailCreator implements ResizeInterface
      *  configured fallback images.
      *
      **/
-    
     public function verify($parameters = array())
     {
         if(!$this->source->isReadable() && $this->defaultSource) {
@@ -86,8 +85,6 @@ class ThumbnailCreator implements ResizeInterface
         if(!isset($parameters['height']) || $parameters['height'] < 1) {
             $this->targetHeight = $this->originalHeight;
         }
-
-
 
         
     }
@@ -223,6 +220,14 @@ class ThumbnailCreator implements ResizeInterface
         
     }
     
+    /**
+     * undocumented function
+     *
+     * 
+     * @param $imageContent an image resource
+     * @param $type one of bmp|gif|jpg|png
+     * @return $imageData | false
+     **/
     protected function getOutput($imageContent, $type)
     {
         // This block captures the image data, since these image commands echo out the data
