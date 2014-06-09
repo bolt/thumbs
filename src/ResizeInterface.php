@@ -19,8 +19,20 @@ interface ResizeInterface
      **/
     public function provides();
 
+    /**
+     * Sets the original source file
+     *
+     * @return void
+     * @param File $file 
+     **/
     public function setSource(File $source);
     
+    
+    /**
+     * Returns the source file as File object
+     *
+     * @return File $file
+     **/
     public function getSource();
     
     public function resize($parameters = array());
