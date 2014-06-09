@@ -18,7 +18,6 @@
     "require": {
         "bolt/bolt": "dev-bolt-thumbs-integration",
         "symfony/http-foundation": "~2.5",
-        "gregwar/cache": "1.0.*",
         "ext-gd": "*"
     },
     

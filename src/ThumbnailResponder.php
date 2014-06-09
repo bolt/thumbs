@@ -105,9 +105,8 @@ class ThumbnailResponder
      **/
     public function createResponse()
     {
-        $cache = new Cache;
-        $cache->setCacheDirectory($this->app['resources']->getPath('cache'));
-
+        $cache = $this->app['cache'];
+        $cache->setNamespace('bolt.thumbs');
         $params = array(
             'width'  => $this->width,
             'height' => $this->height  
@@ -115,10 +114,12 @@ class ThumbnailResponder
         $handler = array($this->resizer, $this->action);
         // If the cache exists, this will return it, else, the closure will be called
         // to create this image
-        $data = $cache->getOrCreate($this->getCacheKey(), array(), function() use($handler, $params) {
-            return call_user_func($handler, $params);
-        });
-        return $data;
+        if( $data = $cache->fetch($this->getCacheKey())) {
+            return $data;
+        } else {
+           $cache->save( $this->getCacheKey(), call_user_func($handler, $params) );
+           return $cache->fetch($this->getCacheKey());
+        }
     }
     
     /**

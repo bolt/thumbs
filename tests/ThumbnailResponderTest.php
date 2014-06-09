@@ -71,6 +71,8 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
         $config->compat();
         
         $app = new Application(array('resources'=>$config));
+        $app->register(new \Bolt\Provider\CacheServiceProvider());
+
         $responder = new ThumbnailResponder($app, $request);
         return $responder;
     }
