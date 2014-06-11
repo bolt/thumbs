@@ -74,12 +74,14 @@ class ThumbnailCreator implements ResizeInterface
         $imageMetrics = @getimagesize($this->source->getRealPath());
         
         if(!$imageMetrics) {
-            var_dump($this->source->getRealPath());
             $this->source = $this->errorSource;
-        } else {
-            $this->originalWidth = $imageMetrics[0];
-            $this->originalHeight = $imageMetrics[1];
+            $imageMetrics = @getimagesize($this->source->getRealPath());
+            if(!$imageMetrics) {
+                throw new \RuntimeException("There was an error with the thumbnail image requested and additionally the fallback image could not be displayed.", 1);
+            }
         }
+        $this->originalWidth = $imageMetrics[0];
+        $this->originalHeight = $imageMetrics[1];
         
         if(!$this->allowUpscale) {
             if($this->targetWidth > $this->originalWidth) {
