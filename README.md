@@ -12,7 +12,7 @@ First add this repo to your `composer.json` so that it loads from github rather 
 ```
     ....
     "repositories": [
-        { "type": "vcs","url":  "https://github.com/rossriley/bolt-thumbs"}
+        { "type": "vcs","url":  "https://github.com/bolt/bolt-thumbs"}
     ],
     ....
 ```
