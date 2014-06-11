@@ -9,14 +9,10 @@
         }
     ],
     
-    "repositories": [
-        { "type": "vcs","url":  "git://github.com/rossriley/bolt.git"}
-    ],
-    
     "minimum-stability": "dev",
     
     "require": {
-        "bolt/bolt": "dev-bolt-thumbs-integration",
+        "bolt/bolt": "dev-master",
         "symfony/http-foundation": "~2.5",
         "ext-gd": "*"
     },
