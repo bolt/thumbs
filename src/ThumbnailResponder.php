@@ -47,6 +47,11 @@ class ThumbnailResponder
             $this->resizer->setDefaultSource(new File($file, false));
         }
         
+        if(null !== $app['config']->get('general/thumbnails/error_image') ) {
+            $file = $app['resources']->getPath('app'). '/' .$app['config']->get('general/thumbnails/error_image');
+            $this->resizer->setErrorSource(new File($file, false));
+        }
+        
         if($app['config']->get('general/thumbnails/allow_upscale')) {
             $this->resizer->allowUpscale = $app['config']->get('general/thumbnails/allow_upscale');
         }
