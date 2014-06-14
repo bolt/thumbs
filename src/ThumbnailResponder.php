@@ -65,10 +65,10 @@ class ThumbnailResponder
         
         
         $this->parseRequest();
+        
         try {
             $this->resizer->setSource(new File($this->getRealFile($this->file)) );
-
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->resizer->setSource($this->defaultSource);
         }
         
