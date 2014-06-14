@@ -39,8 +39,6 @@ class ThumbnailResponder
             $this->resizer = $resizer;
         }
         
-        $this->parseRequest();
-        $this->resizer->setSource(new File($this->getRealFile($this->file), false) );
         
         if(null !== $app['config']->get('general/thumbnails/notfound_image') ) {
             $file = $app['resources']->getPath('app'). '/' .$app['config']->get('general/thumbnails/notfound_image');
@@ -64,6 +62,16 @@ class ThumbnailResponder
             $this->resizer->targetWidth = $dimensions[0];
             $this->resizer->targetHeight = $dimensions[1];
         }
+        
+        
+        $this->parseRequest();
+        try {
+            $this->resizer->setSource(new File($this->getRealFile($this->file)) );
+
+        } catch (Exception $e) {
+            $this->resizer->setSource($this->errorSource);
+        }
+        
     }
     
     /**
@@ -76,7 +84,7 @@ class ThumbnailResponder
     {
         $path = $this->request->getPathInfo();
         preg_match(
-            "#/thumbs/(?P<width>[0-9]*)x(?P<height>[0-9]*)(?P<action>[a-z]?)/(?P<file>.*)#", 
+            "#/thumbs/(?P<width>[0-9]*)x(?P<height>[0-9]*)(?P<action>[a-z]?)/?(?P<file>.*)#", 
             $path, 
             $parsedRequest
         );
