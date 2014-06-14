@@ -69,7 +69,7 @@ class ThumbnailResponder
         try {
             $this->resizer->setSource(new File($this->getRealFile($this->file)) );
         } catch (\Exception $e) {
-            $this->resizer->setSource($this->defaultSource);
+            $this->resizer->setSource($this->resizer->defaultSource);
         }
         
     }
