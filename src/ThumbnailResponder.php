@@ -86,7 +86,7 @@ class ThumbnailResponder
      **/
     public function parseRequest()
     {
-        $path = $this->request->getPathInfo();
+        $path = urldecode($this->request->getPathInfo());
         preg_match(
             "#/thumbs/(?P<width>[0-9]*)x(?P<height>[0-9]*)(?P<action>[a-z]?)/?(?P<file>.*)#", 
             $path, 
