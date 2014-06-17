@@ -32,4 +32,10 @@ class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderI
         })->assert('thumb', '.+');
         return $controllers;
     }
+    
+    public function boot(Application $app)
+    {
+        
+    }
+    
 }
