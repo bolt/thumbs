@@ -3,6 +3,7 @@ namespace Bolt\Thumbs;
 
 use Silex\Application;
 use Silex\ControllerProviderInterface;
+use Silex\ServiceProviderInterface;
 
 class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderInterface
 {
