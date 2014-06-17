@@ -18,6 +18,8 @@ class ThumbnailResponder
     public $file;
     public $action;
     
+    public $filePaths = array();
+    
     
     /**
      * Constructor method
