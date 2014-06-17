@@ -1,7 +1,7 @@
 Bolt Thumbs
 ===========
 
-#### New Improved Thumnail handler for Bolt Images
+#### New and improved Thumbnail handler for Bolt Images
 
 Here's a quick run through of how to get this running on a dev version of Bolt. It should hopefully be fairly simple.
 
