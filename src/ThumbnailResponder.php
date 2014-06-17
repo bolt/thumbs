@@ -65,6 +65,8 @@ class ThumbnailResponder
             $this->resizer->targetHeight = $dimensions[1];
         }
         
+        $this->addPath('files', $this->app['resources']->getPath('files'));
+        $this->addPath('theme', $this->app['resources']->getPath('theme'));
         
         $this->parseRequest();
         
@@ -153,6 +155,12 @@ class ThumbnailResponder
         return $key;
     }
     
+    
+    public function addPath($prefix, $path)
+    {
+        $this->filePaths[$prefix] = $path;
+    }
+    
     /**
      * Uses the Bolt application path to return the full path from a relative filename.
      *
@@ -162,6 +170,11 @@ class ThumbnailResponder
   
     public function getRealFile($relativeFile)
     {
+        foreach($this->filePaths as $prefix=>$path) {
+            if(strpos($relativeFile,$prefix)===0) {
+                return $path . "/" . ltrim($relativeFile, $prefix);
+            }
+        }
         $base = $this->app['resources']->getPath('files');
         return $base . "/" . ltrim($relativeFile, "/");
     }
