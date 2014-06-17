@@ -23,12 +23,19 @@ class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderI
         $controllers = $app['controllers_factory'];
 
         $controllers->get('/{thumb}', function (Application $app) {
-            $action = $app['thumbnails'];
+
+            if(isset($app['thumbnails'])) {
+                $action = $app['thumbnails'];
+            } else {
+                $action = new ThumbnailResponder($app, $app['request']);
+            }
+
             if($response = $action->respond()) {
                 return $response;
             } else {
                 $app->pass();
             }
+ 
         })->assert('thumb', '.+');
         return $controllers;
     }
