@@ -12,7 +12,7 @@
     "minimum-stability": "dev",
     
     "require": {
-        "bolt/bolt": "~v1.6",
+        "bolt/bolt": "dev-master",
         "symfony/http-foundation": "~2.5",
         "ext-gd": "*"
     },
