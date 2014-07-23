@@ -14,6 +14,10 @@ class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderI
             $responder = new ThumbnailResponder($app, $app['request']);
             return $responder;
         });
+        
+        $app['thumbnails.response'] = $app->share(function ($app) {
+            return new Response();
+        });
     }
     
     

@@ -115,8 +115,11 @@ class ThumbnailResponder
      **/
     public function respond()
     {
-        $response = $this->createResponse();
-        return new Response($response,200, array('Content-Type' => $this->resizer->getSource()->getMimeType()));
+        $imageContent = $this->createResponse();
+        $response = isset($this->app['thumbnails.response']) ? $this->app['thumbnails.response'] : new Response;
+        $response->setContent($imageContent);
+        $response->headers->set('Content-Type', $this->resizer->getSource()->getMimeType() );
+        return $response;
     }
     
     /**
