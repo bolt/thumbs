@@ -4,6 +4,8 @@ namespace Bolt\Thumbs;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
 use Silex\ServiceProviderInterface;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderInterface
 {
