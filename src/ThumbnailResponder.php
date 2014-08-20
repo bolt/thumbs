@@ -116,6 +116,7 @@ class ThumbnailResponder
     public function respond()
     {
         $imageContent = $this->createResponse();
+        $this->saveStatic($imageContent);
         $response = isset($this->app['thumbnails.response']) ? $this->app['thumbnails.response'] : new Response;
         $response->setContent($imageContent);
         $response->headers->set('Content-Type', $this->resizer->getSource()->getMimeType() );
@@ -145,6 +146,28 @@ class ThumbnailResponder
            $cache->save( $this->getCacheKey(), call_user_func($handler, $params) );
            return $cache->fetch($this->getCacheKey());
         }
+    }
+    
+    /**
+     * Saves a static copy of the file if the config is set to do so
+     *
+     * @return void
+     * @author 
+     **/
+    public function saveStatic($imageContent)
+    {
+        if(!$this->app['config']->get('general/thumbnails/save_files')) {
+            return false;
+        }
+        $path = urldecode($this->request->getPathInfo());
+        try {
+            $webroot = dirname($this->request->server->get('SCRIPT_FILENAME'));
+            mkdir(dirname($webroot.$path),0777,true);
+            file_put_contents($webroot.$path, $imageContent);
+        } catch (\Exception $e) {
+            
+        }
+        return true;
     }
     
     /**
