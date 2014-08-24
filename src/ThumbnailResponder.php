@@ -39,27 +39,36 @@ class ThumbnailResponder
             $this->resizer = new ThumbnailCreator;
         } else {
             $this->resizer = $resizer;
-        }
+        }        
         
         
-        if(null !== $app['config']->get('general/thumbnails/notfound_image') ) {
-            $file = $app['resources']->getPath('app'). '/' .$app['config']->get('general/thumbnails/notfound_image');
+    }
+    
+    /**
+     * Method runs prior to response, loads up config and sets necessary fallbacks.
+     *
+     * @return void
+     **/
+    public function initialize()
+    {
+        if(null !== $this->app['config']->get('general/thumbnails/notfound_image') ) {
+            $file = $this->app['resources']->getPath('app'). '/' .$this->app['config']->get('general/thumbnails/notfound_image');
             $this->resizer->setDefaultSource(new File($file, false));
         }
         
-        if(null !== $app['config']->get('general/thumbnails/error_image') ) {
-            $file = $app['resources']->getPath('app'). '/' .$app['config']->get('general/thumbnails/error_image');
+        if(null !== $this->app['config']->get('general/thumbnails/error_image') ) {
+            $file = $this->app['resources']->getPath('app'). '/' .$this->app['config']->get('general/thumbnails/error_image');
             $this->resizer->setErrorSource(new File($file, false));
         }
         
-        if($app['config']->get('general/thumbnails/allow_upscale')) {
-            $this->resizer->allowUpscale = $app['config']->get('general/thumbnails/allow_upscale');
+        if($this->app['config']->get('general/thumbnails/allow_upscale')) {
+            $this->resizer->allowUpscale = $this->app['config']->get('general/thumbnails/allow_upscale');
         }
         
-        if($app['config']->get('general/thumbnails/quality')) {
-            $this->resizer->quality = $app['config']->get('general/thumbnails/quality', 80);
+        if($this->app['config']->get('general/thumbnails/quality')) {
+            $this->resizer->quality = $this->app['config']->get('general/thumbnails/quality', 80);
         }
-        $dimensions = $app['config']->get('general/thumbnails/default_thumbnail');
+        $dimensions = $this->app['config']->get('general/thumbnails/default_thumbnail');
         if(is_array($dimensions)) {
             $this->resizer->targetWidth = $dimensions[0];
             $this->resizer->targetHeight = $dimensions[1];
@@ -75,7 +84,6 @@ class ThumbnailResponder
         } catch (\Exception $e) {
             $this->resizer->setSource($this->resizer->defaultSource);
         }
-        
     }
     
     /**
@@ -115,6 +123,7 @@ class ThumbnailResponder
      **/
     public function respond()
     {
+        $this->initialize();
         $imageContent = $this->createResponse();
         $this->saveStatic($imageContent);
         $response = isset($this->app['thumbnails.response']) ? $this->app['thumbnails.response'] : new Response;
