@@ -214,7 +214,7 @@ class ThumbnailResponder
 
             // See if the request includes the path to be used.
             if(strpos($relativeFile,$prefix)===0) {
-                return $path . "/" . ltrim($relativeFile, $prefix);
+                return $path . ltrim($relativeFile, $prefix);
             }
 
             // Or see if the file actually exists, that'd be fine too.
