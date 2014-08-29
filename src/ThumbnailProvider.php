@@ -12,6 +12,12 @@ class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderI
     
     public function register(Application $app)
     {
+        
+        $app['thumbnails.paths'] = array(
+            'files' => $this->app['resources']->getPath('files'),
+            'theme' => $this->app['resources']->getPath('themebase')
+        );
+        
         $app['thumbnails'] = $app->share(function ($app) { 
             $responder = new ThumbnailResponder($app, $app['request']);
             return $responder;

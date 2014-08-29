@@ -16,7 +16,7 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
     
     public function setup()
     {
-        require_once __DIR__."/../vendor/bolt/bolt/app/classes/lib.php";
+        require_once __DIR__."/../vendor/bolt/bolt/app/lib.php";
     }
     
     
@@ -74,6 +74,7 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
         $app->register(new \Bolt\Provider\CacheServiceProvider());
 
         $responder = new ThumbnailResponder($app, $request);
+        $responder->initialize();
         return $responder;
     }
     
