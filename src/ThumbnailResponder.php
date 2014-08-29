@@ -73,11 +73,11 @@ class ThumbnailResponder
             $this->resizer->targetHeight = $dimensions[1];
         }
         
-        if (!isset($app['thumbnails.paths'])) {
+        if (!isset($this->app['thumbnails.paths'])) {
             $this->addPath('files', $this->app['resources']->getPath('files'));
             $this->addPath('theme', $this->app['resources']->getPath('themebase'));
         } else {
-            foreach($app['thumbnails.paths'] as $name=>$path) {
+            foreach($this->app['thumbnails.paths'] as $name=>$path) {
                 $this->addPath($name, $path);
             }
         }
