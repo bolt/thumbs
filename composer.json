@@ -16,9 +16,6 @@
         "ext-gd": "*"
     },
     
-    "require-dev": {
-        "bolt/bolt": "dev-master"
-    },
     
     "autoload": {
         "psr-4": {
