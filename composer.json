@@ -12,9 +12,12 @@
     "minimum-stability": "dev",
     
     "require": {
-        "bolt/bolt": "dev-master@dev",
         "symfony/http-foundation": "~2.5",
         "ext-gd": "*"
+    },
+    
+    "require-dev": {
+        "bolt/bolt": "dev-master"
     },
     
     "autoload": {
