@@ -62,6 +62,32 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testFallbacksForHorizontalAutoscale()
+    {
+        $sample = __DIR__.'/images/timthumbs/sample2.jpg';  // 427x640
+        $creator = new ThumbnailCreator();
+        $creator->setSource(new File($sample));
+
+        $result = $creator->crop(array('width'=>0,'height'=>320));
+        file_put_contents(__DIR__.'/tmp/test.jpg', $result);
+        list($width, $height) = getimagesize(__DIR__.'/tmp/test.jpg');
+        $this->assertEquals($width, 214);
+        $this->assertEquals($height, 320);
+    }
+
+    public function testFallbacksForVerticalAutoscale()
+    {
+        $sample = __DIR__.'/images/timthumbs/sample1.jpg';  // 1000x667
+        $creator = new ThumbnailCreator();
+        $creator->setSource(new File($sample));
+
+        $result = $creator->crop(array('width'=>500,'height'=>0));
+        file_put_contents(__DIR__.'/tmp/test.jpg', $result);
+        list($width, $height) = getimagesize(__DIR__.'/tmp/test.jpg');
+        $this->assertEquals($width, 500);
+        $this->assertEquals($height, 334);
+    }
+
     public function testUpscaling()
     {
         $src = new File($this->jpg);
