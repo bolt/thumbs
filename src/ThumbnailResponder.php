@@ -177,7 +177,10 @@ class ThumbnailResponder
         $path = urldecode($this->request->getPathInfo());
         try {
             $webroot = dirname($this->request->server->get('SCRIPT_FILENAME'));
-            mkdir(dirname($webroot.$path),0777,true);
+            $savePath = dirname($webroot.$path);
+            if (!is_dir($savePath)) {
+                mkdir($savePath,0777,true);
+            }
             file_put_contents($webroot.$path, $imageContent);
         } catch (\Exception $e) {
 
