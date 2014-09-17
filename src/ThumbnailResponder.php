@@ -38,11 +38,11 @@ class ThumbnailResponder
             $this->resizer = new ThumbnailCreator;
         } else {
             $this->resizer = $resizer;
-        }        
-        
-        
+        }
+
+
     }
-    
+
     /**
      * Method runs prior to response, loads up config and sets necessary fallbacks.
      *
@@ -54,16 +54,16 @@ class ThumbnailResponder
             $file = $this->app['resources']->getPath('app'). '/' .$this->app['config']->get('general/thumbnails/notfound_image');
             $this->resizer->setDefaultSource(new File($file, false));
         }
-        
+
         if(null !== $this->app['config']->get('general/thumbnails/error_image') ) {
             $file = $this->app['resources']->getPath('app'). '/' .$this->app['config']->get('general/thumbnails/error_image');
             $this->resizer->setErrorSource(new File($file, false));
         }
-        
+
         if($this->app['config']->get('general/thumbnails/allow_upscale')) {
             $this->resizer->allowUpscale = $this->app['config']->get('general/thumbnails/allow_upscale');
         }
-        
+
         if($this->app['config']->get('general/thumbnails/quality')) {
             $this->resizer->quality = $this->app['config']->get('general/thumbnails/quality', 80);
         }
@@ -72,7 +72,7 @@ class ThumbnailResponder
             $this->resizer->targetWidth = $dimensions[0];
             $this->resizer->targetHeight = $dimensions[1];
         }
-        
+
         if (!isset($this->app['thumbnails.paths'])) {
             $this->addPath('files', $this->app['resources']->getPath('files'));
             $this->addPath('theme', $this->app['resources']->getPath('themebase'));
@@ -101,25 +101,19 @@ class ThumbnailResponder
     public function parseRequest()
     {
         $path = urldecode($this->request->getPathInfo());
-        preg_match(
-            "#/thumbs/(?P<width>[0-9]*)x(?P<height>[0-9]*)(?P<action>[a-z]?)/?(?P<file>.*)#",
-            $path,
-            $parsedRequest
-        );
-        if(!isset($parsedRequest['width']) || !isset($parsedRequest['file'])) {
-            return false;
-        }
 
-        $commands = $this->resizer->provides();
-        if(isset($parsedRequest['action']) && array_key_exists($parsedRequest['action'], $commands)) {
-            $this->action = $commands[$parsedRequest['action']];
-        } else {
-            $this->action = 'crop';
-        }
+        if (preg_match('#/thumbs/(?<width>\d+)x(?<height>\d+)(?<action>[a-z]?)/?(?<file>.+)#', $path, $parsedRequest)) {
+            $commands = $this->resizer->provides();
+            if (isset($parsedRequest['action']) && array_key_exists($parsedRequest['action'], $commands)) {
+                $this->action = $commands[$parsedRequest['action']];
+            } else {
+                $this->action = 'crop';
+            }
 
-        $this->width    = $parsedRequest['width'];
-        $this->height   = $parsedRequest['height'];
-        $this->file     = $parsedRequest['file'];
+            $this->width    = $parsedRequest['width'];
+            $this->height   = $parsedRequest['height'];
+            $this->file     = $parsedRequest['file'];
+        }
     }
 
     /**
