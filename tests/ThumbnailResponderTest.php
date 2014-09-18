@@ -16,6 +16,7 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
     
     public function setup()
     {
+        @mkdir(__DIR__."/tmp/cache/",0777,true);
         require_once __DIR__."/../vendor/bolt/bolt/app/lib.php";
     }
     
@@ -79,7 +80,8 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
     }
     
     public function tearDown() {
-        $this->rmdir(__DIR__."/tmp/cache/");
+        $this->rmdir(__DIR__."/tmp");
+        @rmdir(__DIR__."/tmp");
     }
     
     protected function rmdir($dir) {  

@@ -20,6 +20,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function setup()
     {
+        @mkdir(__DIR__."/tmp",0777,true);
         $this->jpg = __DIR__."/images/generic-logo.jpg";
         $this->gif = __DIR__."/images/generic-logo.gif";
         $this->png = __DIR__."/images/generic-logo.png";
