@@ -1,5 +1,6 @@
 <?php
 namespace Bolt\Thumbs;
+
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
@@ -9,7 +10,6 @@ use Symfony\Component\HttpFoundation\File\File;
 
 interface ResizeInterface
 {
-
     /**
      * Specifies an array of command -> method mappings for example the defaults are:
      *     ['c'=>'crop','r'=>'resize','b'=>'border','f'=>'fit']
@@ -22,11 +22,10 @@ interface ResizeInterface
     /**
      * Sets the original source file
      *
-     * @return void
      * @param File $file
+     * @return void
      **/
     public function setSource(File $source);
-
 
     /**
      * Returns the source file as File object
@@ -42,5 +41,4 @@ interface ResizeInterface
     public function border($parameters = array());
 
     public function fit($parameters = array());
-
 }

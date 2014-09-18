@@ -1,18 +1,16 @@
 <?php
 namespace Bolt\Thumbs;
-           
-use Symfony\Component\HttpFoundation\File\File;
 
+use Symfony\Component\HttpFoundation\File\File;
 
 class ThumbnailCreator implements ResizeInterface
 {
-
     public $source;
     public $defaultSource;
     public $errorSource;
     public $allowUpscale = false;
     public $quality = 80;
-    public $canvas  = array(255,255,255);
+    public $canvas  = array(255, 255, 255);
 
     public $targetWidth;
     public $targetHeight;
@@ -27,7 +25,6 @@ class ThumbnailCreator implements ResizeInterface
         );
 
     }
-
 
     public function setSource(File $source)
     {
@@ -53,7 +50,6 @@ class ThumbnailCreator implements ResizeInterface
      *  This method performs the basic sanity checks before allowing the operation to continue.
      *  If there are any problems with the request it can also reset the source to be one of the
      *  configured fallback images.
-     *
      **/
     public function verify($parameters = array())
     {
@@ -111,22 +107,20 @@ class ThumbnailCreator implements ResizeInterface
         }
     }
 
-
     public function resize($parameters = array())
     {
         $this->verify($parameters);
         $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false);
-        if(false !== $data) {
+        if (false !== $data) {
             return $data;
         }
     }
-
 
     public function crop($parameters = array())
     {
         $this->verify($parameters);
         $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, true);
-        if(false !== $data) {
+        if (false !== $data) {
             return $data;
         }
 
@@ -136,7 +130,7 @@ class ThumbnailCreator implements ResizeInterface
     {
         $this->verify($parameters);
         $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false, true);
-        if(false !== $data) {
+        if (false !== $data) {
             return $data;
         }
     }
@@ -145,11 +139,10 @@ class ThumbnailCreator implements ResizeInterface
     {
         $this->verify($parameters);
         $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, true);
-        if(false !== $data) {
+        if (false !== $data) {
             return $data;
         }
     }
-
 
     /**
      * Main resizing function.
@@ -159,24 +152,37 @@ class ThumbnailCreator implements ResizeInterface
      *
      * @return $imageData
      **/
-
-    protected function doResize($src, $width, $height, $crop=false, $fit = false, $border = false)
+    protected function doResize($src, $width, $height, $crop = false, $fit = false, $border = false)
     {
-
-        if(!list($w, $h) = getimagesize($src)) return false;
-
-        $type = strtolower(substr(strrchr($src,"."),1));
-        if($type == 'jpeg') $type = 'jpg';
-        switch($type){
-            case 'bmp': $img = imagecreatefromwbmp($src); break;
-            case 'gif': $img = imagecreatefromgif($src); break;
-            case 'jpg': $img = imagecreatefromjpeg($src); break;
-            case 'png': $img = imagecreatefrompng($src); break;
-            default : return false;
+        if (!list($w, $h) = getimagesize($src)) {
+            return false;
         }
 
-        if($crop) {
-            $ratio = max($width/$w, $height/$h);
+        $type = strtolower(substr(strrchr($src, '.'), 1));
+        if ($type == 'jpeg') {
+            $type = 'jpg';
+        }
+
+        switch($type)
+        {
+            case 'bmp':
+                $img = imagecreatefromwbmp($src);
+                break;
+            case 'gif':
+                $img = imagecreatefromgif($src);
+                break;
+            case 'jpg':
+                $img = imagecreatefromjpeg($src);
+                break;
+            case 'png':
+                $img = imagecreatefrompng($src);
+                break;
+            default:
+                return false;
+        }
+
+        if ($crop) {
+            $ratio = max($width / $w, $height / $h);
             $x = 0;
             $y = 0;
 
@@ -185,26 +191,26 @@ class ThumbnailCreator implements ResizeInterface
 
             // calculate x or y coordinate and width or height of source
             if ($xratio > $yratio) {
-                $x = round (($w - ($w / $xratio * $yratio)) / 2);
-                $w = round ($w / $xratio * $yratio);
+                $x = round(($w - ($w / $xratio * $yratio)) / 2);
+                $w = round($w / $xratio * $yratio);
 
-            } else if ($yratio > $xratio) {
-                $y = round (($h - ($h / $yratio * $xratio)) / 2);
-                $h = round ($h / $yratio * $xratio);
+            } elseif ($yratio > $xratio) {
+                $y = round(($h - ($h / $yratio * $xratio)) / 2);
+                $h = round($h / $yratio * $xratio);
             }
 
 
-        } elseif(!$border && !$fit) {
-            $ratio = min($width/$w, $height/$h);
+        } elseif (!$border && !$fit) {
+            $ratio = min($width / $w, $height / $h);
             $width = $w * $ratio;
             $height = $h * $ratio;
         }
 
         $new = imagecreatetruecolor($width, $height);
 
-        if($border) {
+        if ($border) {
 
-            if(count($this->canvas) == 3) {
+            if (count($this->canvas) == 3) {
                 $canvas = imagecolorallocate($new, $this->canvas[0], $this->canvas[1], $this->canvas[2]);
                 imagefill($new, 0, 0, $canvas);
             }
@@ -224,27 +230,25 @@ class ThumbnailCreator implements ResizeInterface
 
         // Preserve transparency where available
 
-        if($type == "gif" or $type == "png") {
+        if ($type == 'gif' or $type == 'png') {
             imagecolortransparent($new, imagecolorallocatealpha($new, 0, 0, 0, 127));
             imagealphablending($new, false);
             imagesavealpha($new, true);
         }
 
-        if(false === $crop && false === $border) {
+        if (false === $crop && false === $border) {
             imagecopyresampled($new, $img, 0, 0, 0, 0, $width, $height, $w, $h);
-        } elseif($border) {
+        } elseif ($border) {
             imagecopyresampled($new, $img, $x, $y, 0, 0, $width, $height, $w, $h);
         } else {
             imagecopyresampled($new, $img, 0, 0, $x, $y, $width, $height, $w, $h);
         }
 
         return $this->getOutput($new, $type);
-
     }
 
     /**
      * undocumented function
-     *
      *
      * @param $imageContent an image resource
      * @param $type one of bmp|gif|jpg|png
@@ -271,12 +275,11 @@ class ThumbnailCreator implements ResizeInterface
         }
         $imageData = ob_get_contents();
         ob_end_clean();
-        if($imageData) {
+
+        if ($imageData) {
             return $imageData;
         }
+
         return false;
     }
-
-
-
 }
