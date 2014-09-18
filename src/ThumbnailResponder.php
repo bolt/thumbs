@@ -7,7 +7,6 @@ use Bolt\Application;
 use Gregwar\Cache\Cache;
 use Symfony\Component\HttpFoundation\File\File;
 
-
 class ThumbnailResponder
 {
     public $app;
@@ -23,10 +22,10 @@ class ThumbnailResponder
     /**
      * Constructor method
      *
-     *
      * @param Application $app an instance of Bolt\Application
      * @param Request $request
      * @param ResizeInterface $resizer - uses the built in resizer by default but a custom one can be passed in.
+     *
      * @return void
      **/
     public function __construct(Application $app, Request $request, ResizeInterface $resizer = null)
@@ -34,13 +33,11 @@ class ThumbnailResponder
         $this->app = $app;
         $this->request = $request;
 
-        if(null === $resizer) {
+        if (null === $resizer) {
             $this->resizer = new ThumbnailCreator;
         } else {
             $this->resizer = $resizer;
         }
-
-
     }
 
     /**
@@ -50,25 +47,25 @@ class ThumbnailResponder
      **/
     public function initialize()
     {
-        if(null !== $this->app['config']->get('general/thumbnails/notfound_image') ) {
+        if (null !== $this->app['config']->get('general/thumbnails/notfound_image')) {
             $file = $this->app['resources']->getPath('app'). '/' .$this->app['config']->get('general/thumbnails/notfound_image');
             $this->resizer->setDefaultSource(new File($file, false));
         }
 
-        if(null !== $this->app['config']->get('general/thumbnails/error_image') ) {
+        if (null !== $this->app['config']->get('general/thumbnails/error_image')) {
             $file = $this->app['resources']->getPath('app'). '/' .$this->app['config']->get('general/thumbnails/error_image');
             $this->resizer->setErrorSource(new File($file, false));
         }
 
-        if($this->app['config']->get('general/thumbnails/allow_upscale')) {
+        if ($this->app['config']->get('general/thumbnails/allow_upscale')) {
             $this->resizer->allowUpscale = $this->app['config']->get('general/thumbnails/allow_upscale');
         }
 
-        if($this->app['config']->get('general/thumbnails/quality')) {
+        if ($this->app['config']->get('general/thumbnails/quality')) {
             $this->resizer->quality = $this->app['config']->get('general/thumbnails/quality', 80);
         }
         $dimensions = $this->app['config']->get('general/thumbnails/default_thumbnail');
-        if(is_array($dimensions)) {
+        if (is_array($dimensions)) {
             $this->resizer->targetWidth = $dimensions[0];
             $this->resizer->targetHeight = $dimensions[1];
         }
@@ -77,7 +74,7 @@ class ThumbnailResponder
             $this->addPath('files', $this->app['resources']->getPath('files'));
             $this->addPath('theme', $this->app['resources']->getPath('themebase'));
         } else {
-            foreach($this->app['thumbnails.paths'] as $name=>$path) {
+            foreach ($this->app['thumbnails.paths'] as $name => $path) {
                 $this->addPath($name, $path);
             }
         }
@@ -85,11 +82,10 @@ class ThumbnailResponder
         $this->parseRequest();
 
         try {
-            $this->resizer->setSource(new File($this->getRealFile($this->file)) );
+            $this->resizer->setSource(new File($this->getRealFile($this->file)));
         } catch (\Exception $e) {
             $this->resizer->setSource($this->resizer->defaultSource);
         }
-
     }
 
     /**
@@ -128,7 +124,8 @@ class ThumbnailResponder
         $this->saveStatic($imageContent);
         $response = isset($this->app['thumbnails.response']) ? $this->app['thumbnails.response'] : new Response;
         $response->setContent($imageContent);
-        $response->headers->set('Content-Type', $this->resizer->getSource()->getMimeType() );
+        $response->headers->set('Content-Type', $this->resizer->getSource()->getMimeType());
+
         return $response;
     }
 
@@ -147,13 +144,14 @@ class ThumbnailResponder
             'height' => $this->height
         );
         $handler = array($this->resizer, $this->action);
-        // If the cache exists, this will return it, else, the closure will be called
-        // to create this image
-        if( $data = $cache->fetch($this->getCacheKey())) {
+        // If the cache exists, this will return it, else, the closure will be called to create this image
+        $data = $cache->fetch($this->getCacheKey());
+        if ($data) {
             return $data;
         } else {
-           $cache->save( $this->getCacheKey(), call_user_func($handler, $params) );
-           return $cache->fetch($this->getCacheKey());
+            $cache->save($this->getCacheKey(), call_user_func($handler, $params));
+
+            return $cache->fetch($this->getCacheKey());
         }
     }
 
@@ -161,11 +159,10 @@ class ThumbnailResponder
      * Saves a static copy of the file if the config is set to do so
      *
      * @return void
-     * @author
      **/
     public function saveStatic($imageContent)
     {
-        if(!$this->app['config']->get('general/thumbnails/save_files')) {
+        if (!$this->app['config']->get('general/thumbnails/save_files')) {
             return false;
         }
         $path = urldecode($this->request->getPathInfo());
@@ -173,12 +170,13 @@ class ThumbnailResponder
             $webroot = dirname($this->request->server->get('SCRIPT_FILENAME'));
             $savePath = dirname($webroot.$path);
             if (!is_dir($savePath)) {
-                mkdir($savePath,0777,true);
+                mkdir($savePath, 0777, true);
             }
             file_put_contents($webroot.$path, $imageContent);
         } catch (\Exception $e) {
 
         }
+
         return true;
     }
 
@@ -189,10 +187,10 @@ class ThumbnailResponder
      **/
     public function getCacheKey()
     {
-        $key = join("-", array(str_replace("/", "_", $this->file), $this->width, $this->height, $this->action));
+        $key = join('-', array(str_replace('/', '_', $this->file), $this->width, $this->height, $this->action));
+
         return $key;
     }
-
 
     public function addPath($prefix, $path)
     {
@@ -207,10 +205,10 @@ class ThumbnailResponder
      **/
     public function getRealFile($relativeFile)
     {
-        foreach($this->filePaths as $prefix => $path) {
+        foreach ($this->filePaths as $prefix => $path) {
 
             // See if the request includes the path to be used.
-            if(strpos($relativeFile,$prefix)===0) {
+            if (strpos($relativeFile, $prefix) === 0) {
                 return $path . ltrim($relativeFile, $prefix);
             }
 
@@ -225,8 +223,6 @@ class ThumbnailResponder
         // never get here for an existing image.
         $base = $this->app['resources']->getPath('files');
 
-        return $base . "/" . ltrim($relativeFile, "/");
-
+        return $base . '/' . ltrim($relativeFile, '/');
     }
-
 }
