@@ -9,26 +9,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderInterface
 {
-    
+
     public function register(Application $app)
     {
-        
+
         $app['thumbnails.paths'] = array(
             'files' => $app['resources']->getPath('files'),
             'theme' => $app['resources']->getPath('themebase')
         );
-        
-        $app['thumbnails'] = $app->share(function ($app) { 
+
+        $app['thumbnails'] = $app->share(function ($app) {
             $responder = new ThumbnailResponder($app, $app['request']);
             return $responder;
         });
-        
+
         $app['thumbnails.response'] = $app->share(function ($app) {
             return new Response();
         });
     }
-    
-    
+
+
     public function connect(Application $app)
     {
         // creates a new controller based on the default route
@@ -47,14 +47,14 @@ class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderI
             } else {
                 $app->pass();
             }
- 
+
         })->assert('thumb', '.+');
         return $controllers;
     }
-    
+
     public function boot(Application $app)
     {
-        
+
     }
-    
+
 }

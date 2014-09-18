@@ -1,6 +1,6 @@
 <?php
 namespace Bolt\Thumbs;
-
+           
 use Symfony\Component\HttpFoundation\File\File;
 
 
