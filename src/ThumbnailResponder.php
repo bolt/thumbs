@@ -65,10 +65,8 @@ class ThumbnailResponder
             $this->cacheTime = $this->app['config']->get('general/thumbnails/browser_cache_time');
         }
 
-
         if ($this->app['config']->get('general/thumbnails/exif_orientation') !== null) {
             $this->resizer->exifOrientation = $this->app['config']->get('general/thumbnails/exif_orientation');
-            var_dump($this->resizer->exifOrientation);
         }
 
         if ($this->app['config']->get('general/thumbnails/allow_upscale')) {
