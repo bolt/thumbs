@@ -310,7 +310,7 @@ class ThumbnailCreator implements ResizeInterface
 	            $img = imagerotate($img, 180, 0);
 	        	break;
 	        case 4: // vertical flip
-	            $img = self::imageFlip($dimg, 0);
+	            $img = self::imageFlip($img, 0);
 	       		break;
 	        case 5: // vertical flip + 90 rotate right
 	            $img = self::imageFlip($img, 0);
