@@ -345,7 +345,6 @@ class ThumbnailCreator implements ResizeInterface
      */
     public static function imageFlip($imgsrc, $mode = 0)
     {
-
         $width = imagesx($imgsrc);
         $height = imagesy($imgsrc);
 
@@ -381,6 +380,5 @@ class ThumbnailCreator implements ResizeInterface
         }
 
         return $imgsrc;
-
     }
 }
