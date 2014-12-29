@@ -135,7 +135,7 @@ class ThumbnailResponder
         $response->headers->set('Content-Type', $this->resizer->getSource()->getMimeType());
 
         if ($this->allowCache) {
-            $response->headers->set('Cache-Control', 'max-age=' . $this->cacheTime);
+            $response->headers->set('Cache-Control', 'max-age=' . $this->cacheTime . ', public');
         }
 
         return $response;
