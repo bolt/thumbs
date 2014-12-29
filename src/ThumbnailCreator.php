@@ -175,6 +175,8 @@ class ThumbnailCreator implements ResizeInterface
             case 'jpg':
                 if ($this->exifOrientation) {
                     $img = self::imageCreateFromJpegExif($src);
+                    $w = imagesx($img);
+                    $h = imagesy($img);
                 } else {
                     $img = imagecreatefromjpeg($src);
                 }
