@@ -296,7 +296,7 @@ class ThumbnailCreator implements ResizeInterface
      *
      * @param $src the path to the file
      **/
-    public static function imageCreateFromJpgExif($src)
+    public static function imageCreateFromJpegExif($src)
     {
         $img = imagecreatefromjpeg($src);
         $exif = exif_read_data($src);
