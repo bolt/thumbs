@@ -9,6 +9,7 @@ class ThumbnailCreator implements ResizeInterface
     public $defaultSource;
     public $errorSource;
     public $allowUpscale = false;
+    public $exifOrientation = true;
     public $quality = 80;
     public $canvas  = array(255, 255, 255);
 
@@ -172,7 +173,13 @@ class ThumbnailCreator implements ResizeInterface
                 $img = imagecreatefromgif($src);
                 break;
             case 'jpg':
-                $img = imagecreatefromjpeg($src);
+                if ($this->exifOrientation) {
+                    $img = self::imageCreateFromJpegExif($src);
+                    $w = imagesx($img);
+                    $h = imagesy($img);
+                } else {
+                    $img = imagecreatefromjpeg($src);
+                }
                 break;
             case 'png':
                 $img = imagecreatefrompng($src);
@@ -281,5 +288,97 @@ class ThumbnailCreator implements ResizeInterface
         }
 
         return false;
+    }
+
+    /**
+     * Create image from jpeg with EXIF orientation
+     *
+     * This function is the same as imagecreatefromjpeg except it will take into account
+     * the EXIF orientation in the file
+     *
+     * @param $src the path to the file
+     **/
+    public static function imageCreateFromJpegExif($src)
+    {
+        $img = imagecreatefromjpeg($src);
+        $exif = exif_read_data($src);
+        $ort = $exif['Orientation'];
+        switch($ort)
+        {
+            case 2: // horizontal flip
+                $img = self::imageFlip($img, 1);
+                break;
+            case 3: // 180 rotate left
+                $img = imagerotate($img, 180, 0);
+                break;
+            case 4: // vertical flip
+                $img = self::imageFlip($img, 0);
+                break;
+            case 5: // vertical flip + 90 rotate right
+                $img = self::imageFlip($img, 0);
+                $img = imagerotate($img, -90, 0);
+                break;
+            case 6: // 90 rotate right
+                $img = imagerotate($img, -90, 0);
+                break;
+            case 7: // horizontal flip + 90 rotate right
+                $img = self::imageFlip($img, 1);
+                $img = imagerotate($img, -90, 0);
+                break;
+            case 8: // 90 rotate left
+                $img = imagerotate($img, 90, 0);
+                break;
+        }
+
+        return $img;
+    }
+
+    /**
+     * Image Flip
+     *
+     * Based on http://stackoverflow.com/a/10001884/1136593
+     * Thanks Jon Grant
+     *
+     * @param $imgsrc (image to flip)
+     * @param $mode (0 = vertical, 1 = horizontal, 2 = both) - defaults to vertical flip
+     *
+     */
+    public static function imageFlip($imgsrc, $mode = 0)
+    {
+        $width = imagesx($imgsrc);
+        $height = imagesy($imgsrc);
+
+        $src_x = 0;
+        $src_y = 0;
+        $src_width = $width;
+        $src_height = $height;
+
+        switch ( $mode )
+        {
+            default:
+            case '0': //vertical
+                $src_y = $height -1;
+                $src_height= -$height;
+                break;
+            case '1': //horizontal
+                $src_x = $width -1;
+                $src_width = -$width;
+                break;
+            case '2': //both
+                $src_x = $width -1;
+                $src_y = $height -1;
+                $src_width = -$width;
+                $src_height = -$height;
+                break;
+        }
+
+        $imgdest = imagecreatetruecolor ( $width, $height );
+
+        if (imagecopyresampled($imgdest, $imgsrc, 0, 0, $src_x, $src_y , $width, $height, $src_width, $src_height))
+        {
+            return $imgdest;
+        }
+
+        return $imgsrc;
     }
 }
