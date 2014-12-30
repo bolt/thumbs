@@ -304,31 +304,31 @@ class ThumbnailCreator implements ResizeInterface
         $exif = exif_read_data($src);
         $ort = $exif['Orientation'];
         switch($ort)
-	    {
-	        case 2: // horizontal flip
-	            $img = self::imageFlip($img, 1);
-	        	break;
-	        case 3: // 180 rotate left
-	            $img = imagerotate($img, 180, 0);
-	        	break;
-	        case 4: // vertical flip
-	            $img = self::imageFlip($img, 0);
-	       		break;
-	        case 5: // vertical flip + 90 rotate right
-	            $img = self::imageFlip($img, 0);
-	            $img = imagerotate($img, -90, 0);
-	        	break;
-	        case 6: // 90 rotate right
-	            $img = imagerotate($img, -90, 0);
-	        	break;
-	        case 7: // horizontal flip + 90 rotate right
-	            $img = self::imageFlip($img, 1);
-	            $img = imagerotate($img, -90, 0);
-	        	break;
-	        case 8: // 90 rotate left
-	            $img = imagerotate($img, 90, 0);
-	        	break;
-	    }
+        {
+            case 2: // horizontal flip
+                $img = self::imageFlip($img, 1);
+                break;
+            case 3: // 180 rotate left
+                $img = imagerotate($img, 180, 0);
+                break;
+            case 4: // vertical flip
+                $img = self::imageFlip($img, 0);
+                break;
+            case 5: // vertical flip + 90 rotate right
+                $img = self::imageFlip($img, 0);
+                $img = imagerotate($img, -90, 0);
+                break;
+            case 6: // 90 rotate right
+                $img = imagerotate($img, -90, 0);
+                break;
+            case 7: // horizontal flip + 90 rotate right
+                $img = self::imageFlip($img, 1);
+                $img = imagerotate($img, -90, 0);
+                break;
+            case 8: // 90 rotate left
+                $img = imagerotate($img, 90, 0);
+                break;
+        }
 
         return $img;
     }
