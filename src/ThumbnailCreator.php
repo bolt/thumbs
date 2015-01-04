@@ -300,27 +300,25 @@ class ThumbnailCreator implements ResizeInterface
     {
         switch ($orientation) {
             case 2: // horizontal flip
-                $img = self::imageFlip($img, 'H');
+                $img = self::imageFlipRotate($img, 'H', 0);
                 break;
             case 3: // 180 rotate left
-                $img = imagerotate($img, 180, 0);
+                $img = self::imageFlipRotate($img, '', 180);
                 break;
             case 4: // vertical flip
-                $img = self::imageFlip($img, 'V');
+                $img = self::imageFlipRotate($img, 'V', 0);
                 break;
             case 5: // vertical flip + 90 rotate right
-                $img = self::imageFlip($img, 'V');
-                $img = imagerotate($img, -90, 0);
+                $img = self::imageFlipRotate($img, 'V', -90);
                 break;
             case 6: // 90 rotate right
-                $img = imagerotate($img, -90, 0);
+                $img = self::imageFlipRotate($img, '', -90);
                 break;
             case 7: // horizontal flip + 90 rotate right
-                $img = self::imageFlip($img, 'H');
-                $img = imagerotate($img, -90, 0);
+                $img = self::imageFlipRotate($img, 'H', -90);
                 break;
             case 8: // 90 rotate left
-                $img = imagerotate($img, 90, 0);
+                $img = self::imageFlipRotate($img, '', 90);
                 break;
         }
 
@@ -328,17 +326,19 @@ class ThumbnailCreator implements ResizeInterface
     }
 
     /**
-     * Image Flip
+     * Image flip and rotate
      *
      * Based on http://stackoverflow.com/a/10001884/1136593
      * Thanks Jon Grant
      *
-     * @param $img (image to flip)
-     * @param $mode ('V' = vertical, 'H' = horizontal, 'HV' = both) - defaults to no flip
+     * @param $img (image to flip and/or rotate)
+     * @param $mode ('V' = vertical, 'H' = horizontal, 'HV' = both, '' = none)
+     * @param $angle
      *
      */
-    public static function imageFlip($img, $mode = '')
+    public static function imageFlipRotate($img, $mode, $angle)
     {
+        // Flip the image
         if ($mode === 'V' || $mode === 'H' || $mode === 'HV') {
             $width = imagesx($img);
             $height = imagesy($img);
@@ -370,6 +370,11 @@ class ThumbnailCreator implements ResizeInterface
             if (imagecopyresampled($imgdest, $img, 0, 0, $srcX, $srcY, $width, $height, $srcWidth, $srcHeight)) {
                 $img = $imgdest;
             }
+        }
+
+        // Rotate the image
+        if ($rotation !== 0) {
+            $img = imagerotate($img, $angle, 0);
         }
 
         return $img;
