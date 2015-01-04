@@ -15,7 +15,6 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
     public function setup()
     {
         @mkdir(__DIR__ . '/tmp/cache/', 0777, true);
-        require_once __DIR__ . '/../vendor/bolt/bolt/app/lib.php';
     }
 
     public function testBasicRequestParsing()

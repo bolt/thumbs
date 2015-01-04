@@ -23,7 +23,6 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $this->jpg = __DIR__ . '/images/generic-logo.jpg';
         $this->gif = __DIR__ . '/images/generic-logo.gif';
         $this->png = __DIR__ . '/images/generic-logo.png';
-        require_once __DIR__ . '/../vendor/bolt/bolt/app/lib.php';
     }
 
     public function testSetup()
