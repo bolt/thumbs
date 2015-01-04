@@ -333,14 +333,14 @@ class ThumbnailCreator implements ResizeInterface
      * Based on http://stackoverflow.com/a/10001884/1136593
      * Thanks Jon Grant
      *
-     * @param $imgsrc (image to flip)
+     * @param $img (image to flip)
      * @param $mode ('V' = vertical, 'H' = horizontal, 'HV' = both) - defaults to vertical flip
      *
      */
-    public static function imageFlip($imgsrc, $mode = 'V')
+    public static function imageFlip($img, $mode = 'V')
     {
-        $width = imagesx($imgsrc);
-        $height = imagesy($imgsrc);
+        $width = imagesx($img);
+        $height = imagesy($img);
 
         $srcX = 0;
         $srcY = 0;
@@ -367,10 +367,10 @@ class ThumbnailCreator implements ResizeInterface
 
         $imgdest = imagecreatetruecolor($width, $height);
 
-        if (imagecopyresampled($imgdest, $imgsrc, 0, 0, $srcX, $srcY, $width, $height, $srcWidth, $srcHeight)) {
+        if (imagecopyresampled($imgdest, $img, 0, 0, $srcX, $srcY, $width, $height, $srcWidth, $srcHeight)) {
             return $imgdest;
         }
 
-        return $imgsrc;
+        return $img;
     }
 }
