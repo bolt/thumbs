@@ -178,16 +178,16 @@ class ThumbnailCreator implements ResizeInterface
                 $exif = $this->exifOrientation ? exif_read_data($src) : false;
                 if ($exif !== false) {
                     $exifMode = array(
-                        2 => array('H', 0),
-                        3 => array('', 180),
-                        4 => array('V', 0),
-                        5 => array('V', -90),
-                        6 => array('', -90),
-                        7 => array('H', -90),
-                        8 => array('', 90),
+                        2 => array('H', ''),
+                        3 => array('', 'T'),
+                        4 => array('V', ''),
+                        5 => array('V', 'L'),
+                        6 => array('', 'L'),
+                        7 => array('H', 'L'),
+                        8 => array('', 'R'),
                     );
                     if (isset($exifMode[$exif['Orientation']])) {
-                        list($mode, $angle) = $orient[$orientation];
+                        list($mode, $angle) = $exifMode[$exif['Orientation']];
                         $img = self::imageFlipRotate($img, $mode, $angle);
                         $w = imagesx($img);
                         $h = imagesy($img);
@@ -310,8 +310,8 @@ class ThumbnailCreator implements ResizeInterface
      * Thanks Jon Grant
      *
      * @param $img (image to flip and/or rotate)
-     * @param $mode ('V' = vertical, 'H' = horizontal, 'HV' = both, '' = none)
-     * @param $angle
+     * @param $mode ('V' = vertical, 'H' = horizontal, 'HV' = both)
+     * @param $angle ('L' = -90°, 'R' = +90°, 'T' = 180°)
      *
      */
     public static function imageFlipRotate($img, $mode, $angle)
@@ -351,8 +351,9 @@ class ThumbnailCreator implements ResizeInterface
         }
 
         // Rotate the image
-        if ($angle !== 0) {
-            $img = imagerotate($img, $angle, 0);
+        if ($angle === 'L' || $angle === 'R' || $angle === 'T') {
+            $rotate = array('L' => -90, 'R' => 90, 'T' => 180);
+            $img = imagerotate($img, $rotate[$angle], 0);
         }
 
         return $img;
