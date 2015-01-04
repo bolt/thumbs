@@ -334,41 +334,42 @@ class ThumbnailCreator implements ResizeInterface
      * Thanks Jon Grant
      *
      * @param $img (image to flip)
-     * @param $mode ('V' = vertical, 'H' = horizontal, 'HV' = both) - defaults to vertical flip
+     * @param $mode ('V' = vertical, 'H' = horizontal, 'HV' = both) - defaults to no flip
      *
      */
-    public static function imageFlip($img, $mode = 'V')
+    public static function imageFlip($img, $mode = '')
     {
-        $width = imagesx($img);
-        $height = imagesy($img);
+        if ($mode === 'V' || $mode === 'H' || $mode === 'HV') {
+            $width = imagesx($img);
+            $height = imagesy($img);
 
-        $srcX = 0;
-        $srcY = 0;
-        $srcWidth = $width;
-        $srcHeight = $height;
+            $srcX = 0;
+            $srcY = 0;
+            $srcWidth = $width;
+            $srcHeight = $height;
 
-        switch ($mode) {
-            default:
-            case 'V': // Vertical
-                $srcY = $height - 1;
-                $srcHeight = -$height;
-                break;
-            case 'H': // Horizontal
-                $srcX = $width - 1;
-                $srcWidth = -$width;
-                break;
-            case 'HV': // Both
-                $srcX = $width - 1;
-                $srcY = $height - 1;
-                $srcWidth = -$width;
-                $srcHeight = -$height;
-                break;
-        }
+            switch ($mode) {
+                case 'V': // Vertical
+                    $srcY = $height - 1;
+                    $srcHeight = -$height;
+                    break;
+                case 'H': // Horizontal
+                    $srcX = $width - 1;
+                    $srcWidth = -$width;
+                    break;
+                case 'HV': // Both
+                    $srcX = $width - 1;
+                    $srcY = $height - 1;
+                    $srcWidth = -$width;
+                    $srcHeight = -$height;
+                    break;
+            }
 
-        $imgdest = imagecreatetruecolor($width, $height);
+            $imgdest = imagecreatetruecolor($width, $height);
 
-        if (imagecopyresampled($imgdest, $img, 0, 0, $srcX, $srcY, $width, $height, $srcWidth, $srcHeight)) {
-            $img = $imgdest;
+            if (imagecopyresampled($imgdest, $img, 0, 0, $srcX, $srcY, $width, $height, $srcWidth, $srcHeight)) {
+                $img = $imgdest;
+            }
         }
 
         return $img;
