@@ -8,23 +8,27 @@
             "email": "riley.ross@gmail.com"
         }
     ],
-    
+
     "minimum-stability": "dev",
-    
+
     "require": {
         "symfony/http-foundation": "~2.5",
         "ext-gd": "*"
     },
-    
-    
+
+	"require-dev": {
+		"bolt/bolt": "~2.0"
+	},
+
     "autoload": {
         "psr-4": {
             "Bolt\\Thumbs\\": "src",
             "Bolt\\Thumbs\\Tests\\": "tests"
         }
     },
+
     "extra": {
         "branch-alias": { "dev-master": "2.1-dev" }
     }
-    
+
 }
