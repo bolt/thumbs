@@ -7,7 +7,7 @@
          verbose="false">
 
   <testsuites>
-    <testsuite name="Bolt Thumnail Handler Test Suite">
+    <testsuite name="Bolt Thumbnail Handler Test Suite">
       <directory>tests/</directory>
     </testsuite>
   </testsuites>
