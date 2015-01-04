@@ -1,11 +1,16 @@
 <?php
 namespace Bolt\Thumbs\Tests;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Bolt\Application;
 use Bolt\Configuration\ResourceManager;
+use Bolt\Provider\CacheServiceProvider;
 use Bolt\Thumbs\ThumbnailResponder;
+use Eloquent\Pathogen\FileSystem\Factory\PlatformFileSystemPathFactory;
+use FilesystemIterator;
+use Pimple;
+use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
 {
@@ -58,13 +63,20 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
 
     protected function initializeResponder($request)
     {
-        $config = new ResourceManager(__DIR__);
+        $container = new Pimple(
+            array(
+                'rootpath' => __DIR__,
+                'pathmanager' => new PlatformFileSystemPathFactory()
+            )
+        );
+
+        $config = new ResourceManager($container);
         $config->setPath('cache', 'tmp/cache');
         $config->setPath('files', 'images');
         $config->compat();
 
         $app = new Application(array('resources' => $config));
-        $app->register(new \Bolt\Provider\CacheServiceProvider());
+        $app->register(new CacheServiceProvider());
 
         $responder = new ThumbnailResponder($app, $request);
         $responder->initialize();
@@ -81,7 +93,7 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
     protected function rmdir($dir)
     {
         $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::CHILD_FIRST
         );
         foreach ($iterator as $file) {
