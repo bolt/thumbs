@@ -298,31 +298,22 @@ class ThumbnailCreator implements ResizeInterface
      **/
     public static function imageSetOrientationFromExif($img, $orientation)
     {
-        switch ($orientation) {
-            case 2: // horizontal flip
-                $img = self::imageFlipRotate($img, 'H', 0);
-                break;
-            case 3: // 180 rotate left
-                $img = self::imageFlipRotate($img, '', 180);
-                break;
-            case 4: // vertical flip
-                $img = self::imageFlipRotate($img, 'V', 0);
-                break;
-            case 5: // vertical flip + 90 rotate right
-                $img = self::imageFlipRotate($img, 'V', -90);
-                break;
-            case 6: // 90 rotate right
-                $img = self::imageFlipRotate($img, '', -90);
-                break;
-            case 7: // horizontal flip + 90 rotate right
-                $img = self::imageFlipRotate($img, 'H', -90);
-                break;
-            case 8: // 90 rotate left
-                $img = self::imageFlipRotate($img, '', 90);
-                break;
-        }
+        $orient = array(
+            2 => array('H', 0), // horizontal flip
+            3 => array('', 180), // 180 rotate left
+            4 => array('V', 0), // vertical flip
+            5 => array('V', -90), // vertical flip + 90 rotate right
+            6 => array('', -90), // 90 rotate right
+            7 => array('H', -90), // horizontal flip + 90 rotate right
+            8 => array('', 90), // 90 rotate left
+        );
+        if (isset($orient[$orientation])) {
+            list($mode, $angle) = $orient[$orientation];
 
-        return $img;
+            return self::imageFlipRotate($img, $mode, $angle);
+        } else {
+            return $img;
+        }
     }
 
     /**
