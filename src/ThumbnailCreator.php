@@ -175,7 +175,7 @@ class ThumbnailCreator implements ResizeInterface
             case 'jpg':
                 $exif = $this->exifOrientation ? exif_read_data($src) : false;
                 if ($exif !== false && isset($exif['Orientation'])) {
-                    $img = self::imageCreateFromJpegExif($src);
+                    $img = self::imageCreateFromJpegExif($src, $exif['Orientation']);
                     $w = imagesx($img);
                     $h = imagesy($img);
                 } else {
@@ -298,14 +298,12 @@ class ThumbnailCreator implements ResizeInterface
      * the EXIF orientation in the file
      *
      * @param $src the path to the file
+     * @param $orientation the exif image orientation
      **/
-    public static function imageCreateFromJpegExif($src)
+    public static function imageCreateFromJpegExif($src, $orientation)
     {
         $img = imagecreatefromjpeg($src);
-        $exif = exif_read_data($src);
-        $ort = $exif['Orientation'];
-        switch($ort)
-        {
+        switch ($orientation) {
             case 2: // horizontal flip
                 $img = self::imageFlip($img, 1);
                 break;
