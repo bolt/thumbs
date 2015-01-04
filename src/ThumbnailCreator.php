@@ -300,23 +300,23 @@ class ThumbnailCreator implements ResizeInterface
     {
         switch ($orientation) {
             case 2: // horizontal flip
-                $img = self::imageFlip($img, 1);
+                $img = self::imageFlip($img, 'H');
                 break;
             case 3: // 180 rotate left
                 $img = imagerotate($img, 180, 0);
                 break;
             case 4: // vertical flip
-                $img = self::imageFlip($img, 0);
+                $img = self::imageFlip($img, 'V');
                 break;
             case 5: // vertical flip + 90 rotate right
-                $img = self::imageFlip($img, 0);
+                $img = self::imageFlip($img, 'V');
                 $img = imagerotate($img, -90, 0);
                 break;
             case 6: // 90 rotate right
                 $img = imagerotate($img, -90, 0);
                 break;
             case 7: // horizontal flip + 90 rotate right
-                $img = self::imageFlip($img, 1);
+                $img = self::imageFlip($img, 'H');
                 $img = imagerotate($img, -90, 0);
                 break;
             case 8: // 90 rotate left
@@ -334,10 +334,10 @@ class ThumbnailCreator implements ResizeInterface
      * Thanks Jon Grant
      *
      * @param $imgsrc (image to flip)
-     * @param $mode (0 = vertical, 1 = horizontal, 2 = both) - defaults to vertical flip
+     * @param $mode ('V' = vertical, 'H' = horizontal, 'HV' = both) - defaults to vertical flip
      *
      */
-    public static function imageFlip($imgsrc, $mode = 0)
+    public static function imageFlip($imgsrc, $mode = 'V')
     {
         $width = imagesx($imgsrc);
         $height = imagesy($imgsrc);
@@ -349,15 +349,15 @@ class ThumbnailCreator implements ResizeInterface
 
         switch ($mode) {
             default:
-            case '0': // Vertical
+            case 'V': // Vertical
                 $srcY = $height - 1;
                 $srcHeight = -$height;
                 break;
-            case '1': // Horizontal
+            case 'H': // Horizontal
                 $srcX = $width - 1;
                 $srcWidth = -$width;
                 break;
-            case '2': // Both
+            case 'HV': // Both
                 $srcX = $width - 1;
                 $srcY = $height - 1;
                 $srcWidth = -$width;
