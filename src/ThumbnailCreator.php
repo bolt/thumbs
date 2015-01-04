@@ -342,32 +342,32 @@ class ThumbnailCreator implements ResizeInterface
         $width = imagesx($imgsrc);
         $height = imagesy($imgsrc);
 
-        $src_x = 0;
-        $src_y = 0;
-        $src_width = $width;
-        $src_height = $height;
+        $srcX = 0;
+        $srcY = 0;
+        $srcWidth = $width;
+        $srcHeight = $height;
 
         switch ($mode) {
             default:
             case '0': // Vertical
-                $src_y = $height - 1;
-                $src_height= -$height;
+                $srcY = $height - 1;
+                $srcHeight= -$height;
                 break;
             case '1': // Horizontal
-                $src_x = $width - 1;
-                $src_width = -$width;
+                $srcX = $width - 1;
+                $srcWidth = -$width;
                 break;
             case '2': // Both
-                $src_x = $width - 1;
-                $src_y = $height - 1;
-                $src_width = -$width;
-                $src_height = -$height;
+                $srcX = $width - 1;
+                $srcY = $height - 1;
+                $srcWidth = -$width;
+                $srcHeight = -$height;
                 break;
         }
 
         $imgdest = imagecreatetruecolor ( $width, $height );
 
-        if (imagecopyresampled($imgdest, $imgsrc, 0, 0, $src_x, $src_y , $width, $height, $src_width, $src_height)) {
+        if (imagecopyresampled($imgdest, $imgsrc, 0, 0, $srcX, $srcY , $width, $height, $srcWidth, $srcHeight)) {
             return $imgdest;
         }
 
