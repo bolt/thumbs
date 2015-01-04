@@ -1,13 +1,7 @@
 <?php
 namespace Bolt\Thumbs\Tests;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\File\File;
-
-use Bolt\Application;
-use Bolt\Configuration\ResourceManager;
-
 use Bolt\Thumbs\ThumbnailCreator;
 
 class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase

@@ -3,8 +3,6 @@ namespace Bolt\Thumbs\Tests;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
-
 use Bolt\Application;
 use Bolt\Configuration\ResourceManager;
 use Bolt\Thumbs\ThumbnailResponder;
