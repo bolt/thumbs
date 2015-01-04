@@ -364,7 +364,7 @@ class ThumbnailCreator implements ResizeInterface
         }
 
         // Rotate the image
-        if ($rotation !== 0) {
+        if ($angle !== 0) {
             $img = imagerotate($img, $angle, 0);
         }
 
