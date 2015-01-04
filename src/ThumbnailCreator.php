@@ -173,7 +173,8 @@ class ThumbnailCreator implements ResizeInterface
                 $img = imagecreatefromgif($src);
                 break;
             case 'jpg':
-                if ($this->exifOrientation) {
+                $exif = $this->exifOrientation ? exif_read_data($src) : false;
+                if ($exif !== false && isset($exif['Orientation'])) {
                     $img = self::imageCreateFromJpegExif($src);
                     $w = imagesx($img);
                     $h = imagesy($img);
