@@ -176,22 +176,12 @@ class ThumbnailCreator implements ResizeInterface
                 $img = imagecreatefromjpeg($src);
                 // Handle exif orientation
                 $exif = $this->exifOrientation ? exif_read_data($src) : false;
-                if ($exif !== false) {
-                    $exifMode = array(
-                        2 => array('H', ''),
-                        3 => array('', 'T'),
-                        4 => array('V', ''),
-                        5 => array('V', 'L'),
-                        6 => array('', 'L'),
-                        7 => array('H', 'L'),
-                        8 => array('', 'R'),
-                    );
-                    if (isset($exifMode[$exif['Orientation']])) {
-                        list($mode, $angle) = $exifMode[$exif['Orientation']];
-                        $img = self::imageFlipRotate($img, $mode, $angle);
-                        $w = imagesx($img);
-                        $h = imagesy($img);
-                    }
+                $modes = array(2 => 'H-', 3 => '-T', 4 => 'V-', 5 => 'VL', 6 => '-L', 7 => 'HL', 8 => '-R');
+                if ($exif !== false && isset($modes[$exif['Orientation']])) {
+                    $mode = $modes[$exif['Orientation']];
+                    $img = self::imageFlipRotate($img, $mode[0], $mode[1]);
+                    $w = imagesx($img);
+                    $h = imagesy($img);
                 }
                 break;
             case 'png':
