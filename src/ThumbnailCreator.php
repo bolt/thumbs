@@ -368,7 +368,7 @@ class ThumbnailCreator implements ResizeInterface
         $imgdest = imagecreatetruecolor($width, $height);
 
         if (imagecopyresampled($imgdest, $img, 0, 0, $srcX, $srcY, $width, $height, $srcWidth, $srcHeight)) {
-            return $imgdest;
+            $img = $imgdest;
         }
 
         return $img;
