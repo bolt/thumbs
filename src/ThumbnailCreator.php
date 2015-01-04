@@ -174,11 +174,24 @@ class ThumbnailCreator implements ResizeInterface
                 break;
             case 'jpg':
                 $img = imagecreatefromjpeg($src);
+                // Handle exif orientation
                 $exif = $this->exifOrientation ? exif_read_data($src) : false;
-                if ($exif !== false && isset($exif['Orientation'])) {
-                    $img = self::imageSetOrientationFromExif($img, $exif['Orientation']);
-                    $w = imagesx($img);
-                    $h = imagesy($img);
+                if ($exif !== false) {
+                    $exifMode = array(
+                        2 => array('H', 0),
+                        3 => array('', 180),
+                        4 => array('V', 0),
+                        5 => array('V', -90),
+                        6 => array('', -90),
+                        7 => array('H', -90),
+                        8 => array('', 90),
+                    );
+                    if (isset($exifMode[$exif['Orientation']])) {
+                        list($mode, $angle) = $orient[$orientation];
+                        $img = self::imageFlipRotate($img, $mode, $angle);
+                        $w = imagesx($img);
+                        $h = imagesy($img);
+                    }
                 }
                 break;
             case 'png':
@@ -288,32 +301,6 @@ class ThumbnailCreator implements ResizeInterface
         }
 
         return false;
-    }
-
-    /**
-     * Sets orientation of image based on exif data
-     *
-     * @param $img image resource
-     * @param $orientation the exif image orientation
-     **/
-    public static function imageSetOrientationFromExif($img, $orientation)
-    {
-        $orient = array(
-            2 => array('H', 0), // horizontal flip
-            3 => array('', 180), // 180 rotate left
-            4 => array('V', 0), // vertical flip
-            5 => array('V', -90), // vertical flip + 90 rotate right
-            6 => array('', -90), // 90 rotate right
-            7 => array('H', -90), // horizontal flip + 90 rotate right
-            8 => array('', 90), // 90 rotate left
-        );
-        if (isset($orient[$orientation])) {
-            list($mode, $angle) = $orient[$orientation];
-
-            return self::imageFlipRotate($img, $mode, $angle);
-        } else {
-            return $img;
-        }
     }
 
     /**
