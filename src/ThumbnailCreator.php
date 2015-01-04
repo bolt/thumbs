@@ -173,13 +173,12 @@ class ThumbnailCreator implements ResizeInterface
                 $img = imagecreatefromgif($src);
                 break;
             case 'jpg':
+                $img = imagecreatefromjpeg($src);
                 $exif = $this->exifOrientation ? exif_read_data($src) : false;
                 if ($exif !== false && isset($exif['Orientation'])) {
-                    $img = self::imageCreateFromJpegExif($src, $exif['Orientation']);
+                    $img = self::imageSetOrientationFromExif($img, $exif['Orientation']);
                     $w = imagesx($img);
                     $h = imagesy($img);
-                } else {
-                    $img = imagecreatefromjpeg($src);
                 }
                 break;
             case 'png':
@@ -292,17 +291,13 @@ class ThumbnailCreator implements ResizeInterface
     }
 
     /**
-     * Create image from jpeg with EXIF orientation
+     * Sets orientation of image based on exif data
      *
-     * This function is the same as imagecreatefromjpeg except it will take into account
-     * the EXIF orientation in the file
-     *
-     * @param $src the path to the file
+     * @param $img image resource
      * @param $orientation the exif image orientation
      **/
-    public static function imageCreateFromJpegExif($src, $orientation)
+    public static function imageSetOrientationFromExif($img, $orientation)
     {
-        $img = imagecreatefromjpeg($src);
         switch ($orientation) {
             case 2: // horizontal flip
                 $img = self::imageFlip($img, 1);
