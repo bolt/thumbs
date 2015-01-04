@@ -351,7 +351,7 @@ class ThumbnailCreator implements ResizeInterface
             default:
             case '0': // Vertical
                 $srcY = $height - 1;
-                $srcHeight= -$height;
+                $srcHeight = -$height;
                 break;
             case '1': // Horizontal
                 $srcX = $width - 1;
@@ -365,9 +365,9 @@ class ThumbnailCreator implements ResizeInterface
                 break;
         }
 
-        $imgdest = imagecreatetruecolor ( $width, $height );
+        $imgdest = imagecreatetruecolor($width, $height);
 
-        if (imagecopyresampled($imgdest, $imgsrc, 0, 0, $srcX, $srcY , $width, $height, $srcWidth, $srcHeight)) {
+        if (imagecopyresampled($imgdest, $imgsrc, 0, 0, $srcX, $srcY, $width, $height, $srcWidth, $srcHeight)) {
             return $imgdest;
         }
 
