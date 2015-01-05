@@ -51,12 +51,12 @@ class ThumbnailResponder
     public function initialize()
     {
         if (null !== $this->app['config']->get('general/thumbnails/notfound_image')) {
-            $file = $this->app['resources']->getPath('app'). '/' .$this->app['config']->get('general/thumbnails/notfound_image');
+            $file = $this->app['resources']->getPath('app') . '/' . $this->app['config']->get('general/thumbnails/notfound_image');
             $this->resizer->setDefaultSource(new File($file, false));
         }
 
         if (null !== $this->app['config']->get('general/thumbnails/error_image')) {
-            $file = $this->app['resources']->getPath('app'). '/' .$this->app['config']->get('general/thumbnails/error_image');
+            $file = $this->app['resources']->getPath('app') . '/' . $this->app['config']->get('general/thumbnails/error_image');
             $this->resizer->setErrorSource(new File($file, false));
         }
 
@@ -184,11 +184,11 @@ class ThumbnailResponder
         $path = urldecode($this->request->getPathInfo());
         try {
             $webroot = dirname($this->request->server->get('SCRIPT_FILENAME'));
-            $savePath = dirname($webroot.$path);
+            $savePath = dirname($webroot . $path);
             if (!is_dir($savePath)) {
                 mkdir($savePath, 0777, true);
             }
-            file_put_contents($webroot.$path, $imageContent);
+            file_put_contents($webroot . $path, $imageContent);
         } catch (\Exception $e) {
 
         }

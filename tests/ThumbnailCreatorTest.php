@@ -34,23 +34,23 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $creator = new ThumbnailCreator();
         $creator->setSource($src);
 
-        $ok_width = 624;
-        $ok_height = 351;
+        $okWidth = 624;
+        $okHeight = 351;
 
         $testcases = array(
             array(),
-            array('width' => $ok_width, 'height' => -20),
-            array('width' => $ok_width),
-            array('height' => $ok_height),
-            array('width' => 'A', 'height' => $ok_height),
-            array('width' => 123.456, 'height' => $ok_height),
+            array('width' => $okWidth, 'height' => -20),
+            array('width' => $okWidth),
+            array('height' => $okHeight),
+            array('width' => 'A', 'height' => $okHeight),
+            array('width' => 123.456, 'height' => $okHeight),
             array('width' => 'both', 'height' => 'wrong'),
         );
 
         foreach ($testcases as $parameters) {
             $creator->verify($parameters);
-            $this->assertEquals($ok_width, $creator->targetWidth);
-            $this->assertEquals($ok_height, $creator->targetHeight);
+            $this->assertEquals($okWidth, $creator->targetWidth);
+            $this->assertEquals($okHeight, $creator->targetHeight);
         }
     }
 
@@ -238,6 +238,5 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         if (is_readable($tmp)) {
             unlink($tmp);
         }
-
     }
 }

@@ -34,7 +34,6 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('240', $responder->height);
         $this->assertEquals('crop', $responder->action);
         $this->assertEquals('generic-logo.jpg', $responder->file);
-
     }
 
     public function testParseWithSubdirectory()
@@ -46,7 +45,6 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
 
         $responder = $this->initializeResponder($request);
         $this->assertEquals('subdir/generic-logo.jpg', $responder->file);
-
     }
 
     public function testResponse()
@@ -87,7 +85,7 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         $this->rmdir(__DIR__ . '/tmp');
-        @rmdir(__DIR__ .'/tmp');
+        @rmdir(__DIR__ . '/tmp');
     }
 
     protected function rmdir($dir)
