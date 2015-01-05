@@ -343,7 +343,7 @@ class ThumbnailCreator implements ResizeInterface
 
         // Rotate the image
         if ($angle === 'L' || $angle === 'R' || $angle === 'T') {
-            $rotate = array('L' => -90, 'R' => 90, 'T' => 180);
+            $rotate = array('L' => 270, 'R' => 90, 'T' => 180);
             $img = imagerotate($img, $rotate[$angle], 0);
         }
 
