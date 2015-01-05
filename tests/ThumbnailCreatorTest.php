@@ -199,6 +199,39 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
     }
 
+    public function testExifOrientation()
+    {
+        $images = array(
+            '1-top-left',
+            '2-top-right',
+            '3-bottom-right',
+            '4-bottom-left',
+            '5-left-top',
+            '6-right-top',
+            '7-right-bottom',
+            '8-left-bottom',
+        );
+        $resize = array('width' => 200, 'height' => 100);
+
+        foreach ($images as $name) {
+            $path = __DIR__ . '/tmp/' . $name . '.jpg';
+            // Create test image
+            $creator = new ThumbnailCreator();
+            $creator->setSource(new File(__DIR__ . '/images/exif-orientation/' . $name . '.jpg'));
+            $result = $creator->resize($resize);
+            file_put_contents($path, $result);
+            // Read test image
+            $img = imagecreatefromjpeg($path);
+            $width = imagesx($img);
+            $height = imagesy($img);
+            $rgb = imagecolorsforindex($img, imagecolorat($img, 0, 0));
+            // Assert image size and red color (fuzzy) in the upper left corner
+            $this->assertEquals($resize['width'], $width, 'Wrong width!');
+            $this->assertEquals($resize['height'], $height, 'Wrong height!');
+            $this->assertTrue($rgb['red'] > 250 && $rgb['green'] < 5 && $rgb['blue'] < 5, 'Wrong orientation!');
+        }
+    }
+
     public function tearDown()
     {
         $tmp = __DIR__ . '/tmp/test.jpg';
