@@ -1,13 +1,7 @@
 <?php
 namespace Bolt\Thumbs\Tests;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\File\File;
-
-use Bolt\Application;
-use Bolt\Configuration\ResourceManager;
-
 use Bolt\Thumbs\ThumbnailCreator;
 
 class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
@@ -23,7 +17,6 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $this->jpg = __DIR__ . '/images/generic-logo.jpg';
         $this->gif = __DIR__ . '/images/generic-logo.gif';
         $this->png = __DIR__ . '/images/generic-logo.png';
-        require_once __DIR__ . '/../vendor/bolt/bolt/app/lib.php';
     }
 
     public function testSetup()
@@ -41,23 +34,23 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $creator = new ThumbnailCreator();
         $creator->setSource($src);
 
-        $ok_width = 624;
-        $ok_height = 351;
+        $okWidth = 624;
+        $okHeight = 351;
 
         $testcases = array(
             array(),
-            array('width' => $ok_width, 'height' => -20),
-            array('width' => $ok_width),
-            array('height' => $ok_height),
-            array('width' => 'A', 'height' => $ok_height),
-            array('width' => 123.456, 'height' => $ok_height),
+            array('width' => $okWidth, 'height' => -20),
+            array('width' => $okWidth),
+            array('height' => $okHeight),
+            array('width' => 'A', 'height' => $okHeight),
+            array('width' => 123.456, 'height' => $okHeight),
             array('width' => 'both', 'height' => 'wrong'),
         );
 
         foreach ($testcases as $parameters) {
             $creator->verify($parameters);
-            $this->assertEquals($ok_width, $creator->targetWidth);
-            $this->assertEquals($ok_height, $creator->targetHeight);
+            $this->assertEquals($okWidth, $creator->targetWidth);
+            $this->assertEquals($okHeight, $creator->targetHeight);
         }
     }
 
@@ -171,8 +164,15 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $result = $creator->resize(array('width' => 200, 'height' => 500));
         $compare = __DIR__ . '/images/timthumbs/resize_sample2_200_500.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
+
+        // Original compare image is with v80, v90 creates a 2 byte smaller image (perhaps only on windows?)
+        $correction = 0;
+        if (preg_match('%CREATOR: gd-jpeg v1\.0 \(using IJG JPEG v(\d+)\)%', $result, $pm) && $pm[1] == '90') {
+            $correction = 2;
+        }
+
         $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
-        $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
+        $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg') + $correction);
     }
 
     public function testPortraitFit()
@@ -199,12 +199,44 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
     }
 
+    public function testExifOrientation()
+    {
+        $images = array(
+            '1-top-left',
+            '2-top-right',
+            '3-bottom-right',
+            '4-bottom-left',
+            '5-left-top',
+            '6-right-top',
+            '7-right-bottom',
+            '8-left-bottom',
+        );
+        $resize = array('width' => 200, 'height' => 100);
+
+        foreach ($images as $name) {
+            $path = __DIR__ . '/tmp/' . $name . '.jpg';
+            // Create test image
+            $creator = new ThumbnailCreator();
+            $creator->setSource(new File(__DIR__ . '/images/exif-orientation/' . $name . '.jpg'));
+            $result = $creator->resize($resize);
+            file_put_contents($path, $result);
+            // Read test image
+            $img = imagecreatefromjpeg($path);
+            $width = imagesx($img);
+            $height = imagesy($img);
+            $rgb = imagecolorsforindex($img, imagecolorat($img, 0, 0));
+            // Assert image size and red color (fuzzy) in the upper left corner
+            $this->assertEquals($resize['width'], $width, 'Wrong width!');
+            $this->assertEquals($resize['height'], $height, 'Wrong height!');
+            $this->assertTrue($rgb['red'] > 250 && $rgb['green'] < 5 && $rgb['blue'] < 5, 'Wrong orientation!');
+        }
+    }
+
     public function tearDown()
     {
         $tmp = __DIR__ . '/tmp/test.jpg';
         if (is_readable($tmp)) {
             unlink($tmp);
         }
-
     }
 }
