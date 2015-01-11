@@ -282,6 +282,7 @@ class ThumbnailCreator implements ResizeInterface
                 imagegif($imageContent);
                 break;
             case 'jpg':
+                imageinterlace($imageContent, 1);
                 imagejpeg($imageContent, null, $this->quality);
                 break;
             case 'png':
