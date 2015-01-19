@@ -176,7 +176,7 @@ class ThumbnailCreator implements ResizeInterface
                 $img = imagecreatefromjpeg($src);
                 // Handle exif orientation
                 if ($this->exifOrientation && function_exists('exif_read_data')) {
-                    $exif = exif_read_data($src);
+                    $exif = @exif_read_data($src);
                 } else {
                     $exif = false;
                 }
