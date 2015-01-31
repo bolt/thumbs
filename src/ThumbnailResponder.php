@@ -110,7 +110,7 @@ class ThumbnailResponder
     {
         $path = urldecode($this->request->getPathInfo());
 
-        if (preg_match('#/thumbs/(?<width>\d+)x(?<height>\d+)(?<action>[a-z]?)/?(?<file>.+)#', $path, $parsedRequest)) {
+        if (preg_match('#/thumbs/(?P<width>\d+)x(?P<height>\d+)(?P<action>[a-z]?)/?(?P<file>.+)#', $path, $parsedRequest)) {
             $commands = $this->resizer->provides();
             if (isset($parsedRequest['action']) && array_key_exists($parsedRequest['action'], $commands)) {
                 $this->action = $commands[$parsedRequest['action']];
