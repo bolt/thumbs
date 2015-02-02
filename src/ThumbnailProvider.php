@@ -33,7 +33,7 @@ class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderI
 
     public function connect(Application $app)
     {
-        // creates a new controller based on the default route
+        /** @var \Silex\ControllerCollection $controllers */
         $controllers = $app['controllers_factory'];
 
         $controllers->get(
@@ -51,7 +51,8 @@ class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderI
                     $app->pass();
                 }
             }
-        )->assert('thumb', '.+');
+        )->assert('thumb', '.+')
+        ->bind('thumb');
 
         return $controllers;
     }
