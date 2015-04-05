@@ -55,7 +55,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testFallbacksForHorizontalAutoscale()
     {
-        $sample = __DIR__ . '/images/timthumbs/sample2.jpg';  // 427x640
+        $sample = __DIR__ . '/images/samples/sample2.jpg';  // 427x640
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
 
@@ -68,7 +68,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testFallbacksForVerticalAutoscale()
     {
-        $sample = __DIR__ . '/images/timthumbs/sample1.jpg';  // 1000x667
+        $sample = __DIR__ . '/images/samples/sample1.jpg';  // 1000x667
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
 
@@ -97,7 +97,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testLandscapeCrop()
     {
-        $sample = __DIR__ . '/images/timthumbs/sample1.jpg';
+        $sample = __DIR__ . '/images/samples/sample1.jpg';
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
         $result = $creator->crop(array('width' => 500, 'height' => 200));
@@ -109,7 +109,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testLandscapeResize()
     {
-        $sample = __DIR__ . '/images/timthumbs/sample1.jpg';
+        $sample = __DIR__ . '/images/samples/sample1.jpg';
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
         $result = $creator->resize(array('width' => 500, 'height' => 200));
@@ -121,7 +121,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testLandscapeFit()
     {
-        $sample = __DIR__ . '/images/timthumbs/sample1.jpg';
+        $sample = __DIR__ . '/images/samples/sample1.jpg';
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
         $result = $creator->fit(array('width' => 500, 'height' => 200));
@@ -133,7 +133,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testLandscapeBorder()
     {
-        $sample = __DIR__ . '/images/timthumbs/sample1.jpg';
+        $sample = __DIR__ . '/images/samples/sample1.jpg';
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
         $result = $creator->border(array('width' => 500, 'height' => 200));
@@ -145,7 +145,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testPortraitCrop()
     {
-        $sample = __DIR__ . '/images/timthumbs/sample2.jpg';
+        $sample = __DIR__ . '/images/samples/sample2.jpg';
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
         $result = $creator->crop(array('width' => 200, 'height' => 500));
@@ -157,7 +157,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testPortraitResize()
     {
-        $sample = __DIR__ . '/images/timthumbs/sample2.jpg';
+        $sample = __DIR__ . '/images/samples/sample2.jpg';
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
         $result = $creator->resize(array('width' => 200, 'height' => 500));
@@ -176,7 +176,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testPortraitFit()
     {
-        $sample = __DIR__ . '/images/timthumbs/sample2.jpg';
+        $sample = __DIR__ . '/images/samples/sample2.jpg';
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
         $result = $creator->fit(array('width' => 200, 'height' => 500));
@@ -188,7 +188,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testPortraitBorder()
     {
-        $sample = __DIR__ . '/images/timthumbs/sample2.jpg';
+        $sample = __DIR__ . '/images/samples/sample2.jpg';
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
         $result = $creator->border(array('width' => 200, 'height' => 500));
