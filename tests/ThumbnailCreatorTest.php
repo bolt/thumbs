@@ -161,7 +161,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
         $result = $creator->resize(array('width' => 200, 'height' => 500));
-        $compare = __DIR__ . '/images/timthumbs/resize_sample2_200_500.jpg';
+        $compare = __DIR__ . '/images/compare/resize_sample2_200_500.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
 
         // Original compare image is with v80, v90 creates a 2 byte smaller image (perhaps only on windows?)
