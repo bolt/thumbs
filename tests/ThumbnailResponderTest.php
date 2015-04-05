@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
 {
-
     public function setup()
     {
         @mkdir(__DIR__ . '/tmp/cache/', 0777, true);
@@ -63,7 +62,7 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
     {
         $container = new Pimple(
             array(
-                'rootpath' => __DIR__,
+                'rootpath'    => __DIR__,
                 'pathmanager' => new PlatformFileSystemPathFactory()
             )
         );

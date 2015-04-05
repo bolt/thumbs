@@ -1,12 +1,11 @@
 <?php
 namespace Bolt\Thumbs\Tests;
 
-use Symfony\Component\HttpFoundation\File\File;
 use Bolt\Thumbs\ThumbnailCreator;
+use Symfony\Component\HttpFoundation\File\File;
 
 class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 {
-
     public $jpg;
     public $gif;
     public $png;
@@ -39,12 +38,12 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
         $testcases = array(
             array(),
-            array('width' => $okWidth, 'height' => -20),
-            array('width' => $okWidth),
+            array('width'  => $okWidth, 'height' => -20),
+            array('width'  => $okWidth),
             array('height' => $okHeight),
-            array('width' => 'A', 'height' => $okHeight),
-            array('width' => 123.456, 'height' => $okHeight),
-            array('width' => 'both', 'height' => 'wrong'),
+            array('width'  => 'A', 'height' => $okHeight),
+            array('width'  => 123.456, 'height' => $okHeight),
+            array('width'  => 'both', 'height' => 'wrong'),
         );
 
         foreach ($testcases as $parameters) {
@@ -91,7 +90,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(600, $creator->targetHeight);
 
         $creator->allowUpscale = false;
-        $creator->verify(array('width' => 800,'height' => 600));
+        $creator->verify(array('width' => 800, 'height' => 600));
         $this->assertEquals(624, $creator->targetWidth);
         $this->assertEquals(351, $creator->targetHeight);
     }
