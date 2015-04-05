@@ -55,7 +55,7 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
 
         $responder = $this->initializeResponder($request);
         $response = $responder->respond();
-        $this->assertInstanceOf(Response::class, $response);
+        $this->assertInstanceOf(get_class(new Response()), $response);
     }
 
     protected function initializeResponder($request)
