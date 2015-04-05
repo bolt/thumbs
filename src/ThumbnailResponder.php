@@ -128,6 +128,13 @@ class ThumbnailResponder
             $this->height   = $parsedRequest['height'];
             $this->file     = $parsedRequest['file'];
         }
+        
+        // Check for retina image request
+        if(strpos($this->file, '@2x') !== false) {
+            $this->file = str_replace('@2x', '', $this->file);
+            $this->width = $this->width * 2;
+            $this->height = $this->height * 2;
+        }
     }
 
     /**
