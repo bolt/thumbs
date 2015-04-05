@@ -24,7 +24,6 @@ class ThumbnailCreator implements ResizeInterface
             'b' => 'border',
             'f' => 'fit'
         );
-
     }
 
     public function setSource(File $source)
@@ -124,7 +123,6 @@ class ThumbnailCreator implements ResizeInterface
         if (false !== $data) {
             return $data;
         }
-
     }
 
     public function border($parameters = array())
@@ -164,8 +162,7 @@ class ThumbnailCreator implements ResizeInterface
             $type = 'jpg';
         }
 
-        switch($type)
-        {
+        switch ($type) {
             case 'bmp':
                 $img = imagecreatefromwbmp($src);
                 break;
@@ -208,13 +205,10 @@ class ThumbnailCreator implements ResizeInterface
             if ($xratio > $yratio) {
                 $x = round(($w - ($w / $xratio * $yratio)) / 2);
                 $w = round($w / $xratio * $yratio);
-
             } elseif ($yratio > $xratio) {
                 $y = round(($h - ($h / $yratio * $xratio)) / 2);
                 $h = round($h / $yratio * $xratio);
             }
-
-
         } elseif (!$border && !$fit) {
             $ratio = min($width / $w, $height / $h);
             $width = $w * $ratio;
@@ -224,7 +218,6 @@ class ThumbnailCreator implements ResizeInterface
         $new = imagecreatetruecolor($width, $height);
 
         if ($border) {
-
             if (count($this->canvas) == 3) {
                 $canvas = imagecolorallocate($new, $this->canvas[0], $this->canvas[1], $this->canvas[2]);
                 imagefill($new, 0, 0, $canvas);
@@ -240,7 +233,6 @@ class ThumbnailCreator implements ResizeInterface
                 $height = $tmpheight;
                 $y = round(($this->targetHeight - $height) / 2);
             }
-
         }
 
         // Preserve transparency where available
@@ -267,6 +259,7 @@ class ThumbnailCreator implements ResizeInterface
      *
      * @param $imageContent an image resource
      * @param $type one of bmp|gif|jpg|png
+     *
      * @return $imageData | false
      **/
     protected function getOutput($imageContent, $type)
@@ -274,7 +267,7 @@ class ThumbnailCreator implements ResizeInterface
         // This block captures the image data, since these image commands echo out the data
         // we wrap the operation in output buffering to capture the data as a string.
         ob_start();
-        switch($type) {
+        switch ($type) {
             case 'bmp':
                 imagewbmp($imageContent);
                 break;
@@ -308,7 +301,6 @@ class ThumbnailCreator implements ResizeInterface
      * @param $img (image to flip and/or rotate)
      * @param $mode ('V' = vertical, 'H' = horizontal, 'HV' = both)
      * @param $angle ('L' = -90°, 'R' = +90°, 'T' = 180°)
-     *
      */
     public static function imageFlipRotate($img, $mode, $angle)
     {

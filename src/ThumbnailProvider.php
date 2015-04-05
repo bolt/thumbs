@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ThumbnailProvider implements ServiceProviderInterface, ControllerProviderInterface
 {
-
     public function register(Application $app)
     {
         $app['thumbnails.paths'] = array(

@@ -1,11 +1,11 @@
 <?php
 namespace Bolt\Thumbs;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Bolt\Application;
 use Gregwar\Cache\Cache;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ThumbnailResponder
 {
@@ -25,8 +25,8 @@ class ThumbnailResponder
     /**
      * Constructor method
      *
-     * @param Application $app an instance of Bolt\Application
-     * @param Request $request
+     * @param Application     $app     an instance of Bolt\Application
+     * @param Request         $request
      * @param ResizeInterface $resizer - uses the built in resizer by default but a custom one can be passed in.
      *
      * @return void
@@ -130,7 +130,7 @@ class ThumbnailResponder
         }
         
         // Check for retina image request
-        if(strpos($this->file, '@2x') !== false) {
+        if (strpos($this->file, '@2x') !== false) {
             $this->file = str_replace('@2x', '', $this->file);
             $this->width = $this->width * 2;
             $this->height = $this->height * 2;
@@ -203,7 +203,6 @@ class ThumbnailResponder
             }
             file_put_contents($webroot . $path, $imageContent);
         } catch (\Exception $e) {
-
         }
 
         return true;
@@ -230,6 +229,7 @@ class ThumbnailResponder
      * Uses the Bolt application path to return the full path from a relative filename.
      *
      * @param $relativeFile
+     *
      * @return string
      **/
     public function getRealFile($relativeFile)
@@ -245,7 +245,6 @@ class ThumbnailResponder
             if (is_readable($path . '/' . $relativeFile)) {
                 return $path . '/' . $relativeFile;
             }
-
         }
 
         // Otherwise, we'll have to assume it's in the 'files' folder. Theoretically, we should

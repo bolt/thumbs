@@ -5,7 +5,6 @@ use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * Minimum functionality required to support Bolt thumbnail functionality.
- *
  **/
 
 interface ResizeInterface
@@ -23,6 +22,7 @@ interface ResizeInterface
      * Sets the original source file
      *
      * @param File $file
+     *
      * @return void
      **/
     public function setSource(File $source);
