@@ -6,16 +6,22 @@
          strict="false"
          verbose="false">
 
-  <testsuites>
-    <testsuite name="Bolt Thumbnail Handler Test Suite">
-      <directory>tests/</directory>
-    </testsuite>
-  </testsuites>
+    <testsuites>
+        <testsuite name="Bolt Thumbnail Handler Test Suite">
+            <directory>tests/</directory>
+        </testsuite>
+    </testsuites>
 
-  <filter>
+    <filter>
         <whitelist>
             <directory suffix=".php">./src/</directory>
         </whitelist>
     </filter>
-
+    <logging>
+        <log type="coverage-html" 
+            target="tests/report" 
+            showUncoveredFiles="true" 
+            lowUpperBound="50"
+            highLowerBound="90"/>
+    </logging>
 </phpunit>
