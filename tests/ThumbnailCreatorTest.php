@@ -104,7 +104,6 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $compare = __DIR__ . '/images/compare/crop_sample1_500_200.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
         $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
-        $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
     }
 
     public function testLandscapeResize()
@@ -116,7 +115,6 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $compare = __DIR__ . '/images/compare/resize_sample1_500_200.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
         $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
-        $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
     }
 
     public function testLandscapeFit()
@@ -128,7 +126,6 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $compare = __DIR__ . '/images/compare/fit_sample1_500_200.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
         $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
-        $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
     }
 
     public function testLandscapeBorder()
@@ -140,7 +137,6 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $compare = __DIR__ . '/images/compare/border_sample1_500_200.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
         $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
-        $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
     }
 
     public function testPortraitCrop()
@@ -152,7 +148,6 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $compare = __DIR__ . '/images/compare/crop_sample2_200_500.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
         $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
-        $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
     }
 
     public function testPortraitResize()
@@ -163,15 +158,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $result = $creator->resize(array('width' => 200, 'height' => 500));
         $compare = __DIR__ . '/images/compare/resize_sample2_200_500.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-
-        // Original compare image is with v80, v90 creates a 2 byte smaller image (perhaps only on windows?)
-        $correction = 0;
-        if (preg_match('%CREATOR: gd-jpeg v1\.0 \(using IJG JPEG v(\d+)\)%', $result, $pm) && $pm[1] == '90') {
-            $correction = 2;
-        }
-
         $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
-        $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg') + $correction);
     }
 
     public function testPortraitFit()
@@ -183,7 +170,6 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $compare = __DIR__ . '/images/compare/fit_sample2_200_500.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
         $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
-        $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
     }
 
     public function testPortraitBorder()
@@ -195,7 +181,6 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $compare = __DIR__ . '/images/compare/border_sample2_200_500.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
         $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
-        $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
     }
 
     public function testExifOrientation()
