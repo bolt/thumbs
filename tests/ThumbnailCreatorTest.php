@@ -101,7 +101,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $creator = new ThumbnailCreator();
         $creator->setSource(new File($sample));
         $result = $creator->crop(array('width' => 500, 'height' => 200));
-        $compare = __DIR__ . '/images/timthumbs/crop_sample1_500_200.jpg';
+        $compare = __DIR__ . '/images/compare/crop_sample1_500_200.jpg';
         file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
         $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
         $this->assertEquals(filesize($compare), filesize(__DIR__ . '/tmp/test.jpg'));
