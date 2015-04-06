@@ -17,6 +17,7 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
     public function setup()
     {
         @mkdir(__DIR__ . '/tmp/cache/', 0777, true);
+        @mkdir(__DIR__ . '/app/database', 0777, true);
     }
 
     public function testBasicRequestParsing()
@@ -84,7 +85,9 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         $this->rmdir(__DIR__ . '/tmp');
+        $this->rmdir(__DIR__ . '/app');
         @rmdir(__DIR__ . '/tmp');
+        @rmdir(__DIR__ . '/app');
     }
 
     protected function rmdir($dir)
