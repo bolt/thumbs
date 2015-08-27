@@ -5,13 +5,13 @@ namespace Bolt\Thumbs\Tests;
 use Bolt\Filesystem\Image;
 use Bolt\Thumbs\Dimensions;
 use Bolt\Thumbs\Thumbnail;
-use Bolt\Thumbs\ThumbnailController;
+use Bolt\Thumbs\Controller;
 use Bolt\Thumbs\Transaction;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\WebTestCase;
 
-class ThumbnailControllerTest extends WebTestCase
+class ControllerTest extends WebTestCase
 {
     /** @var Application */
     protected $app;
@@ -46,7 +46,7 @@ class ThumbnailControllerTest extends WebTestCase
     public function createApplication()
     {
         $app = new Application();
-        $app['controller.thumbnails'] = new ThumbnailController();
+        $app['controller.thumbnails'] = new Controller();
         $app->mount('/thumbs', $app['controller.thumbnails']);
         $app->register(new ServiceControllerServiceProvider());
 

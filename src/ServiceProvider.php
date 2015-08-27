@@ -19,7 +19,7 @@ class ServiceProvider implements ServiceProviderInterface
     {
         $app['controller.thumbnails.mount_prefix'] = '/thumbs';
         $app['controller.thumbnails'] = $app->share(function () {
-            return new ThumbnailController();
+            return new Controller();
         });
         $app['thumbnails'] = $app->share(function ($app) {
             return new Responder(

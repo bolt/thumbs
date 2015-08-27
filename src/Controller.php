@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @author Carson Full <carsonfull@gmail.com>
  */
-class ThumbnailController implements ControllerProviderInterface
+class Controller implements ControllerProviderInterface
 {
     /**
      * {@inheritdoc}
