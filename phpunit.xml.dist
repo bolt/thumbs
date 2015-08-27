@@ -2,8 +2,10 @@
          backupStaticAttributes="false"
          bootstrap="vendor/autoload.php"
          cacheTokens="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
          colors="true"
-         strict="false"
          verbose="false">
 
     <testsuites>
