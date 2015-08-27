@@ -13,19 +13,19 @@ use RuntimeException;
 class Creator implements CreatorInterface
 {
     /** @var bool */
-    protected $allowUpscale;
+    protected $limitUpscaling;
     /** @var Color */
     protected $background;
 
     /**
      * Creator constructor.
      *
-     * @param bool  $allowUpscale
+     * @param bool  $limitUpscaling
      * @param Color $background
      */
-    public function __construct($allowUpscale = false, Color $background = null)
+    public function __construct($limitUpscaling = true, Color $background = null)
     {
-        $this->allowUpscale = (bool) $allowUpscale;
+        $this->limitUpscaling = (bool) $limitUpscaling;
         $this->background = $background ?: Color::white();
     }
 
@@ -98,7 +98,7 @@ class Creator implements CreatorInterface
      */
     protected function checkForUpscale(Transaction $transaction)
     {
-        if ($this->allowUpscale) {
+        if (!$this->limitUpscaling) {
             return;
         }
 

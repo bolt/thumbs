@@ -69,12 +69,12 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @testdox When upscaling is allowed, thumbnail is enlarged to target dimensions
      */
-    public function testUpscalingAllowed()
+    public function testAllowUpscaling()
     {
         $upscaled = new Dimensions(800, 600);
         $transaction = new Transaction($this->logoJpg, Action::CROP, $upscaled);
 
-        $result = (new Creator(true))->create($transaction);
+        $result = (new Creator(false))->create($transaction);
 
         $this->assertDimensions($upscaled, $result);
     }
@@ -82,14 +82,14 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @testdox When upscaling is not allowed, target dimensions are reduced to current image dimensions
      */
-    public function testUpscalingNotAllowed()
+    public function testLimitUpscaling()
     {
         $upscaled = new Dimensions(800, 600);
         $original = new Dimensions(624, 351);
 
         $transaction = new Transaction($this->logoJpg, Action::CROP, $upscaled);
 
-        $result = (new Creator(false))->create($transaction);
+        $result = (new Creator(true))->create($transaction);
 
         $this->assertDimensions($original, $result);
     }

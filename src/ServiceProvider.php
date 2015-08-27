@@ -33,7 +33,7 @@ class ServiceProvider implements ServiceProviderInterface
         });
 
         $app['thumbnails.creator'] = $app->share(function ($app) {
-            return new Creator($app['thumbnails.allow_upscale']);
+            return new Creator($app['thumbnails.limit_upscaling']);
         });
 
         $app['thumbnails.finder'] = $app->share(function ($app) {
@@ -51,7 +51,7 @@ class ServiceProvider implements ServiceProviderInterface
         $app['thumbnails.default_image'] = null;
         $app['thumbnails.error_image'] = null;
         $app['thumbnails.cache_time'] = null;
-        $app['thumbnails.allow_upscale'] = null;
+        $app['thumbnails.limit_upscaling'] = true;
     }
 
     /**
