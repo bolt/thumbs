@@ -27,32 +27,6 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($src, $creator->getSource());
     }
 
-    public function testFallbacksForBadDimensions()
-    {
-        $src = new File($this->jpg);
-        $creator = new ThumbnailCreator();
-        $creator->setSource($src);
-
-        $okWidth = 624;
-        $okHeight = 351;
-
-        $testcases = array(
-            array(),
-            array('width'  => $okWidth, 'height' => -20),
-            array('width'  => $okWidth),
-            array('height' => $okHeight),
-            array('width'  => 'A', 'height' => $okHeight),
-            array('width'  => 123.456, 'height' => $okHeight),
-            array('width'  => 'both', 'height' => 'wrong'),
-        );
-
-        foreach ($testcases as $parameters) {
-            $creator->verify($parameters);
-            $this->assertEquals($okWidth, $creator->targetWidth);
-            $this->assertEquals($okHeight, $creator->targetHeight);
-        }
-    }
-
     public function testFallbacksForHorizontalAutoscale()
     {
         $sample = __DIR__ . '/images/samples/sample2.jpg';  // 427x640
