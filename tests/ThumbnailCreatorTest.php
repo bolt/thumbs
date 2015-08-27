@@ -1,167 +1,202 @@
 <?php
 namespace Bolt\Thumbs\Tests;
 
+use Bolt\Filesystem\Filesystem;
+use Bolt\Filesystem\Image;
+use Bolt\Filesystem\ImageInfo;
+use Bolt\Filesystem\Local;
+use Bolt\Thumbs\Dimensions;
 use Bolt\Thumbs\ThumbnailCreator;
-use Symfony\Component\HttpFoundation\File\File;
+use Bolt\Thumbs\Transaction;
 
 class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 {
-    public $jpg;
-    public $gif;
-    public $png;
+    /** @var Filesystem */
+    protected $fs;
+
+    /** @var Image */
+    protected $logoJpg;
+    /** @var Image */
+    protected $landscapeImage;
+    /** @var Image */
+    protected $portraitImage;
 
     public function setup()
     {
-        @mkdir(__DIR__ . '/tmp', 0777, true);
-        $this->jpg = __DIR__ . '/images/generic-logo.jpg';
-        $this->gif = __DIR__ . '/images/generic-logo.gif';
-        $this->png = __DIR__ . '/images/generic-logo.png';
+        $this->fs = new Filesystem(new Local(__DIR__ . '/images'));
+        $this->logoJpg = $this->fs->getImage('generic-logo.jpg');
+        $this->landscapeImage = $this->fs->getImage('samples/sample1.jpg');
+        $this->portraitImage = $this->fs->getImage('samples/sample2.jpg');
     }
 
-    public function testSetup()
+    /**
+     * @testdox When target dimensions are (0, 0), thumbnail dimensions are set to image dimensions
+     */
+    public function testFallbacksForAutoscale()
     {
-        $src = new File($this->jpg);
-        $creator = new ThumbnailCreator();
-        $creator->setSource($src);
-        $creator->verify();
-        $this->assertEquals($src, $creator->getSource());
+        $transaction = Transaction::create()
+            ->setSrcImage($this->portraitImage) // 427x640
+            ->setTarget(new Dimensions(0, 0))
+        ;
+        $this->assertTransactionDimensions(new Dimensions(427, 640), $transaction);
     }
 
+    /**
+     * @testdox When target width is 0, thumbnail width is autoscaled based on image ratio
+     */
     public function testFallbacksForHorizontalAutoscale()
     {
-        $sample = __DIR__ . '/images/samples/sample2.jpg';  // 427x640
-        $creator = new ThumbnailCreator();
-        $creator->setSource(new File($sample));
-
-        $result = $creator->crop(array('width' => 0, 'height' => 320));
-        file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-        list($width, $height) = getimagesize(__DIR__ . '/tmp/test.jpg');
-        $this->assertEquals($width, 214);
-        $this->assertEquals($height, 320);
+        $transaction = Transaction::create()
+            ->setSrcImage($this->portraitImage) // 427x640
+            ->setTarget(new Dimensions(0, 320))
+        ;
+        $this->assertTransactionDimensions(new Dimensions(214, 320), $transaction);
     }
 
+    /**
+     * @testdox When target height is 0, thumbnail height is autoscaled based on image ratio
+     */
     public function testFallbacksForVerticalAutoscale()
     {
-        $sample = __DIR__ . '/images/samples/sample1.jpg';  // 1000x667
-        $creator = new ThumbnailCreator();
-        $creator->setSource(new File($sample));
-
-        $result = $creator->crop(array('width' => 500, 'height' => 0));
-        file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-        list($width, $height) = getimagesize(__DIR__ . '/tmp/test.jpg');
-        $this->assertEquals($width, 500);
-        $this->assertEquals($height, 334);
+        $transaction = Transaction::create()
+            ->setSrcImage($this->landscapeImage) // 1000x667
+            ->setTarget(new Dimensions(500, 0))
+        ;
+        $this->assertTransactionDimensions(new Dimensions(500, 334), $transaction);
     }
 
-    public function testUpscaling()
+    /**
+     * @testdox When upscaling is allowed, thumbnail is enlarged to target dimensions
+     */
+    public function testUpscalingAllowed()
     {
-        $src = new File($this->jpg);
-        $creator = new ThumbnailCreator();
-        $creator->setSource($src);
-        $creator->allowUpscale = true;
-        $creator->verify(array('width' => 800, 'height' => 600));
-        $this->assertEquals(800, $creator->targetWidth);
-        $this->assertEquals(600, $creator->targetHeight);
+        $upscaled = new Dimensions(800, 600);
+        $transaction = Transaction::create()
+            ->setAllowUpscale(true)
+            ->setSrcImage($this->logoJpg)
+            ->setTarget($upscaled)
+        ;
+        $this->assertTransactionDimensions($upscaled, $transaction);
+    }
 
-        $creator->allowUpscale = false;
-        $creator->verify(array('width' => 800, 'height' => 600));
-        $this->assertEquals(624, $creator->targetWidth);
-        $this->assertEquals(351, $creator->targetHeight);
+    /**
+     * @testdox When upscaling is not allowed, target dimensions are reduced to current image dimensions
+     */
+    public function testUpscalingNotAllowed()
+    {
+        $upscaled = new Dimensions(800, 600);
+        $original = new Dimensions(624, 351);
+
+        $transaction = Transaction::create()
+            ->setAllowUpscale(false)
+            ->setSrcImage($this->logoJpg)
+            ->setTarget($upscaled)
+        ;
+        $this->assertTransactionDimensions($original, $transaction);
     }
 
     public function testLandscapeCrop()
     {
-        $sample = __DIR__ . '/images/samples/sample1.jpg';
-        $creator = new ThumbnailCreator();
-        $creator->setSource(new File($sample));
-        $result = $creator->crop(array('width' => 500, 'height' => 200));
-        $compare = __DIR__ . '/images/compare/crop_sample1_500_200.jpg';
-        file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
+        $expected = new Dimensions(500, 200);
+        $transaction = Transaction::create()
+            ->setSrcImage($this->landscapeImage)
+            ->setAction('crop')
+            ->setTarget($expected)
+        ;
+        $this->assertTransactionDimensions($expected, $transaction);
     }
 
     public function testLandscapeResize()
     {
-        $sample = __DIR__ . '/images/samples/sample1.jpg';
-        $creator = new ThumbnailCreator();
-        $creator->setSource(new File($sample));
-        $result = $creator->resize(array('width' => 500, 'height' => 200));
-        $compare = __DIR__ . '/images/compare/resize_sample1_500_200.jpg';
-        file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
+        $transaction = Transaction::create()
+            ->setSrcImage($this->landscapeImage)
+            ->setAction('resize')
+            ->setTarget(new Dimensions(500, 200))
+        ;
+        $this->assertTransactionDimensions(new Dimensions(299, 200), $transaction);
     }
 
     public function testLandscapeFit()
     {
-        $sample = __DIR__ . '/images/samples/sample1.jpg';
-        $creator = new ThumbnailCreator();
-        $creator->setSource(new File($sample));
-        $result = $creator->fit(array('width' => 500, 'height' => 200));
-        $compare = __DIR__ . '/images/compare/fit_sample1_500_200.jpg';
-        file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
+        $expected = new Dimensions(500, 200);
+        $transaction = Transaction::create()
+            ->setSrcImage($this->landscapeImage)
+            ->setAction('fit')
+            ->setTarget($expected)
+        ;
+        $this->assertTransactionDimensions($expected, $transaction);
     }
 
     public function testLandscapeBorder()
     {
-        $sample = __DIR__ . '/images/samples/sample1.jpg';
-        $creator = new ThumbnailCreator();
-        $creator->setSource(new File($sample));
-        $result = $creator->border(array('width' => 500, 'height' => 200));
-        $compare = __DIR__ . '/images/compare/border_sample1_500_200.jpg';
-        file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
+        $expected = new Dimensions(500, 200);
+        $transaction = Transaction::create()
+            ->setSrcImage($this->landscapeImage)
+            ->setAction('border')
+            ->setTarget($expected)
+        ;
+        $this->assertTransactionDimensions($expected, $transaction);
     }
 
     public function testPortraitCrop()
     {
-        $sample = __DIR__ . '/images/samples/sample2.jpg';
-        $creator = new ThumbnailCreator();
-        $creator->setSource(new File($sample));
-        $result = $creator->crop(array('width' => 200, 'height' => 500));
-        $compare = __DIR__ . '/images/compare/crop_sample2_200_500.jpg';
-        file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
+        $expected = new Dimensions(200, 500);
+        $transaction = Transaction::create()
+            ->setSrcImage($this->portraitImage)
+            ->setAction('crop')
+            ->setTarget($expected)
+        ;
+        $this->assertTransactionDimensions($expected, $transaction);
     }
 
     public function testPortraitResize()
     {
-        $sample = __DIR__ . '/images/samples/sample2.jpg';
-        $creator = new ThumbnailCreator();
-        $creator->setSource(new File($sample));
-        $result = $creator->resize(array('width' => 200, 'height' => 500));
-        $compare = __DIR__ . '/images/compare/resize_sample2_200_500.jpg';
-        file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
+        $transaction = Transaction::create()
+            ->setSrcImage($this->portraitImage)
+            ->setAction('resize')
+            ->setTarget(new Dimensions(200, 500))
+        ;
+        $this->assertTransactionDimensions(new Dimensions(200, 299), $transaction);
     }
 
     public function testPortraitFit()
     {
-        $sample = __DIR__ . '/images/samples/sample2.jpg';
-        $creator = new ThumbnailCreator();
-        $creator->setSource(new File($sample));
-        $result = $creator->fit(array('width' => 200, 'height' => 500));
-        $compare = __DIR__ . '/images/compare/fit_sample2_200_500.jpg';
-        file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
+        $expected = new Dimensions(200, 500);
+        $transaction = Transaction::create()
+            ->setSrcImage($this->portraitImage)
+            ->setAction('fit')
+            ->setTarget($expected)
+        ;
+        $this->assertTransactionDimensions($expected, $transaction);
     }
 
     public function testPortraitBorder()
     {
-        $sample = __DIR__ . '/images/samples/sample2.jpg';
-        $creator = new ThumbnailCreator();
-        $creator->setSource(new File($sample));
-        $result = $creator->border(array('width' => 200, 'height' => 500));
-        $compare = __DIR__ . '/images/compare/border_sample2_200_500.jpg';
-        file_put_contents(__DIR__ . '/tmp/test.jpg', $result);
-        $this->assertEquals(getimagesize($compare), getimagesize(__DIR__ . '/tmp/test.jpg'));
+        $expected = new Dimensions(200, 500);
+        $transaction = Transaction::create()
+            ->setSrcImage($this->portraitImage)
+            ->setAction('border')
+            ->setTarget($expected)
+        ;
+        $this->assertTransactionDimensions($expected, $transaction);
     }
 
-    public function tearDown()
+    protected function runTransaction(Transaction $transaction)
     {
-        $tmp = __DIR__ . '/tmp/test.jpg';
-        if (is_readable($tmp)) {
-            unlink($tmp);
-        }
+        $creator = new ThumbnailCreator();
+        return $creator->create($transaction);
+    }
+
+    protected function assertTransactionDimensions(Dimensions $expected, Transaction $transaction)
+    {
+        $result = $this->runTransaction($transaction);
+
+        $actual = ImageInfo::createFromString($result)->getDimensions();
+        $this->assertDimensions($expected, $actual);
+    }
+
+    protected function assertDimensions(Dimensions $expected, Dimensions $actual)
+    {
+        $this->assertEquals($expected, $actual, "Expected dimension $expected does not equal actual $actual");
     }
 }
