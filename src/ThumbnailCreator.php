@@ -1,6 +1,7 @@
 <?php
 namespace Bolt\Thumbs;
 
+use Bolt\Filesystem\ImageInfo;
 use Symfony\Component\HttpFoundation\File\File;
 
 class ThumbnailCreator implements ResizeInterface
@@ -14,12 +15,19 @@ class ThumbnailCreator implements ResizeInterface
     public $allowUpscale = false;
     public $exifOrientation = true;
     public $quality = 80;
-    public $canvas  = array(255, 255, 255);
 
     public $targetWidth;
     public $targetHeight;
     public $originalWidth;
     public $originalHeight;
+
+    /** @var Color */
+    protected $background;
+
+    public function __construct()
+    {
+        $this->background = Color::white();
+    }
 
     public function provides()
     {
@@ -65,20 +73,21 @@ class ThumbnailCreator implements ResizeInterface
         }
 
         // Get the original dimensions of the image
-        $imageMetrics = @getimagesize($this->source->getRealPath());
-
-        if (!$imageMetrics) {
+        try {
+            $info = ImageInfo::createFromFile($this->source->getRealPath());
+        } catch (\Exception $e) {
             $this->source = $this->errorSource;
-            $imageMetrics = @getimagesize($this->source->getRealPath());
-            if (!$imageMetrics) {
+            try {
+                $info = ImageInfo::createFromFile($this->source->getRealPath());
+            } catch (\Exception $e) {
                 throw new \RuntimeException(
                     'There was an error with the thumbnail image requested and additionally the fallback image could not be displayed.',
                     1
                 );
             }
         }
-        $this->originalWidth = $imageMetrics[0];
-        $this->originalHeight = $imageMetrics[1];
+        $this->originalWidth = $info->getWidth();
+        $this->originalHeight = $info->getHeight();
 
         // Set target dimensions to sanitized values
         if (isset($parameters['width']) && preg_match('%^\d+$%', $parameters['width'])) {
@@ -155,199 +164,59 @@ class ThumbnailCreator implements ResizeInterface
      */
     protected function doResize($src, $width, $height, $crop = false, $fit = false, $border = false)
     {
-        if (!list($w, $h) = getimagesize($src)) {
+        try {
+            $img = ImageResource::createFromFile($src);
+        } catch (\Exception $e) {
             return false;
         }
 
-        $type = strtolower(substr(strrchr($src, '.'), 1));
-        if ($type == 'jpeg') {
-            $type = 'jpg';
-        }
+        $target = new Dimensions($width, $height);
 
-        switch ($type) {
-            case 'bmp':
-                $img = imagecreatefromwbmp($src);
-                break;
-            case 'gif':
-                $img = imagecreatefromgif($src);
-                break;
-            case 'jpg':
-                $img = imagecreatefromjpeg($src);
-                // Handle exif orientation
-                if ($this->exifOrientation && function_exists('exif_read_data')) {
-                    $exif = @exif_read_data($src);
-                } else {
-                    $exif = false;
-                }
-                $modes = array(2 => 'H-', 3 => '-T', 4 => 'V-', 5 => 'VL', 6 => '-L', 7 => 'HL', 8 => '-R');
-                $orientation = isset($exif['Orientation']) ? $exif['Orientation'] : 0;
-                if (isset($modes[$orientation])) {
-                    $mode = $modes[$orientation];
-                    $img = self::imageFlipRotate($img, $mode[0], $mode[1]);
-                    $w = imagesx($img);
-                    $h = imagesy($img);
-                }
-                break;
-            case 'png':
-                $img = imagecreatefrompng($src);
-                break;
-            default:
-                return false;
-        }
+        $original = $img->getDimensions();
+
+        $point = new Point();
 
         if ($crop) {
-            $ratio = max($width / $w, $height / $h);
-            $x = 0;
-            $y = 0;
-
-            $xratio = $w / $width;
-            $yratio = $h / $height;
+            $xratio = $original->getWidth() / $target->getWidth();
+            $yratio = $original->getHeight() / $target->getHeight();
 
             // calculate x or y coordinate and width or height of source
             if ($xratio > $yratio) {
-                $x = round(($w - ($w / $xratio * $yratio)) / 2);
-                $w = round($w / $xratio * $yratio);
+                $point->setX(round(($original->getWidth() - ($original->getWidth() / $xratio * $yratio)) / 2));
+                $original->setWidth(round($original->getWidth() / $xratio * $yratio));
             } elseif ($yratio > $xratio) {
-                $y = round(($h - ($h / $yratio * $xratio)) / 2);
-                $h = round($h / $yratio * $xratio);
+                $point->setY(round(($original->getHeight() - ($original->getHeight() / $yratio * $xratio)) / 2));
+                $original->setHeight(round($original->getHeight() / $yratio * $xratio));
             }
         } elseif (!$border && !$fit) {
-            $ratio = min($width / $w, $height / $h);
-            $width = $w * $ratio;
-            $height = $h * $ratio;
+            $ratio = min($target->getWidth() / $original->getWidth(), $target->getHeight() / $original->getHeight());
+            $target->setWidth($original->getWidth() * $ratio);
+            $target->setHeight($original->getHeight() * $ratio);
         }
 
-        $new = imagecreatetruecolor($width, $height);
+        $new = ImageResource::createNew($target, $img->getType());
 
         if ($border) {
-            if (count($this->canvas) == 3) {
-                $canvas = imagecolorallocate($new, $this->canvas[0], $this->canvas[1], $this->canvas[2]);
-                imagefill($new, 0, 0, $canvas);
-            }
+            $new->fill($this->background);
 
-            $x = 0;
-            $y = 0;
-            $tmpheight = $h * ($width / $w);
-            if ($tmpheight > $height) {
-                $width = $w * ($height / $h);
-                $x = round(($this->targetWidth - $width) / 2);
+            $tmpheight = $original->getHeight() * ($target->getWidth() / $original->getWidth());
+            if ($tmpheight > $target->getHeight()) {
+                $target->setWidth($original->getWidth() * ($target->getHeight() / $original->getHeight()));
+                $point->setX(round(($width - $target->getWidth()) / 2));
             } else {
-                $height = $tmpheight;
-                $y = round(($this->targetHeight - $height) / 2);
+                $target->setHeight($tmpheight);
+                $point->setY(round(($height - $target->getHeight()) / 2));
             }
         }
 
-        // Preserve transparency where available
-
-        if ($type == 'gif' or $type == 'png') {
-            imagecolortransparent($new, imagecolorallocatealpha($new, 0, 0, 0, 127));
-            imagealphablending($new, false);
-            imagesavealpha($new, true);
-        }
-
-        if (false === $crop && false === $border) {
-            imagecopyresampled($new, $img, 0, 0, 0, 0, $width, $height, $w, $h);
+        if (!$crop && !$border) {
+            $img->resample(new Point(), new Point(), $target, $original, $new);
         } elseif ($border) {
-            imagecopyresampled($new, $img, $x, $y, 0, 0, $width, $height, $w, $h);
+            $img->resample($point, new Point(), $target, $original, $new);
         } else {
-            imagecopyresampled($new, $img, 0, 0, $x, $y, $width, $height, $w, $h);
+            $img->resample(new Point(), $point, $target, $original, $new);
         }
 
-        return $this->getOutput($new, $type);
-    }
-
-    /**
-     * undocumented function
-     *
-     * @param resource $imageContent an image resource
-     * @param string $type one of bmp|gif|jpg|png
-     *
-     * @return string|false
-     **/
-    protected function getOutput($imageContent, $type)
-    {
-        // This block captures the image data, since these image commands echo out the data
-        // we wrap the operation in output buffering to capture the data as a string.
-        ob_start();
-        switch ($type) {
-            case 'bmp':
-                imagewbmp($imageContent);
-                break;
-            case 'gif':
-                imagegif($imageContent);
-                break;
-            case 'jpg':
-                imageinterlace($imageContent, 1);
-                imagejpeg($imageContent, null, $this->quality);
-                break;
-            case 'png':
-                imagepng($imageContent);
-                break;
-        }
-        $imageData = ob_get_contents();
-        ob_end_clean();
-
-        if ($imageData) {
-            return $imageData;
-        }
-
-        return false;
-    }
-
-    /**
-     * Image flip and rotate
-     *
-     * Based on http://stackoverflow.com/a/10001884/1136593
-     * Thanks Jon Grant
-     *
-     * @param $img   (image to flip and/or rotate)
-     * @param $mode  ('V' = vertical, 'H' = horizontal, 'HV' = both)
-     * @param $angle ('L' = -90°, 'R' = +90°, 'T' = 180°)
-     *
-     * @return resource
-     */
-    public static function imageFlipRotate($img, $mode, $angle)
-    {
-        // Flip the image
-        if ($mode === 'V' || $mode === 'H' || $mode === 'HV') {
-            $width = imagesx($img);
-            $height = imagesy($img);
-
-            $srcX = 0;
-            $srcY = 0;
-            $srcWidth = $width;
-            $srcHeight = $height;
-
-            switch ($mode) {
-                case 'V': // Vertical
-                    $srcY = $height - 1;
-                    $srcHeight = -$height;
-                    break;
-                case 'H': // Horizontal
-                    $srcX = $width - 1;
-                    $srcWidth = -$width;
-                    break;
-                case 'HV': // Both
-                    $srcX = $width - 1;
-                    $srcY = $height - 1;
-                    $srcWidth = -$width;
-                    $srcHeight = -$height;
-                    break;
-            }
-
-            $imgdest = imagecreatetruecolor($width, $height);
-
-            if (imagecopyresampled($imgdest, $img, 0, 0, $srcX, $srcY, $width, $height, $srcWidth, $srcHeight)) {
-                $img = $imgdest;
-            }
-        }
-
-        // Rotate the image
-        if ($angle === 'L' || $angle === 'R' || $angle === 'T') {
-            $rotate = array('L' => 270, 'R' => 90, 'T' => 180);
-            $img = imagerotate($img, $rotate[$angle], 0);
-        }
-
-        return $img;
+        return $img->toString();
     }
 }
