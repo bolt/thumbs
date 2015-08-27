@@ -9,7 +9,7 @@ use PHPExif\Exif;
 /**
  * An object representation of GD's native image resources.
  *
- * Note: Not all methods are included in this class yet.
+ * Note: Only the functionality needed has been implemented in this class.
  *
  * @author Carson Full <carsonfull@gmail.com>
  */
