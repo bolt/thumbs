@@ -1,6 +1,7 @@
 <?php
 namespace Bolt\Thumbs;
 
+use Bolt\Filesystem\Exception\IOException;
 use Exception;
 use RuntimeException;
 
@@ -57,16 +58,19 @@ class Creator implements CreatorInterface
     {
         try {
             $transaction->getSrcImage()->getInfo();
-        } catch (Exception $e) {
-            $transaction->setSrcImage($transaction->getErrorImage());
-            try {
-                $transaction->getSrcImage()->getInfo();
-            } catch (Exception $e) {
-                throw new RuntimeException(
-                    'There was an error with the thumbnail image requested and additionally the fallback image could not be displayed.',
-                    1
-                );
-            }
+            return;
+        } catch (IOException $e) {
+        }
+
+        $transaction->setSrcImage($transaction->getErrorImage());
+        try {
+            $transaction->getSrcImage()->getInfo();
+        } catch (IOException $e) {
+            throw new RuntimeException(
+                'There was an error with the thumbnail image requested and additionally the fallback image could not be displayed.',
+                1,
+                $e
+            );
         }
     }
 
