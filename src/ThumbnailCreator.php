@@ -1,176 +1,121 @@
 <?php
 namespace Bolt\Thumbs;
 
-use Bolt\Filesystem\ImageInfo;
-use Symfony\Component\HttpFoundation\File\File;
+use Exception;
+use RuntimeException;
 
-class ThumbnailCreator implements ResizeInterface
+/**
+ * Creates thumbnails.
+ *
+ * @author Ross Riley <riley.ross@gmail.com>
+ * @author Carson Full <carsonfull@gmail.com>
+ */
+class ThumbnailCreator implements ThumbnailCreatorInterface
 {
-    /** @var File */
-    public $source;
-    /** @var File */
-    public $defaultSource;
-    /** @var File */
-    public $errorSource;
-    public $allowUpscale = false;
-    public $exifOrientation = true;
-    public $quality = 80;
-
-    public $targetWidth;
-    public $targetHeight;
-    public $originalWidth;
-    public $originalHeight;
-
-    /** @var Color */
-    protected $background;
-
-    public function __construct()
+    /**
+     * {@inheritdoc}
+     */
+    public function create(Transaction $transaction)
     {
-        $this->background = Color::white();
-    }
+        $this->verifyInfo($transaction);
 
-    public function provides()
-    {
-        return array(
-            'c' => 'crop',
-            'r' => 'resize',
-            'b' => 'border',
-            'f' => 'fit'
-        );
-    }
+        $this->autoscale($transaction);
 
-    public function setSource(File $source)
-    {
-        $this->source = $source;
-    }
+        $this->checkForUpscale($transaction);
 
-    public function getSource()
-    {
-        return $this->source;
-    }
+        $data = $this->resize($transaction);
 
-    public function setDefaultSource(File $source)
-    {
-        $this->defaultSource = $source;
-    }
-
-    public function setErrorSource(File $source)
-    {
-        $this->errorSource = $source;
+        return $data;
     }
 
     /**
-     *  This method performs the basic sanity checks before allowing the operation to continue.
-     *  If there are any problems with the request it can also reset the source to be one of the
-     *  configured fallback images.
+     * Verifies that the image's info can be read correctly.
+     * If the src image fails, it tries the error image as the fallback.
      *
-     * @param array $parameters
+     * @param Transaction $transaction
+     *
+     * @throws RuntimeException If both src and error images fail to be read.
      */
-    public function verify($parameters = array())
+    protected function verifyInfo(Transaction $transaction)
     {
-        if (!$this->source->isReadable() && $this->defaultSource) {
-            $this->source = $this->defaultSource;
-        }
-
-        // Get the original dimensions of the image
         try {
-            $info = ImageInfo::createFromFile($this->source->getRealPath());
-        } catch (\Exception $e) {
-            $this->source = $this->errorSource;
+            $transaction->getSrcImage()->getInfo();
+        } catch (Exception $e) {
+            $transaction->setSrcImage($transaction->getErrorImage());
             try {
-                $info = ImageInfo::createFromFile($this->source->getRealPath());
-            } catch (\Exception $e) {
-                throw new \RuntimeException(
+                $transaction->getSrcImage()->getInfo();
+            } catch (Exception $e) {
+                throw new RuntimeException(
                     'There was an error with the thumbnail image requested and additionally the fallback image could not be displayed.',
                     1
                 );
             }
         }
-        $this->originalWidth = $info->getWidth();
-        $this->originalHeight = $info->getHeight();
-
-        // Set target dimensions to sanitized values
-        if (isset($parameters['width']) && preg_match('%^\d+$%', $parameters['width'])) {
-            $this->targetWidth = $parameters['width'];
-        } else {
-            $this->targetWidth = $this->originalWidth;
-        }
-
-        if (isset($parameters['height']) && preg_match('%^\d+$%', $parameters['height'])) {
-            $this->targetHeight = $parameters['height'];
-        } else {
-            $this->targetHeight = $this->originalHeight;
-        }
-
-        // Autoscaling
-        if ($this->targetWidth == 0 and $this->targetHeight == 0) {
-            $this->targetWidth = $this->originalWidth;
-            $this->targetHeight = $this->originalHeight;
-        } elseif ($this->targetWidth == 0) {
-            $this->targetWidth = round($this->targetHeight * $this->originalWidth / $this->originalHeight);
-        } elseif ($this->targetHeight == 0) {
-            $this->targetHeight = round($this->targetWidth * $this->originalHeight / $this->originalWidth);
-        }
-
-        // Check for upscale
-        if (!$this->allowUpscale) {
-            if ($this->targetWidth > $this->originalWidth) {
-                $this->targetWidth = $this->originalWidth;
-            }
-            if ($this->targetHeight > $this->originalHeight) {
-                $this->targetHeight = $this->originalHeight;
-            }
-        }
-    }
-
-    public function resize($parameters = array())
-    {
-        $this->verify($parameters);
-        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false);
-    }
-
-    public function crop($parameters = array())
-    {
-        $this->verify($parameters);
-        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, true);
-    }
-
-    public function border($parameters = array())
-    {
-        $this->verify($parameters);
-        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false, true);
-    }
-
-    public function fit($parameters = array())
-    {
-        $this->verify($parameters);
-        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, true);
     }
 
     /**
-     * Main resizing function.
+     * If target width and/or height are set to 0, they are set based on the image's height/width.
      *
-     * Since the resizing functionality is almost identical across all actions they all delegate here.
-     * Main difference is in plotting the output dimensions where the ratios and position differ slightly.
-     *
-     * @param string $src
-     * @param int    $width
-     * @param int    $height
-     * @param bool   $crop
-     * @param bool   $fit
-     * @param bool   $border
-     *
-     * @return false|string
+     * @param Transaction $transaction
      */
-    protected function doResize($src, $width, $height, $crop = false, $fit = false, $border = false)
+    protected function autoscale(Transaction $transaction)
     {
+        $info = $transaction->getSrcImage()->getInfo();
+
+        $target = $transaction->getTarget();
+
+        if ($target->getWidth() === 0 && $target->getHeight() === 0) {
+            $target->setWidth($info->getWidth());
+            $target->setHeight($info->getHeight());
+        } elseif ($target->getWidth() === 0) {
+            $target->setWidth(round($target->getHeight() * $info->getWidth() / $info->getHeight()));
+        } elseif ($target->getHeight() === 0) {
+            $target->setHeight(round($target->getWidth() * $info->getHeight() / $info->getWidth()));
+        }
+    }
+
+    /**
+     * Limits the target width/height to the image's height/width if upscale is not allowed.
+     *
+     * @param Transaction $transaction
+     */
+    protected function checkForUpscale(Transaction $transaction)
+    {
+        if ($transaction->getAllowUpscale()) {
+            return;
+        }
+
+        $info = $transaction->getSrcImage()->getInfo();
+        $target = $transaction->getTarget();
+
+        if ($target->getWidth() > $info->getWidth()) {
+            $target->setWidth($info->getWidth());
+        }
+        if ($target->getHeight() > $info->getHeight()) {
+            $target->setHeight($info->getHeight());
+        }
+    }
+
+    /**
+     * Do the actual resize/crop/fit/border logic and return the image data.
+     *
+     * @param Transaction $transaction
+     *
+     * @return string
+     */
+    protected function resize(Transaction $transaction)
+    {
+        $crop = $transaction->getAction() === 'crop';
+        $fit = $transaction->getAction() === 'fit';
+        $border = $transaction->getAction() === 'border';
+
         try {
-            $img = ImageResource::createFromFile($src);
-        } catch (\Exception $e) {
+            $img = ImageResource::createFromString($transaction->getSrcImage()->read());
+        } catch (Exception $e) {
             return false;
         }
 
-        $target = new Dimensions($width, $height);
+        $target = clone $transaction->getTarget();
 
         $original = $img->getDimensions();
 
@@ -197,15 +142,15 @@ class ThumbnailCreator implements ResizeInterface
         $new = ImageResource::createNew($target, $img->getType());
 
         if ($border) {
-            $new->fill($this->background);
+            $new->fill($transaction->getBackground());
 
             $tmpheight = $original->getHeight() * ($target->getWidth() / $original->getWidth());
             if ($tmpheight > $target->getHeight()) {
                 $target->setWidth($original->getWidth() * ($target->getHeight() / $original->getHeight()));
-                $point->setX(round(($width - $target->getWidth()) / 2));
+                $point->setX(round(($transaction->getTarget()->getWidth() - $target->getWidth()) / 2));
             } else {
                 $target->setHeight($tmpheight);
-                $point->setY(round(($height - $target->getHeight()) / 2));
+                $point->setY(round(($transaction->getTarget()->getHeight() - $target->getHeight()) / 2));
             }
         }
 
