@@ -119,7 +119,7 @@ class ImageResource
     }
 
     /**
-     * Returns the GD resource
+     * Returns the GD resource.
      *
      * @return resource
      */
@@ -167,6 +167,101 @@ class ImageResource
     public function getExif()
     {
         return $this->getInfo()->getExif();
+    }
+
+    /**
+     * Allocate a color for an image.
+     *
+     * @param int      $red   Value of red component (between 0 and 255)
+     * @param int      $green Value of green component (between 0 and 255)
+     * @param int      $blue  Value of blue component (between 0 and 255)
+     * @param int|null $alpha Optional value of alpha component (between 0 and 127). 0 = opaque, 127 = transparent.
+     *
+     * @return Color
+     */
+    public function allocateColor($red, $green, $blue, $alpha = null)
+    {
+        // Verify parameters before trying to allocate
+        new Color($red, $green, $blue, $alpha);
+
+        // Reuse same color if its already in index
+        if ($alpha === null) {
+            $index = imagecolorexact($this->resource, $red, $green, $blue);
+        } else {
+            $index = imagecolorexactalpha($this->resource, $red, $green, $blue, $alpha);
+        }
+        if ($index !== -1) {
+            return new Color($red, $green, $blue, $alpha, $index);
+        }
+
+        // Allocate new color
+        if ($alpha === null) {
+            $index = imagecolorallocate($this->resource, $red, $green, $blue);
+        } else {
+            $index = imagecolorallocatealpha($this->resource, $red, $green, $blue, $alpha);
+        }
+        if ($index === false) {
+            throw new InvalidArgumentException('Failed to create color');
+        }
+
+        return new Color($red, $green, $blue, $alpha, $index);
+    }
+
+    /**
+     * Allocate a transparent color for an image.
+     *
+     * @return Color
+     */
+    public function allocateTransparentColor()
+    {
+        // Reuse same transparent color index if it exists
+        $index = imagecolortransparent($this->resource);
+        if ($index === -1) {
+            // ok allocate it
+            $color = $this->allocateColor(0, 0, 0, 127);
+            $index = imagecolortransparent($this->resource, $color->getIndex());
+        }
+
+        return new Color(0, 0, 0, 127, $index);
+    }
+
+    /**
+     * Returns the color at a point.
+     *
+     * @param Point $point
+     *
+     * @return Color
+     */
+    public function getColorAt(Point $point)
+    {
+        $dim = $this->getDimensions();
+        if ($point->getX() > $dim->getWidth() || $point->getY() > $dim->getHeight()) {
+            throw new InvalidArgumentException(
+                "Given coordinates ({$point->getX()}, {$point->getY()}) are out of bounds"
+            );
+        }
+
+        $index = imagecolorat($this->resource, $point->getX(), $point->getY());
+        $rgb = imagecolorsforindex($this->resource, $index);
+
+        return new Color($rgb['red'], $rgb['green'], $rgb['blue'], $rgb['alpha'], $index);
+    }
+
+    /**
+     * Flood fill.
+     *
+     * @param Color $color      The fill color
+     * @param Point $startPoint The point to start at
+     *
+     * @return ImageResource This image
+     */
+    public function fill(Color $color, Point $startPoint = null)
+    {
+        $startPoint = $startPoint ?: new Point();
+        $color = $this->verifyColor($color);
+        imagefill($this->resource, $startPoint->getX(), $startPoint->getY(), $color->getIndex());
+
+        return $this;
     }
 
     /**
@@ -364,6 +459,22 @@ class ImageResource
         $mode = $modes[$orientation];
 
         $this->flip($mode[0])->rotate($mode[1]);
+    }
+
+    /**
+     * Verifies that a color is allocated.
+     *
+     * @param Color $color
+     *
+     * @return Color
+     */
+    protected function verifyColor(Color $color)
+    {
+        if ($color->getIndex() !== null) {
+            return $color;
+        }
+
+        return $this->allocateColor($color->getRed(), $color->getGreen(), $color->getBlue(), $color->getAlpha());
     }
 
     /**
