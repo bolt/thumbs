@@ -1,8 +1,7 @@
 <?php
 namespace Bolt\Thumbs;
 
-use Bolt\Application;
-use Gregwar\Cache\Cache;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,23 +24,17 @@ class ThumbnailResponder
     /**
      * Constructor method
      *
-     * @param Application     $app     an instance of Bolt\Application
+     * @param Application     $app     an instance of \Silex\Application
      * @param Request         $request
      * @param ResizeInterface $resizer - uses the built in resizer by default but a custom one can be passed in.
-     *
-     * @return void
-     **/
+     */
     public function __construct(Application $app, Request $request, ResizeInterface $resizer = null)
     {
         $this->app = $app;
         $this->request = $request;
 
-        if (null === $resizer) {
-            $this->resizer = new ThumbnailCreator;
-        } else {
-            $this->resizer = $resizer;
-        }
-        
+        $this->resizer = $resizer ?: new ThumbnailCreator();
+
         // Thumbnails should not set cookies. Remove them, to allow Varnish (or
         // other reverse-proxies) to do a better job of caching the request.
         if (!headers_sent()) {
@@ -51,8 +44,6 @@ class ThumbnailResponder
 
     /**
      * Method runs prior to response, loads up config and sets necessary fallbacks.
-     *
-     * @return void
      **/
     public function initialize()
     {
@@ -109,8 +100,6 @@ class ThumbnailResponder
     /**
      * Takes the request object and separates into required components. The format is:
      * /thumbs/<width>x<height><command>/<file>
-     *
-     * @return void
      **/
     public function parseRequest()
     {
@@ -140,7 +129,7 @@ class ThumbnailResponder
     /**
      * Returns a response object based on the type of image requested.
      *
-     * @return Response $response
+     * @return Response
      **/
     public function respond()
     {
@@ -186,8 +175,6 @@ class ThumbnailResponder
 
     /**
      * Saves a static copy of the file if the config is set to do so
-     *
-     * @return void
      **/
     public function saveStatic($imageContent)
     {
@@ -211,8 +198,8 @@ class ThumbnailResponder
     /**
      * Makes a unique key based on all parameters of the url. This is passed to the caching engine.
      *
-     * @return $key
-     **/
+     * @return string
+     */
     public function getCacheKey()
     {
         $key = join('-', array(str_replace('/', '_', $this->file), $this->width, $this->height, $this->action));

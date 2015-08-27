@@ -5,8 +5,11 @@ use Symfony\Component\HttpFoundation\File\File;
 
 class ThumbnailCreator implements ResizeInterface
 {
+    /** @var File */
     public $source;
+    /** @var File */
     public $defaultSource;
+    /** @var File */
     public $errorSource;
     public $allowUpscale = false;
     public $exifOrientation = true;
@@ -15,6 +18,8 @@ class ThumbnailCreator implements ResizeInterface
 
     public $targetWidth;
     public $targetHeight;
+    public $originalWidth;
+    public $originalHeight;
 
     public function provides()
     {
@@ -50,7 +55,9 @@ class ThumbnailCreator implements ResizeInterface
      *  This method performs the basic sanity checks before allowing the operation to continue.
      *  If there are any problems with the request it can also reset the source to be one of the
      *  configured fallback images.
-     **/
+     *
+     * @param array $parameters
+     */
     public function verify($parameters = array())
     {
         if (!$this->source->isReadable() && $this->defaultSource) {
@@ -110,37 +117,25 @@ class ThumbnailCreator implements ResizeInterface
     public function resize($parameters = array())
     {
         $this->verify($parameters);
-        $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false);
-        if (false !== $data) {
-            return $data;
-        }
+        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false);
     }
 
     public function crop($parameters = array())
     {
         $this->verify($parameters);
-        $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, true);
-        if (false !== $data) {
-            return $data;
-        }
+        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, true);
     }
 
     public function border($parameters = array())
     {
         $this->verify($parameters);
-        $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false, true);
-        if (false !== $data) {
-            return $data;
-        }
+        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, false, true);
     }
 
     public function fit($parameters = array())
     {
         $this->verify($parameters);
-        $data = $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, true);
-        if (false !== $data) {
-            return $data;
-        }
+        return $this->doResize($this->source->getRealPath(), $this->targetWidth, $this->targetHeight, false, true);
     }
 
     /**
@@ -149,8 +144,15 @@ class ThumbnailCreator implements ResizeInterface
      * Since the resizing functionality is almost identical across all actions they all delegate here.
      * Main difference is in plotting the output dimensions where the ratios and position differ slightly.
      *
-     * @return $imageData
-     **/
+     * @param string $src
+     * @param int    $width
+     * @param int    $height
+     * @param bool   $crop
+     * @param bool   $fit
+     * @param bool   $border
+     *
+     * @return false|string
+     */
     protected function doResize($src, $width, $height, $crop = false, $fit = false, $border = false)
     {
         if (!list($w, $h) = getimagesize($src)) {
@@ -257,10 +259,10 @@ class ThumbnailCreator implements ResizeInterface
     /**
      * undocumented function
      *
-     * @param $imageContent an image resource
-     * @param $type one of bmp|gif|jpg|png
+     * @param resource $imageContent an image resource
+     * @param string $type one of bmp|gif|jpg|png
      *
-     * @return $imageData | false
+     * @return string|false
      **/
     protected function getOutput($imageContent, $type)
     {
@@ -298,9 +300,11 @@ class ThumbnailCreator implements ResizeInterface
      * Based on http://stackoverflow.com/a/10001884/1136593
      * Thanks Jon Grant
      *
-     * @param $img (image to flip and/or rotate)
-     * @param $mode ('V' = vertical, 'H' = horizontal, 'HV' = both)
+     * @param $img   (image to flip and/or rotate)
+     * @param $mode  ('V' = vertical, 'H' = horizontal, 'HV' = both)
      * @param $angle ('L' = -90°, 'R' = +90°, 'T' = 180°)
+     *
+     * @return resource
      */
     public static function imageFlipRotate($img, $mode, $angle)
     {

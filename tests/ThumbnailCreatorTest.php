@@ -212,7 +212,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
             // Assert image size and red color (fuzzy) in the upper left corner
             $this->assertEquals($resize['width'], $width, 'Wrong width!');
             $this->assertEquals($resize['height'], $height, 'Wrong height!');
-            $this->assertTrue($rgb['red'] > 250 && $rgb['green'] < 5 && $rgb['blue'] < 5, 'Wrong orientation!');
+            $this->assertTrue($rgb['red'] > 250 && $rgb['green'] < 10 && $rgb['blue'] < 5, 'Wrong orientation!');
         }
     }
 
