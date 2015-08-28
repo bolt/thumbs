@@ -22,6 +22,11 @@ class ImageResource
     /** @var ImageInfo */
     protected $info;
 
+    /** @var int Quality setting for JPEGs and PNGs */
+    protected static $quality = 80;
+    /** @var bool */
+    protected static $normalizeJpegOrientation = true;
+
     /**
      * ImageResource constructor.
      *
@@ -47,7 +52,7 @@ class ImageResource
             throw new InvalidArgumentException('Type or ImageInfo need to be provided');
         }
 
-        if ($this->type === IMAGETYPE_JPEG) {
+        if ($this->type === IMAGETYPE_JPEG && static::$normalizeJpegOrientation) {
             $this->normalizeJpegOrientation();
         }
     }
@@ -377,10 +382,11 @@ class ImageResource
                 break;
             case IMAGETYPE_JPEG:
                 imageinterlace($this->resource, 1);
-                imagejpeg($this->resource, $file);
+                imagejpeg($this->resource, $file, static::$quality);
                 break;
             case IMAGETYPE_PNG:
-                imagepng($this->resource, $file);
+                $compression = static::convertJpegQualityToPngCompression(static::$quality);
+                imagepng($this->resource, $file, $compression);
                 break;
             default:
                 throw new \RuntimeException('Unknown image type');
@@ -443,6 +449,85 @@ class ImageResource
     public function __destroy()
     {
         imagedestroy($this->resource);
+    }
+
+    /**
+     * Returns whether JPEG orientation is normalized or not.
+     *
+     * @return boolean
+     */
+    public static function isJpegOrientationNormalized()
+    {
+        return static::$normalizeJpegOrientation;
+    }
+
+    /**
+     * Enable or disable JPEG orientation normalization.
+     *
+     * @param boolean $normalizeJpegOrientation
+     */
+    public static function setNormalizeJpegOrientation($normalizeJpegOrientation)
+    {
+        static::$normalizeJpegOrientation = (bool) $normalizeJpegOrientation;
+    }
+
+    /**
+     * Sets the quality setting.
+     *
+     * Note: A quality < 10 is assumed to be PNG compression scale.
+     *
+     * @param int $quality Between 0 and 100
+     */
+    public static function setQuality($quality)
+    {
+        if (!is_numeric($quality)) {
+            throw new InvalidArgumentException('Quality is expected to be numeric');
+        }
+        if ($quality < 0 && $quality > 100) {
+            throw new InvalidArgumentException('Quality is expected to be between 0 and 100');
+        }
+        if ($quality < 10) {
+            // assume PNG scale
+            $quality = static::convertPngCompressionToJpegQuality($quality);
+        }
+        static::$quality = $quality;
+    }
+
+    /**
+     * Returns the quality setting.
+     *
+     * @return int
+     */
+    public static function getQuality()
+    {
+        return static::$quality;
+    }
+
+    /**
+     * Convert JPEG quality scale to PNG compression scale.
+     * JPEG: 0 (worst) - 100 (best). PNG: 0 (best) - 10 (worst)
+     *
+     * @param int $quality
+     *
+     * @return int
+     */
+    protected static function convertJpegQualityToPngCompression($quality)
+    {
+        $quality = (100 - $quality) / 10;
+        $quality = min(ceil($quality), 9);
+        return $quality;
+    }
+
+    /**
+     * Convert PNG compression scale to JPEG quality scale.
+     *
+     * @param int $compression
+     *
+     * @return int
+     */
+    protected static function convertPngCompressionToJpegQuality($compression)
+    {
+        return 100 - 10 * $compression;
     }
 
     /**
