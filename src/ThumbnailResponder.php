@@ -83,7 +83,7 @@ class ThumbnailResponder
      * @param string     $action
      * @param Dimensions $dimensions
      *
-     * @return Response
+     * @return Thumbnail
      */
     public function respond($requestPath, $path, $action, Dimensions $dimensions)
     {
@@ -106,12 +106,8 @@ class ThumbnailResponder
         // Save static copy if enabled
         $this->saveStaticThumbnail($requestPath, $thumbnail);
 
-        // Return thumbnail response
-        $response = new Response($thumbnail, $image->getInfo());
-        if ($this->cacheTime > 0) {
-            $response->setPublic()->setMaxAge($this->cacheTime);
-        }
-        return $response;
+        // Return thumbnail
+        return new Thumbnail($image, $thumbnail);
     }
 
     /**
