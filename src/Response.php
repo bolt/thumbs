@@ -52,7 +52,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
      * @return Response
      */
     public static function create(
-        $thumbnail,
+        $thumbnail = null,
         $status = 200,
         $headers = [],
         $public = true,

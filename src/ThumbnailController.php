@@ -35,7 +35,7 @@ class ThumbnailController implements ControllerProviderInterface
             ];
             return isset($actions[$value]) ? $actions[$value] : 'crop';
         };
-        $ctr->get('/{width}x{height}{action}/{file}', [$this, 'thumbnail'])
+        $ctr->get('/{width}x{height}{action}/{file}', 'controller.thumbnails:thumbnail')
             ->assert('width', '\d+')
             ->convert('width', $toInt)
             ->assert('height', '\d+')

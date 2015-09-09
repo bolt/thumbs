@@ -2,10 +2,12 @@
 
 namespace Bolt\Thumbs\Tests;
 
+use Bolt\Filesystem\Image;
 use Bolt\Thumbs\Dimensions;
-use Bolt\Thumbs\Response;
+use Bolt\Thumbs\Thumbnail;
 use Bolt\Thumbs\ThumbnailController;
 use Silex\Application;
+use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\WebTestCase;
 
 class ThumbnailControllerTest extends WebTestCase
@@ -42,9 +44,10 @@ class ThumbnailControllerTest extends WebTestCase
      */
     public function createApplication()
     {
-        $controller = new ThumbnailController();
         $app = new Application();
-        $app->mount('/thumbs', $controller);
+        $app['controller.thumbnails'] = new ThumbnailController();
+        $app->mount('/thumbs', $app['controller.thumbnails']);
+        $app->register(new ServiceControllerServiceProvider());
 
         $mock = $this->getMock('Bolt\Thumbs\ThumbnailResponder', ['respond'], [], '', false);
         $app['thumbnails'] = $mock;
@@ -59,7 +62,7 @@ class ThumbnailControllerTest extends WebTestCase
         $mock->expects($this->once())
             ->method('respond')
             ->with($path, $file, $action, new Dimensions($width, $height))
-            ->willReturn(new Response())
+            ->willReturn(new Thumbnail(new Image(), null))
         ;
     }
 }
