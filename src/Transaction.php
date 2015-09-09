@@ -11,6 +11,8 @@ use Bolt\Filesystem\Image;
  */
 class Transaction
 {
+    /** @var string */
+    protected $filePath;
     /** @var Image */
     protected $srcImage;
     /** @var Image */
@@ -21,23 +23,27 @@ class Transaction
     /** @var Dimensions */
     protected $target;
 
-    /**
-     * Transaction Constructor.
-     */
-    public function __construct()
-    {
-        $this->action = 'crop';
-        $this->target = new Dimensions();
-    }
+    /** @var string|null */
+    protected $requestPath;
 
     /**
-     * Chainable Constructor.
+     * Transaction Constructor.
      *
-     * @return Transaction
+     * @param Image|string $file
+     * @param string       $action
+     * @param Dimensions   $dimensions
+     * @param string|null  $requestPath
      */
-    public static function create()
+    public function __construct($file, $action = 'crop', Dimensions $dimensions = null, $requestPath = null)
     {
-        return new static();
+        if ($file instanceof Image) {
+            $this->srcImage = $file;
+        } else {
+            $this->filePath = $file;
+        }
+        $this->action = $action;
+        $this->target = $dimensions ?: new Dimensions();
+        $this->requestPath = $requestPath;
     }
 
     /**
@@ -49,6 +55,30 @@ class Transaction
     {
         $path = str_replace('/', '_', $this->srcImage->getPath());
         return join('-', [$path, $this->action, $this->target->getWidth(), $this->target->getHeight()]);
+    }
+
+    /**
+     * Returns the request path for this thumbnail, used for saving a static file.
+     *
+     * @return string
+     */
+    public function getRequestPath()
+    {
+        return $this->requestPath;
+    }
+
+    /**
+     * Returns the filepath. Used for finding image in filesystem.
+     *
+     * @return string
+     */
+    public function getFilePath()
+    {
+        if ($this->srcImage !== null) {
+            return $this->srcImage->getPath();
+        }
+
+        return $this->filePath;
     }
 
     /**

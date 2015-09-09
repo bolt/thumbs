@@ -6,6 +6,7 @@ use Bolt\Filesystem\Image;
 use Bolt\Thumbs\Dimensions;
 use Bolt\Thumbs\Thumbnail;
 use Bolt\Thumbs\ThumbnailController;
+use Bolt\Thumbs\Transaction;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\WebTestCase;
@@ -61,7 +62,7 @@ class ThumbnailControllerTest extends WebTestCase
         $mock = $this->app['thumbnails'];
         $mock->expects($this->once())
             ->method('respond')
-            ->with($path, $file, $action, new Dimensions($width, $height))
+            ->with(new Transaction($file, $action, new Dimensions($width, $height), $path))
             ->willReturn(new Thumbnail(new Image(), null))
         ;
     }

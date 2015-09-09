@@ -69,7 +69,9 @@ class ThumbnailController implements ControllerProviderInterface
         }
 
         $requestPath = urldecode($request->getPathInfo());
-        $thumbnail = $app['thumbnails']->respond($requestPath, $file, $action, new Dimensions($width, $height));
+        $transaction = new Transaction($file, $action, new Dimensions($width, $height), $requestPath);
+
+        $thumbnail = $app['thumbnails']->respond($transaction);
 
         return new Response($thumbnail);
     }

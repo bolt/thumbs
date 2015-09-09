@@ -16,9 +16,9 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
 
     /** @var Image */
     protected $logoJpg;
-    /** @var Image */
+    /** @var Image 1000x667 */
     protected $landscapeImage;
-    /** @var Image */
+    /** @var Image 427x640 */
     protected $portraitImage;
 
     public function setup()
@@ -34,11 +34,11 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testFallbacksForAutoscale()
     {
-        $transaction = Transaction::create()
-            ->setSrcImage($this->portraitImage) // 427x640
-            ->setTarget(new Dimensions(0, 0))
-        ;
-        $this->assertTransactionDimensions(new Dimensions(427, 640), $transaction);
+        $transaction = new Transaction($this->portraitImage);
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions(new Dimensions(427, 640), $result);
     }
 
     /**
@@ -46,11 +46,11 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testFallbacksForHorizontalAutoscale()
     {
-        $transaction = Transaction::create()
-            ->setSrcImage($this->portraitImage) // 427x640
-            ->setTarget(new Dimensions(0, 320))
-        ;
-        $this->assertTransactionDimensions(new Dimensions(214, 320), $transaction);
+        $transaction = new Transaction($this->portraitImage, 'crop', new Dimensions(0, 320));
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions(new Dimensions(214, 320), $result);
     }
 
     /**
@@ -58,11 +58,11 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testFallbacksForVerticalAutoscale()
     {
-        $transaction = Transaction::create()
-            ->setSrcImage($this->landscapeImage) // 1000x667
-            ->setTarget(new Dimensions(500, 0))
-        ;
-        $this->assertTransactionDimensions(new Dimensions(500, 334), $transaction);
+        $transaction = new Transaction($this->landscapeImage, 'crop', new Dimensions(500, 0));
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions(new Dimensions(500, 334), $result);
     }
 
     /**
@@ -71,12 +71,11 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     public function testUpscalingAllowed()
     {
         $upscaled = new Dimensions(800, 600);
-        $transaction = Transaction::create()
-            ->setAllowUpscale(true)
-            ->setSrcImage($this->logoJpg)
-            ->setTarget($upscaled)
-        ;
-        $this->assertTransactionDimensions($upscaled, $transaction);
+        $transaction = new Transaction($this->logoJpg, 'crop', $upscaled);
+
+        $result = (new Creator(true))->create($transaction);
+
+        $this->assertDimensions($upscaled, $result);
     }
 
     /**
@@ -87,117 +86,101 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
         $upscaled = new Dimensions(800, 600);
         $original = new Dimensions(624, 351);
 
-        $transaction = Transaction::create()
-            ->setAllowUpscale(false)
-            ->setSrcImage($this->logoJpg)
-            ->setTarget($upscaled)
-        ;
-        $this->assertTransactionDimensions($original, $transaction);
+        $transaction = new Transaction($this->logoJpg, 'crop', $upscaled);
+
+        $result = (new Creator(false))->create($transaction);
+
+        $this->assertDimensions($original, $result);
     }
 
     public function testLandscapeCrop()
     {
         $expected = new Dimensions(500, 200);
-        $transaction = Transaction::create()
-            ->setSrcImage($this->landscapeImage)
-            ->setAction('crop')
-            ->setTarget($expected)
-        ;
-        $this->assertTransactionDimensions($expected, $transaction);
+        $transaction = new Transaction($this->landscapeImage, 'crop', $expected);
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions($expected, $result);
     }
 
     public function testLandscapeResize()
     {
-        $transaction = Transaction::create()
-            ->setSrcImage($this->landscapeImage)
-            ->setAction('resize')
-            ->setTarget(new Dimensions(500, 200))
-        ;
-        $this->assertTransactionDimensions(new Dimensions(299, 200), $transaction);
+        $transaction = new Transaction($this->landscapeImage, 'resize', new Dimensions(500, 200));
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions(new Dimensions(299, 200), $result);
     }
 
     public function testLandscapeFit()
     {
         $expected = new Dimensions(500, 200);
-        $transaction = Transaction::create()
-            ->setSrcImage($this->landscapeImage)
-            ->setAction('fit')
-            ->setTarget($expected)
-        ;
-        $this->assertTransactionDimensions($expected, $transaction);
+        $transaction = new Transaction($this->landscapeImage, 'fit', $expected);
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions($expected, $result);
     }
 
     public function testLandscapeBorder()
     {
         $expected = new Dimensions(500, 200);
-        $transaction = Transaction::create()
-            ->setSrcImage($this->landscapeImage)
-            ->setAction('border')
-            ->setTarget($expected)
-        ;
-        $this->assertTransactionDimensions($expected, $transaction);
+        $transaction = new Transaction($this->landscapeImage, 'border', $expected);
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions($expected, $result);
     }
 
     public function testPortraitCrop()
     {
         $expected = new Dimensions(200, 500);
-        $transaction = Transaction::create()
-            ->setSrcImage($this->portraitImage)
-            ->setAction('crop')
-            ->setTarget($expected)
-        ;
-        $this->assertTransactionDimensions($expected, $transaction);
+        $transaction = new Transaction($this->portraitImage, 'crop', $expected);
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions($expected, $result);
     }
 
     public function testPortraitResize()
     {
-        $transaction = Transaction::create()
-            ->setSrcImage($this->portraitImage)
-            ->setAction('resize')
-            ->setTarget(new Dimensions(200, 500))
-        ;
-        $this->assertTransactionDimensions(new Dimensions(200, 299), $transaction);
+        $transaction = new Transaction($this->portraitImage, 'resize', new Dimensions(200, 500));
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions(new Dimensions(200, 299), $result);
     }
 
     public function testPortraitFit()
     {
         $expected = new Dimensions(200, 500);
-        $transaction = Transaction::create()
-            ->setSrcImage($this->portraitImage)
-            ->setAction('fit')
-            ->setTarget($expected)
-        ;
-        $this->assertTransactionDimensions($expected, $transaction);
+        $transaction = new Transaction($this->portraitImage, 'fit', $expected);
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions($expected, $result);
     }
 
     public function testPortraitBorder()
     {
         $expected = new Dimensions(200, 500);
-        $transaction = Transaction::create()
-            ->setSrcImage($this->portraitImage)
-            ->setAction('border')
-            ->setTarget($expected)
-        ;
-        $this->assertTransactionDimensions($expected, $transaction);
+        $transaction = new Transaction($this->portraitImage, 'border', $expected);
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions($expected, $result);
     }
 
-    protected function runTransaction(Transaction $transaction)
+    /**
+     * @param Dimensions        $expected
+     * @param Dimensions|string $actual
+     */
+    protected function assertDimensions(Dimensions $expected, $actual)
     {
-        $creator = new Creator();
-        return $creator->create($transaction);
-    }
-
-    protected function assertTransactionDimensions(Dimensions $expected, Transaction $transaction)
-    {
-        $result = $this->runTransaction($transaction);
-
-        $info = ImageInfo::createFromString($result);
-        $actual = new Dimensions($info->getWidth(), $info->getHeight());
-        $this->assertDimensions($expected, $actual);
-    }
-
-    protected function assertDimensions(Dimensions $expected, Dimensions $actual)
-    {
+        if (is_string($actual)) {
+            $info = ImageInfo::createFromString($actual);
+            $actual = new Dimensions($info->getWidth(), $info->getHeight());
+        }
         $this->assertEquals($expected, $actual, "Expected dimension $expected does not equal actual $actual");
     }
 }

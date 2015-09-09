@@ -58,31 +58,22 @@ class ThumbnailResponder
     /**
      * Respond to the thumbnail request.
      *
-     * @param string     $requestPath
-     * @param string     $path
-     * @param string     $action
-     * @param Dimensions $dimensions
+     * @param Transaction $transaction
      *
      * @return Thumbnail
      */
-    public function respond($requestPath, $path, $action, Dimensions $dimensions)
+    public function respond(Transaction $transaction)
     {
-        // Create a transaction with the global options
-        $transaction = new Transaction();
         $transaction->setErrorImage($this->errorImage);
 
-        // Set properties for this thumbnail request
-        $transaction->setTarget($dimensions);
-        $transaction->setAction($action);
-
-        $image = $this->finder->find($path);
+        $image = $this->finder->find($transaction->getFilePath());
         $transaction->setSrcImage($image);
 
         // Get the thumbnail from cache or create it
         $thumbnail = $this->getThumbnail($transaction);
 
         // Save static copy if enabled
-        $this->saveStaticThumbnail($requestPath, $thumbnail);
+        $this->saveStaticThumbnail($transaction->getRequestPath(), $thumbnail);
 
         // Return thumbnail
         return new Thumbnail($image, $thumbnail);
@@ -123,7 +114,7 @@ class ThumbnailResponder
      */
     protected function saveStaticThumbnail($requestPath, $imageContent)
     {
-        if ($this->webFs === null) {
+        if ($this->webFs === null || $requestPath === null) {
             return;
         }
         try {
