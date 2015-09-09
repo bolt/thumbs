@@ -122,9 +122,9 @@ class Creator implements CreatorInterface
      */
     protected function resize(Transaction $transaction)
     {
-        $crop = $transaction->getAction() === 'crop';
-        $fit = $transaction->getAction() === 'fit';
-        $border = $transaction->getAction() === 'border';
+        $crop = $transaction->getAction() === Action::CROP;
+        $fit = $transaction->getAction() === Action::FIT;
+        $border = $transaction->getAction() === Action::BORDER;
 
         try {
             $img = ImageResource::createFromString($transaction->getSrcImage()->read());

@@ -34,7 +34,7 @@ class Transaction
      * @param Dimensions   $dimensions
      * @param string|null  $requestPath
      */
-    public function __construct($file, $action = 'crop', Dimensions $dimensions = null, $requestPath = null)
+    public function __construct($file, $action = Action::CROP, Dimensions $dimensions = null, $requestPath = null)
     {
         if ($file instanceof Image) {
             $this->srcImage = $file;

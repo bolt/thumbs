@@ -28,12 +28,12 @@ class ThumbnailController implements ControllerProviderInterface
         };
         $toAction = function($value) {
             $actions = [
-                'c' => 'crop',
-                'r' => 'resize',
-                'b' => 'border',
-                'f' => 'fit',
+                'c' => Action::CROP,
+                'r' => Action::RESIZE,
+                'b' => Action::BORDER,
+                'f' => Action::FIT,
             ];
-            return isset($actions[$value]) ? $actions[$value] : 'crop';
+            return isset($actions[$value]) ? $actions[$value] : Action::CROP;
         };
         $ctr->get('/{width}x{height}{action}/{file}', 'controller.thumbnails:thumbnail')
             ->assert('width', '\d+')

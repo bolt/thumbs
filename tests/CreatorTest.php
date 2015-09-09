@@ -5,6 +5,7 @@ use Bolt\Filesystem\Filesystem;
 use Bolt\Filesystem\Image;
 use Bolt\Filesystem\ImageInfo;
 use Bolt\Filesystem\Local;
+use Bolt\Thumbs\Action;
 use Bolt\Thumbs\Dimensions;
 use Bolt\Thumbs\Creator;
 use Bolt\Thumbs\Transaction;
@@ -46,7 +47,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testFallbacksForHorizontalAutoscale()
     {
-        $transaction = new Transaction($this->portraitImage, 'crop', new Dimensions(0, 320));
+        $transaction = new Transaction($this->portraitImage, Action::CROP, new Dimensions(0, 320));
 
         $result = (new Creator())->create($transaction);
 
@@ -58,7 +59,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testFallbacksForVerticalAutoscale()
     {
-        $transaction = new Transaction($this->landscapeImage, 'crop', new Dimensions(500, 0));
+        $transaction = new Transaction($this->landscapeImage, Action::CROP, new Dimensions(500, 0));
 
         $result = (new Creator())->create($transaction);
 
@@ -71,7 +72,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     public function testUpscalingAllowed()
     {
         $upscaled = new Dimensions(800, 600);
-        $transaction = new Transaction($this->logoJpg, 'crop', $upscaled);
+        $transaction = new Transaction($this->logoJpg, Action::CROP, $upscaled);
 
         $result = (new Creator(true))->create($transaction);
 
@@ -86,7 +87,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
         $upscaled = new Dimensions(800, 600);
         $original = new Dimensions(624, 351);
 
-        $transaction = new Transaction($this->logoJpg, 'crop', $upscaled);
+        $transaction = new Transaction($this->logoJpg, Action::CROP, $upscaled);
 
         $result = (new Creator(false))->create($transaction);
 
@@ -96,7 +97,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     public function testLandscapeCrop()
     {
         $expected = new Dimensions(500, 200);
-        $transaction = new Transaction($this->landscapeImage, 'crop', $expected);
+        $transaction = new Transaction($this->landscapeImage, Action::CROP, $expected);
 
         $result = (new Creator())->create($transaction);
 
@@ -105,7 +106,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testLandscapeResize()
     {
-        $transaction = new Transaction($this->landscapeImage, 'resize', new Dimensions(500, 200));
+        $transaction = new Transaction($this->landscapeImage, Action::RESIZE, new Dimensions(500, 200));
 
         $result = (new Creator())->create($transaction);
 
@@ -115,7 +116,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     public function testLandscapeFit()
     {
         $expected = new Dimensions(500, 200);
-        $transaction = new Transaction($this->landscapeImage, 'fit', $expected);
+        $transaction = new Transaction($this->landscapeImage, Action::FIT, $expected);
 
         $result = (new Creator())->create($transaction);
 
@@ -125,7 +126,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     public function testLandscapeBorder()
     {
         $expected = new Dimensions(500, 200);
-        $transaction = new Transaction($this->landscapeImage, 'border', $expected);
+        $transaction = new Transaction($this->landscapeImage, Action::BORDER, $expected);
 
         $result = (new Creator())->create($transaction);
 
@@ -135,7 +136,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     public function testPortraitCrop()
     {
         $expected = new Dimensions(200, 500);
-        $transaction = new Transaction($this->portraitImage, 'crop', $expected);
+        $transaction = new Transaction($this->portraitImage, Action::CROP, $expected);
 
         $result = (new Creator())->create($transaction);
 
@@ -144,7 +145,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
 
     public function testPortraitResize()
     {
-        $transaction = new Transaction($this->portraitImage, 'resize', new Dimensions(200, 500));
+        $transaction = new Transaction($this->portraitImage, Action::RESIZE, new Dimensions(200, 500));
 
         $result = (new Creator())->create($transaction);
 
@@ -154,7 +155,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     public function testPortraitFit()
     {
         $expected = new Dimensions(200, 500);
-        $transaction = new Transaction($this->portraitImage, 'fit', $expected);
+        $transaction = new Transaction($this->portraitImage, Action::FIT, $expected);
 
         $result = (new Creator())->create($transaction);
 
@@ -164,7 +165,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     public function testPortraitBorder()
     {
         $expected = new Dimensions(200, 500);
-        $transaction = new Transaction($this->portraitImage, 'border', $expected);
+        $transaction = new Transaction($this->portraitImage, Action::BORDER, $expected);
 
         $result = (new Creator())->create($transaction);
 
