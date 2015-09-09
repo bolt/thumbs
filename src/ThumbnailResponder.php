@@ -32,9 +32,6 @@ class ThumbnailResponder
     /** @var int|null */
     protected $cacheTime;
 
-    /** @var bool */
-    protected $allowUpscale;
-
     /**
      * ThumbnailResponder constructor.
      *
@@ -46,7 +43,6 @@ class ThumbnailResponder
      * @param Filesystem\FilesystemInterface|null     $webFs
      * @param Cache                                   $cache
      * @param int                                     $cacheTime
-     * @param bool                                    $allowUpscale
      */
     public function __construct(
         ThumbnailCreatorInterface $thumbnailCreator,
@@ -56,8 +52,7 @@ class ThumbnailResponder
         Filesystem\Image $errorImage,
         Filesystem\FilesystemInterface $webFs = null,
         Cache $cache = null,
-        $cacheTime = 0,
-        $allowUpscale = false
+        $cacheTime = 0
     ) {
         $this->thumbnailCreator = $thumbnailCreator;
         $this->filesystem = $filesystem;
@@ -68,8 +63,6 @@ class ThumbnailResponder
         $this->webFs = $webFs;
         $this->cache = $cache;
         $this->cacheTime = $cacheTime;
-
-        $this->allowUpscale = $allowUpscale;
     }
 
     /**
@@ -87,8 +80,6 @@ class ThumbnailResponder
         // Create a transaction with the global options
         $transaction = new Transaction();
         $transaction->setErrorImage($this->errorImage);
-        $transaction->setAllowUpscale($this->allowUpscale);
-        $transaction->setBackground(Color::white());
 
         // Set properties for this thumbnail request
         $transaction->setTarget($dimensions);

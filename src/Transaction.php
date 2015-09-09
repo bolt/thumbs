@@ -21,11 +21,6 @@ class Transaction
     /** @var Dimensions */
     protected $target;
 
-    /** @var bool */
-    protected $allowUpscale;
-    /** @var Color */
-    protected $background;
-
     /**
      * Transaction Constructor.
      */
@@ -33,8 +28,6 @@ class Transaction
     {
         $this->action = 'crop';
         $this->target = new Dimensions();
-        $this->allowUpscale = false;
-        $this->background = Color::white();
     }
 
     /**
@@ -134,46 +127,6 @@ class Transaction
     public function setTarget(Dimensions $target)
     {
         $this->target = $target;
-
-        return $this;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getAllowUpscale()
-    {
-        return $this->allowUpscale;
-    }
-
-    /**
-     * @param boolean $allowUpscale
-     *
-     * @return Transaction
-     */
-    public function setAllowUpscale($allowUpscale)
-    {
-        $this->allowUpscale = (bool) $allowUpscale;
-
-        return $this;
-    }
-
-    /**
-     * @return Color
-     */
-    public function getBackground()
-    {
-        return $this->background;
-    }
-
-    /**
-     * @param Color $background
-     *
-     * @return Transaction
-     */
-    public function setBackground(Color $background)
-    {
-        $this->background = $background;
 
         return $this;
     }

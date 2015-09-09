@@ -12,6 +12,23 @@ use RuntimeException;
  */
 class ThumbnailCreator implements ThumbnailCreatorInterface
 {
+    /** @var bool */
+    protected $allowUpscale;
+    /** @var Color */
+    protected $background;
+
+    /**
+     * ThumbnailCreator constructor.
+     *
+     * @param bool  $allowUpscale
+     * @param Color $background
+     */
+    public function __construct($allowUpscale = false, Color $background = null)
+    {
+        $this->allowUpscale = (bool) $allowUpscale;
+        $this->background = $background ?: Color::white();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -81,7 +98,7 @@ class ThumbnailCreator implements ThumbnailCreatorInterface
      */
     protected function checkForUpscale(Transaction $transaction)
     {
-        if ($transaction->getAllowUpscale()) {
+        if ($this->allowUpscale) {
             return;
         }
 
@@ -142,7 +159,7 @@ class ThumbnailCreator implements ThumbnailCreatorInterface
         $new = ImageResource::createNew($target, $img->getType());
 
         if ($border) {
-            $new->fill($transaction->getBackground());
+            $new->fill($this->background);
 
             $tmpheight = $original->getHeight() * ($target->getWidth() / $original->getWidth());
             if ($tmpheight > $target->getHeight()) {
