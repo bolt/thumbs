@@ -14,8 +14,8 @@ use Exception;
  */
 class ThumbnailResponder
 {
-    /** @var ThumbnailCreatorInterface */
-    protected $thumbnailCreator;
+    /** @var CreatorInterface */
+    protected $creator;
     /** @var FinderInterface */
     protected $finder;
     /** @var Filesystem\Image */
@@ -31,7 +31,7 @@ class ThumbnailResponder
     /**
      * ThumbnailResponder constructor.
      *
-     * @param ThumbnailCreatorInterface           $thumbnailCreator
+     * @param CreatorInterface                    $creator
      * @param FinderInterface                     $finder
      * @param Filesystem\Image                    $errorImage
      * @param Filesystem\FilesystemInterface|null $webFs
@@ -39,14 +39,14 @@ class ThumbnailResponder
      * @param int                                 $cacheTime
      */
     public function __construct(
-        ThumbnailCreatorInterface $thumbnailCreator,
+        CreatorInterface $creator,
         FinderInterface $finder,
         Filesystem\Image $errorImage,
         Filesystem\FilesystemInterface $webFs = null,
         Cache $cache = null,
         $cacheTime = 0
     ) {
-        $this->thumbnailCreator = $thumbnailCreator;
+        $this->creator = $creator;
         $this->finder = $finder;
         $this->errorImage = $errorImage;
 
@@ -100,7 +100,7 @@ class ThumbnailResponder
     protected function getThumbnail(Transaction $transaction)
     {
         if ($this->cache === null) {
-            return $this->thumbnailCreator->create($transaction);
+            return $this->creator->create($transaction);
         }
 
         $cacheKey = $transaction->getHash();
@@ -108,7 +108,7 @@ class ThumbnailResponder
             return $this->cache->fetch($cacheKey);
         }
 
-        $imageData = $this->thumbnailCreator->create($transaction);
+        $imageData = $this->creator->create($transaction);
 
         $this->cache->save($cacheKey, $imageData, $this->cacheTime);
 

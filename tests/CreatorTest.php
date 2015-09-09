@@ -6,10 +6,10 @@ use Bolt\Filesystem\Image;
 use Bolt\Filesystem\ImageInfo;
 use Bolt\Filesystem\Local;
 use Bolt\Thumbs\Dimensions;
-use Bolt\Thumbs\ThumbnailCreator;
+use Bolt\Thumbs\Creator;
 use Bolt\Thumbs\Transaction;
 
-class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
+class CreatorTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Filesystem */
     protected $fs;
@@ -183,7 +183,7 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
 
     protected function runTransaction(Transaction $transaction)
     {
-        $creator = new ThumbnailCreator();
+        $creator = new Creator();
         return $creator->create($transaction);
     }
 
@@ -191,7 +191,8 @@ class ThumbnailCreatorTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->runTransaction($transaction);
 
-        $actual = ImageInfo::createFromString($result)->getDimensions();
+        $info = ImageInfo::createFromString($result);
+        $actual = new Dimensions($info->getWidth(), $info->getHeight());
         $this->assertDimensions($expected, $actual);
     }
 

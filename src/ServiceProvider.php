@@ -33,7 +33,7 @@ class ServiceProvider implements ServiceProviderInterface
         });
 
         $app['thumbnails.creator'] = $app->share(function ($app) {
-            return new ThumbnailCreator($app['thumbnails.allow_upscale']);
+            return new Creator($app['thumbnails.allow_upscale']);
         });
 
         $app['thumbnails.finder'] = $app->share(function ($app) {

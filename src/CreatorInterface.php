@@ -2,7 +2,7 @@
 
 namespace Bolt\Thumbs;
 
-interface ThumbnailCreatorInterface
+interface CreatorInterface
 {
     /**
      * Creates a thumbnail for the given transaction.

@@ -10,7 +10,7 @@ use RuntimeException;
  * @author Ross Riley <riley.ross@gmail.com>
  * @author Carson Full <carsonfull@gmail.com>
  */
-class ThumbnailCreator implements ThumbnailCreatorInterface
+class Creator implements CreatorInterface
 {
     /** @var bool */
     protected $allowUpscale;
@@ -18,7 +18,7 @@ class ThumbnailCreator implements ThumbnailCreatorInterface
     protected $background;
 
     /**
-     * ThumbnailCreator constructor.
+     * Creator constructor.
      *
      * @param bool  $allowUpscale
      * @param Color $background
