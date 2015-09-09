@@ -33,13 +33,12 @@ class ThumbnailsServiceProvider implements ServiceProviderInterface
                 $app['thumbnails.creator'],
                 $app['filesystem'],
                 $app['thumbnails.filesystems'],
-                $app['thumbnails.cache'],
-                $app['thumbnails.filesystem_cache'],
                 $app['thumbnails.default_image'],
                 $app['thumbnails.error_image'],
+                $app['thumbnails.save_files'] ? $app['thumbnails.filesystem_cache'] : null,
+                $app['thumbnails.cache'],
                 $app['thumbnails.cache_time'],
-                $app['thumbnails.allow_upscale'],
-                $app['thumbnails.save_files']
+                $app['thumbnails.allow_upscale']
             );
         });
 

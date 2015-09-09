@@ -16,63 +16,60 @@ class ThumbnailResponder
 {
     /** @var ThumbnailCreatorInterface */
     protected $thumbnailCreator;
-    /** @var Filesystem\Manager */
+    /** @var Filesystem\AggregateFilesystemInterface */
     protected $filesystem;
     /** @var string[] */
     protected $filesystemsToCheck;
-    /** @var Cache */
-    protected $cache;
-    /** @var Filesystem\FilesystemInterface */
-    protected $webFs;
-
     /** @var Filesystem\Image */
     protected $defaultImage;
     /** @var Filesystem\Image */
     protected $errorImage;
+
+    /** @var Filesystem\FilesystemInterface|null */
+    protected $webFs;
+    /** @var Cache */
+    protected $cache;
     /** @var int|null */
     protected $cacheTime;
+
     /** @var bool */
-    protected $allowUpscale = false;
-    /** @var bool */
-    protected $saveFiles = false;
+    protected $allowUpscale;
 
     /**
      * ThumbnailResponder constructor.
      *
-     * @param ThumbnailCreatorInterface      $thumbnailCreator
-     * @param Filesystem\Manager             $filesystem
-     * @param array                          $filesystemsToCheck
-     * @param Cache                          $cache
-     * @param Filesystem\FilesystemInterface $webFs
-     * @param Filesystem\Image               $errorImage
-     * @param Filesystem\Image               $defaultImage
-     * @param int|null                       $cacheTime
-     * @param bool                           $allowUpscale
-     * @param bool                           $saveFiles
+     * @param ThumbnailCreatorInterface               $thumbnailCreator
+     * @param Filesystem\AggregateFilesystemInterface $filesystem
+     * @param array                                   $filesystemsToCheck
+     * @param Filesystem\Image                        $defaultImage
+     * @param Filesystem\Image                        $errorImage
+     * @param Filesystem\FilesystemInterface|null     $webFs
+     * @param Cache                                   $cache
+     * @param int                                     $cacheTime
+     * @param bool                                    $allowUpscale
      */
     public function __construct(
         ThumbnailCreatorInterface $thumbnailCreator,
-        Filesystem\Manager $filesystem,
+        Filesystem\AggregateFilesystemInterface $filesystem,
         array $filesystemsToCheck,
-        Cache $cache,
-        Filesystem\FilesystemInterface $webFs,
         Filesystem\Image $defaultImage,
         Filesystem\Image $errorImage,
-        $cacheTime,
-        $allowUpscale,
-        $saveFiles
+        Filesystem\FilesystemInterface $webFs = null,
+        Cache $cache = null,
+        $cacheTime = 0,
+        $allowUpscale = false
     ) {
         $this->thumbnailCreator = $thumbnailCreator;
         $this->filesystem = $filesystem;
         $this->filesystemsToCheck = $filesystemsToCheck;
-        $this->cache = $cache;
-        $this->webFs = $webFs;
-
         $this->defaultImage = $defaultImage;
         $this->errorImage = $errorImage;
+
+        $this->webFs = $webFs;
+        $this->cache = $cache;
         $this->cacheTime = $cacheTime;
+
         $this->allowUpscale = $allowUpscale;
-        $this->saveFiles = $saveFiles;
     }
 
     /**
@@ -121,7 +118,6 @@ class ThumbnailResponder
     protected function findImage($path)
     {
         foreach ($this->filesystemsToCheck as $prefix) {
-            /** @var Filesystem\FilesystemInterface $fs */
             $fs = $this->filesystem->getFilesystem($prefix);
             $image = $fs->getImage($path);
             if ($image->exists()) {
@@ -143,6 +139,10 @@ class ThumbnailResponder
      */
     protected function getThumbnail(Transaction $transaction)
     {
+        if ($this->cache === null) {
+            return $this->thumbnailCreator->create($transaction);
+        }
+
         $cacheKey = $transaction->getHash();
         if ($this->cache->contains($cacheKey)) {
             return $this->cache->fetch($cacheKey);
@@ -163,7 +163,7 @@ class ThumbnailResponder
      */
     protected function saveStaticThumbnail($requestPath, $imageContent)
     {
-        if (!$this->saveFiles) {
+        if ($this->webFs === null) {
             return;
         }
         try {
