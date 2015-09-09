@@ -16,12 +16,8 @@ class ThumbnailResponder
 {
     /** @var ThumbnailCreatorInterface */
     protected $thumbnailCreator;
-    /** @var Filesystem\AggregateFilesystemInterface */
-    protected $filesystem;
-    /** @var string[] */
-    protected $filesystemsToCheck;
-    /** @var Filesystem\Image */
-    protected $defaultImage;
+    /** @var FinderInterface */
+    protected $finder;
     /** @var Filesystem\Image */
     protected $errorImage;
 
@@ -35,29 +31,23 @@ class ThumbnailResponder
     /**
      * ThumbnailResponder constructor.
      *
-     * @param ThumbnailCreatorInterface               $thumbnailCreator
-     * @param Filesystem\AggregateFilesystemInterface $filesystem
-     * @param array                                   $filesystemsToCheck
-     * @param Filesystem\Image                        $defaultImage
-     * @param Filesystem\Image                        $errorImage
-     * @param Filesystem\FilesystemInterface|null     $webFs
-     * @param Cache                                   $cache
-     * @param int                                     $cacheTime
+     * @param ThumbnailCreatorInterface           $thumbnailCreator
+     * @param FinderInterface                     $finder
+     * @param Filesystem\Image                    $errorImage
+     * @param Filesystem\FilesystemInterface|null $webFs
+     * @param Cache                               $cache
+     * @param int                                 $cacheTime
      */
     public function __construct(
         ThumbnailCreatorInterface $thumbnailCreator,
-        Filesystem\AggregateFilesystemInterface $filesystem,
-        array $filesystemsToCheck,
-        Filesystem\Image $defaultImage,
+        FinderInterface $finder,
         Filesystem\Image $errorImage,
         Filesystem\FilesystemInterface $webFs = null,
         Cache $cache = null,
         $cacheTime = 0
     ) {
         $this->thumbnailCreator = $thumbnailCreator;
-        $this->filesystem = $filesystem;
-        $this->filesystemsToCheck = $filesystemsToCheck;
-        $this->defaultImage = $defaultImage;
+        $this->finder = $finder;
         $this->errorImage = $errorImage;
 
         $this->webFs = $webFs;
@@ -85,7 +75,7 @@ class ThumbnailResponder
         $transaction->setTarget($dimensions);
         $transaction->setAction($action);
 
-        $image = $this->findImage($path);
+        $image = $this->finder->find($path);
         $transaction->setSrcImage($image);
 
         // Get the thumbnail from cache or create it
@@ -96,27 +86,6 @@ class ThumbnailResponder
 
         // Return thumbnail
         return new Thumbnail($image, $thumbnail);
-    }
-
-    /**
-     * Searches the filesystem for the image based on the path,
-     * or returns the default image if not found.
-     *
-     * @param string $path
-     *
-     * @return Filesystem\Image
-     */
-    protected function findImage($path)
-    {
-        foreach ($this->filesystemsToCheck as $prefix) {
-            $fs = $this->filesystem->getFilesystem($prefix);
-            $image = $fs->getImage($path);
-            if ($image->exists()) {
-                return $image;
-            }
-        }
-
-        return $this->defaultImage;
     }
 
     /**

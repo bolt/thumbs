@@ -4,6 +4,7 @@ namespace Bolt\Provider;
 
 use Bolt\Events\ControllerEvents;
 use Bolt\Events\MountEvent;
+use Bolt\Thumbs\Finder;
 use Bolt\Thumbs\ImageResource;
 use Bolt\Thumbs\ThumbnailController;
 use Bolt\Thumbs\ThumbnailCreator;
@@ -31,13 +32,19 @@ class ThumbnailsServiceProvider implements ServiceProviderInterface
         $app['thumbnails'] = $app->share(function ($app) {
             return new ThumbnailResponder(
                 $app['thumbnails.creator'],
-                $app['filesystem'],
-                $app['thumbnails.filesystems'],
-                $app['thumbnails.default_image'],
+                $app['thumbnails.finder'],
                 $app['thumbnails.error_image'],
                 $app['thumbnails.save_files'] ? $app['thumbnails.filesystem_cache'] : null,
                 $app['thumbnails.cache'],
                 $app['thumbnails.cache_time']
+            );
+        });
+
+        $app['thumbnails.finder'] = $app->share(function ($app) {
+            return new Finder(
+                $app['filesystem'],
+                $app['thumbnails.filesystems'],
+                $app['thumbnails.default_image']
             );
         });
 
