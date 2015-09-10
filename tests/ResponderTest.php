@@ -5,11 +5,11 @@ use Bolt\Filesystem;
 use Bolt\Filesystem\Image;
 use Bolt\Thumbs\CreatorInterface;
 use Bolt\Thumbs\FinderInterface;
-use Bolt\Thumbs\ThumbnailResponder;
+use Bolt\Thumbs\Responder;
 use Bolt\Thumbs\Transaction;
 use Doctrine\Common\Cache\ArrayCache;
 
-class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
+class ResponderTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Filesystem\Manager */
     protected $fs;
@@ -103,7 +103,7 @@ class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
 
     protected function createResponder($saveFiles = false)
     {
-        $responder = new ThumbnailResponder(
+        $responder = new Responder(
             $this->creator,
             $this->finder,
             $this->errorImage,

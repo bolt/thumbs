@@ -22,7 +22,7 @@ class ServiceProvider implements ServiceProviderInterface
             return new ThumbnailController();
         });
         $app['thumbnails'] = $app->share(function ($app) {
-            return new ThumbnailResponder(
+            return new Responder(
                 $app['thumbnails.creator'],
                 $app['thumbnails.finder'],
                 $app['thumbnails.error_image'],

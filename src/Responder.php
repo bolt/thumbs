@@ -13,7 +13,7 @@ use Exception;
  *
  * @author Carson Full <carsonfull@gmail.com>
  */
-class ThumbnailResponder
+class Responder implements ResponderInterface
 {
     /** @var CreatorInterface */
     protected $creator;
@@ -30,7 +30,7 @@ class ThumbnailResponder
     protected $cacheTime;
 
     /**
-     * ThumbnailResponder constructor.
+     * Responder constructor.
      *
      * @param CreatorInterface                    $creator
      * @param FinderInterface                     $finder
@@ -57,11 +57,7 @@ class ThumbnailResponder
     }
 
     /**
-     * Respond to the thumbnail request.
-     *
-     * @param Transaction $transaction
-     *
-     * @return Thumbnail
+     * {@inheritdoc}
      */
     public function respond(Transaction $transaction)
     {
