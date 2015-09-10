@@ -1,5 +1,7 @@
 language: php
 
+sudo: false
+
 php:
   - 5.3
   - 5.4
@@ -22,3 +24,8 @@ script:
   - phpunit
 
 after_script:
+
+cache:
+  directories:
+    - vendor
+    - $COMPOSER_CACHE_DIR
