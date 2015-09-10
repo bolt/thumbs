@@ -99,15 +99,14 @@ class ImageResource
     /**
      * Creates a new image given the width and height.
      *
-     * @param int $width  Image width
-     * @param int $height Image height
-     * @param int $type   Type of image as a IMAGETYPE_* constant
+     * @param Dimensions $dimensions Image dimensions
+     * @param int        $type       Type of image as a IMAGETYPE_* constant
      *
      * @return ImageResource
      */
-    public static function createNew($width, $height, $type)
+    public static function createNew(Dimensions $dimensions, $type)
     {
-        $resource = imagecreatetruecolor($width, $height);
+        $resource = imagecreatetruecolor($dimensions->getWidth(), $dimensions->getHeight());
         if ($resource === false) {
             throw new InvalidArgumentException('Failed to create new image');
         }
@@ -130,23 +129,13 @@ class ImageResource
     }
 
     /**
-     * Returns the image width.
+     * Returns the image dimensions.
      *
-     * @return int
+     * @return Dimensions
      */
-    public function getWidth()
+    public function getDimensions()
     {
-        return imagesx($this->resource);
-    }
-
-    /**
-     * Returns the image height.
-     *
-     * @return int
-     */
-    public function getHeight()
-    {
-        return imagesy($this->resource);
+        return new Dimensions(imagesx($this->resource), imagesy($this->resource));
     }
 
     /**
@@ -183,27 +172,19 @@ class ImageResource
     /**
      * Resize part of an image with resampling.
      *
-     * @param int           $destX      x-coordinate of destination point
-     * @param int           $destY      y-coordinate of destination point
-     * @param int           $srcX       x-coordinate of source point
-     * @param int           $srcY       y-coordinate of source point
-     * @param int           $destWidth  Destination width
-     * @param int           $destHeight Destination height
-     * @param int           $srcWidth   Source width
-     * @param int           $srcHeight  Source height
-     * @param ImageResource $dest       Optional destination image. Default is current image.
+     * @param Point         $destPoint      The destination point
+     * @param Point         $srcPoint       The source point
+     * @param Dimensions    $destDimensions The destination dimensions
+     * @param Dimensions    $srcDimensions  The source dimensions
+     * @param ImageResource $dest           Optional destination image. Default is current image.
      *
      * @return ImageResource This image
      */
     public function resample(
-        $destX,
-        $destY,
-        $srcX,
-        $srcY,
-        $destWidth,
-        $destHeight,
-        $srcWidth,
-        $srcHeight,
+        Point $destPoint,
+        Point $srcPoint,
+        Dimensions $destDimensions,
+        Dimensions $srcDimensions,
         ImageResource $dest = null
     ) {
         $dest = $dest ?: clone $this;
@@ -211,14 +192,14 @@ class ImageResource
         imagecopyresampled(
             $dest->resource,
             $this->resource,
-            $destX,
-            $destY,
-            $srcX,
-            $srcY,
-            $destWidth,
-            $destHeight,
-            $srcWidth,
-            $srcHeight
+            $destPoint->getX(),
+            $destPoint->getY(),
+            $srcPoint->getX(),
+            $srcPoint->getY(),
+            $destDimensions->getWidth(),
+            $destDimensions->getHeight(),
+            $srcDimensions->getWidth(),
+            $srcDimensions->getHeight()
         );
         $this->resource = $dest->resource;
         $this->resetInfo();
@@ -238,27 +219,24 @@ class ImageResource
      */
     public function flip($mode)
     {
-        $width = $this->getWidth();
-        $height = $this->getHeight();
+        $dim = $this->getDimensions();
 
-        $srcX = 0;
-        $srcY = 0;
-        $srcWidth = $width;
-        $srcHeight = $height;
+        $srcPoint = new Point();
+        $srcDim = clone $dim;
 
         // Flip vertically
         if (stripos($mode, 'V') !== false) {
-            $srcY = $height - 1;
-            $srcHeight = -$height;
+            $srcPoint->setY($dim->getHeight() - 1);
+            $srcDim->setHeight(-$dim->getHeight());
         }
 
         // Flip horizontally
         if (stripos($mode, 'H') !== false) {
-            $srcX = $width - 1;
-            $srcWidth = -$width;
+            $srcPoint->setX($dim->getWidth() - 1);
+            $srcDim->setWidth(-$dim->getWidth());
         }
 
-        $this->resample(0, 0, $srcX, $srcY, $width, $height, $srcWidth, $srcHeight);
+        $this->resample(new Point(), $srcPoint, $dim, $srcDim);
 
         return $this;
     }
@@ -355,10 +333,9 @@ class ImageResource
     {
         $original = $this->resource;
 
-        $width = $this->getWidth();
-        $height = $this->getHeight();
-        $copy = static::createNew($width, $height, $this->getType());
-        imagecopy($copy->resource, $original, 0, 0, 0, 0, $width, $height);
+        $dim = $this->getDimensions();
+        $copy = static::createNew($dim, $this->getType());
+        imagecopy($copy->resource, $original, 0, 0, 0, 0, $dim->getWidth(), $dim->getHeight());
 
         $this->resource = $copy->resource;
 
