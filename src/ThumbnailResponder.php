@@ -4,11 +4,12 @@ namespace Bolt\Thumbs;
 
 use Bolt\Filesystem;
 use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\VoidCache;
 use Exception;
 
 /**
- * This contains the Business Logic for creating thumbnails.
- * It joins the filesystems, caches, thumbnail creator, and all the options.
+ * Responder is responsible for processing the transaction.
+ * It invokes the finder and creator, and handles the caching logic.
  *
  * @author Carson Full <carsonfull@gmail.com>
  */
@@ -51,7 +52,7 @@ class ThumbnailResponder
         $this->errorImage = $errorImage;
 
         $this->webFs = $webFs;
-        $this->cache = $cache;
+        $this->cache = $cache ?: new VoidCache();
         $this->cacheTime = $cacheTime;
     }
 
@@ -90,10 +91,6 @@ class ThumbnailResponder
      */
     protected function getThumbnail(Transaction $transaction)
     {
-        if ($this->cache === null) {
-            return $this->creator->create($transaction);
-        }
-
         $cacheKey = $transaction->getHash();
         if ($this->cache->contains($cacheKey)) {
             return $this->cache->fetch($cacheKey);

@@ -1,107 +1,144 @@
 <?php
 namespace Bolt\Thumbs\Tests;
 
-use Bolt\Application;
-use Bolt\Configuration\ResourceManager;
-use Bolt\Provider\CacheServiceProvider;
+use Bolt\Filesystem;
+use Bolt\Filesystem\Image;
+use Bolt\Thumbs\CreatorInterface;
+use Bolt\Thumbs\FinderInterface;
 use Bolt\Thumbs\ThumbnailResponder;
-use Eloquent\Pathogen\FileSystem\Factory\PlatformFileSystemPathFactory;
-use FilesystemIterator;
-use Pimple;
-use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Bolt\Thumbs\Transaction;
+use Doctrine\Common\Cache\ArrayCache;
 
 class ThumbnailResponderTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var Filesystem\Manager */
+    protected $fs;
+    /** @var CreatorTester */
+    protected $creator;
+    /** @var FinderTester */
+    protected $finder;
+    /** @var Image */
+    protected $errorImage;
+    /** @var Image */
+    protected $defaultImage;
+    /** @var ArrayCache */
+    protected $cache;
+
     public function setup()
     {
-        @mkdir(__DIR__ . '/tmp/cache/', 0777, true);
-        @mkdir(__DIR__ . '/app/database', 0777, true);
-    }
-
-    public function testBasicRequestParsing()
-    {
-        $request = Request::create(
-            '/thumbs/320x240c/generic-logo.jpg',
-            'GET'
+        $images = new Filesystem\Filesystem(new Filesystem\Local(__DIR__ . '/images'));
+        $tmp = new Filesystem\Filesystem(new Filesystem\Local(__DIR__ . '/tmp'));
+        $web = new Filesystem\Filesystem(new Filesystem\Local(__DIR__ . '/tmp/web'));
+        $this->fs = new Filesystem\Manager(
+            [
+                'web'    => $web,
+                'tmp'    => $tmp,
+                'images' => $images,
+            ]
         );
+        $this->errorImage = $this->fs->getImage('images://samples/sample1.jpg');
+        $this->defaultImage = $this->fs->getImage('images://samples/sample2.jpg');
 
-        $responder = $this->initializeResponder($request);
-
-        $parse = $responder->parseRequest();
-        $this->assertEquals('320', $responder->width);
-        $this->assertEquals('240', $responder->height);
-        $this->assertEquals('crop', $responder->action);
-        $this->assertEquals('generic-logo.jpg', $responder->file);
-    }
-
-    public function testParseWithSubdirectory()
-    {
-        $request = Request::create(
-            '/thumbs/320x240c/subdir/generic-logo.jpg',
-            'GET'
-        );
-
-        $responder = $this->initializeResponder($request);
-        $this->assertEquals('subdir/generic-logo.jpg', $responder->file);
-    }
-
-    public function testResponse()
-    {
-        $request = Request::create(
-            '/thumbs/320x240r/generic-logo.jpg',
-            'GET'
-        );
-
-        $responder = $this->initializeResponder($request);
-        $response = $responder->respond();
-        $this->assertInstanceOf(get_class(new Response()), $response);
-    }
-
-    protected function initializeResponder($request)
-    {
-        $container = new Pimple(
-            array(
-                'rootpath'    => __DIR__,
-                'pathmanager' => new PlatformFileSystemPathFactory()
-            )
-        );
-
-        $config = new ResourceManager($container);
-        $config->setPath('cache', 'tmp/cache');
-        $config->setPath('files', 'images');
-        $config->compat();
-
-        $app = new Application(array('resources' => $config));
-        $app->register(new CacheServiceProvider());
-
-        $responder = new ThumbnailResponder($app, $request);
-        $responder->initialize();
-
-        return $responder;
+        $this->creator = new CreatorTester();
+        $this->finder = new FinderTester($this->defaultImage);
+        $this->cache = new ArrayCache();
     }
 
     public function tearDown()
     {
-        $this->rmdir(__DIR__ . '/tmp');
-        $this->rmdir(__DIR__ . '/app');
-        @rmdir(__DIR__ . '/tmp');
-        @rmdir(__DIR__ . '/app');
+        $this->fs->deleteDir('tmp://web');
     }
 
-    protected function rmdir($dir)
+    public function testErrorImage()
     {
-        $iterator = new \RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
+        $this->createResponder()
+            ->respond(new Transaction('herp/derp.png'))
+        ;
+
+        $this->assertSame($this->creator->transaction->getErrorImage(), $this->errorImage);
+    }
+
+    public function testSrcImage()
+    {
+        $this->createResponder()
+            ->respond(new Transaction('herp/derp.png'))
+        ;
+
+        $this->assertSame($this->creator->transaction->getSrcImage(), $this->defaultImage);
+    }
+
+    public function testCaching()
+    {
+        $this->creator = $this->getMock('\Bolt\Thumbs\CreatorInterface');
+        $this->creator->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(
+                function (Transaction $transaction) {
+                    return $transaction->getHash();
+                }
+            )
+        ;
+        $responder = $this->createResponder();
+
+        // First call should populate cache
+        $transaction = new Transaction('herp/derp.png');
+        $thumbnail = $responder->respond($transaction);
+        $this->assertSame($transaction->getHash(), $thumbnail->getThumbnail());
+
+        // Second call should pull value from cache
+        $thumbnail = $responder->respond($transaction);
+        $this->assertSame($transaction->getHash(), $thumbnail->getThumbnail());
+    }
+
+    public function testStatic()
+    {
+        $responder = $this->createResponder(true);
+
+        $requestPath = 'thumbs/100x100/herp/derp.png';
+        $transaction = new Transaction('herp/derp.png', null, null, $requestPath);
+        $thumbnail = $responder->respond($transaction);
+
+        $this->assertSame($thumbnail->getThumbnail(), $this->fs->read('web://' . $requestPath));
+    }
+
+    protected function createResponder($saveFiles = false)
+    {
+        $responder = new ThumbnailResponder(
+            $this->creator,
+            $this->finder,
+            $this->errorImage,
+            $saveFiles ? $this->fs->getFilesystem('web') : null,
+            $this->cache
         );
-        foreach ($iterator as $file) {
-            if ($file->isDir()) {
-                rmdir($file->getPathname());
-            } else {
-                unlink($file->getPathname());
-            }
-        }
+
+        return $responder;
+    }
+}
+
+class CreatorTester implements CreatorInterface
+{
+    /** @var Transaction */
+    public $transaction;
+
+    public function create(Transaction $transaction)
+    {
+        $this->transaction = $transaction;
+        return $transaction->getHash();
+    }
+}
+
+class FinderTester implements FinderInterface
+{
+    /** @var Image */
+    protected $image;
+
+    public function __construct(Image $image)
+    {
+        $this->image = $image;
+    }
+
+    public function find($path)
+    {
+        return $this->image;
     }
 }
