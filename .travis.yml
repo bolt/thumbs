@@ -17,8 +17,6 @@ matrix:
 before_script:
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-dist
-  - mkdir -p tests/app/database tests/app/cache tests/app/config
-  - chmod 777 tests/app/database tests/app/cache tests/app/config
 
 script:
   - phpunit
