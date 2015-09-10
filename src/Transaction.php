@@ -41,7 +41,7 @@ class Transaction
         } else {
             $this->filePath = $file;
         }
-        $this->action = $action;
+        $this->action = $action ?: Action::CROP;
         $this->target = $dimensions ?: new Dimensions();
         $this->requestPath = $requestPath;
     }
@@ -53,7 +53,7 @@ class Transaction
      */
     public function getHash()
     {
-        $path = str_replace('/', '_', $this->srcImage->getPath());
+        $path = str_replace('/', '_', $this->getFilePath());
         return join('-', [$path, $this->action, $this->target->getWidth(), $this->target->getHeight()]);
     }
 
