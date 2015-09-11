@@ -3,7 +3,6 @@ namespace Bolt\Thumbs\Tests;
 
 use Bolt\Filesystem\Filesystem;
 use Bolt\Filesystem\Image;
-use Bolt\Filesystem\ImageInfo;
 use Bolt\Filesystem\Local;
 use Bolt\Thumbs\Action;
 use Bolt\Thumbs\Dimensions;
@@ -179,7 +178,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     protected function assertDimensions(Dimensions $expected, $actual)
     {
         if (is_string($actual)) {
-            $info = ImageInfo::createFromString($actual);
+            $info = Image\Info::createFromString($actual);
             $actual = new Dimensions($info->getWidth(), $info->getHeight());
         }
         $this->assertEquals($expected, $actual, "Expected dimension $expected does not equal actual $actual");

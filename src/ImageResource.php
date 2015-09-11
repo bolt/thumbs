@@ -2,7 +2,7 @@
 
 namespace Bolt\Thumbs;
 
-use Bolt\Filesystem\ImageInfo;
+use Bolt\Filesystem\Image;
 use InvalidArgumentException;
 use PHPExif\Exif;
 
@@ -17,9 +17,9 @@ class ImageResource
 {
     /** @var resource */
     protected $resource;
-    /** @var int */
+    /** @var Image\Type */
     protected $type;
-    /** @var ImageInfo */
+    /** @var Image\Info */
     protected $info;
 
     /** @var int Quality setting for JPEGs and PNGs */
@@ -32,11 +32,11 @@ class ImageResource
      *
      * Either type or info need to be provided.
      *
-     * @param resource  $resource A GD resource
-     * @param int       $type     Type of image as a IMAGETYPE_* constant
-     * @param ImageInfo $info     Image info.
+     * @param resource   $resource A GD resource
+     * @param Image\Type $type     Image type
+     * @param Image\Info $info     Image info
      */
-    public function __construct($resource, $type = null, ImageInfo $info = null)
+    public function __construct($resource, Image\Type $type = null, Image\Info $info = null)
     {
         if (!is_resource($resource) || !get_resource_type($resource) === 'gd') {
             throw new InvalidArgumentException('Given resource must be a GD resource');
@@ -66,8 +66,8 @@ class ImageResource
      */
     public static function createFromFile($file)
     {
-        $info = ImageInfo::createFromFile($file);
-        switch ($info->getType()) {
+        $info = Image\Info::createFromFile($file);
+        switch ($info->getType()->toInt()) {
             case IMAGETYPE_BMP:
                 $resource = imagecreatefromwbmp($file);
                 break;
@@ -96,7 +96,7 @@ class ImageResource
      */
     public static function createFromString($data)
     {
-        $info = ImageInfo::createFromString($data);
+        $info = Image\Info::createFromString($data);
         $resource = imagecreatefromstring($data);
         return new static($resource, null, $info);
     }
@@ -105,11 +105,11 @@ class ImageResource
      * Creates a new image given the width and height.
      *
      * @param Dimensions $dimensions Image dimensions
-     * @param int        $type       Type of image as a IMAGETYPE_* constant
+     * @param Image\Type $type       Type of image
      *
      * @return ImageResource
      */
-    public static function createNew(Dimensions $dimensions, $type)
+    public static function createNew(Dimensions $dimensions, Image\Type $type)
     {
         $resource = imagecreatetruecolor($dimensions->getWidth(), $dimensions->getHeight());
         if ($resource === false) {
@@ -144,9 +144,9 @@ class ImageResource
     }
 
     /**
-     * Returns the image type as a IMAGETYPE_* constant.
+     * Returns the image type.
      *
-     * @return int
+     * @return Image\Type
      */
     public function getType()
     {
@@ -156,12 +156,12 @@ class ImageResource
     /**
      * Returns the image's info.
      *
-     * @return ImageInfo
+     * @return Image\Info
      */
     public function getInfo()
     {
         if (!$this->info) {
-            $this->info = ImageInfo::createFromString($this);
+            $this->info = Image\Info::createFromString($this);
         }
         return $this->info;
     }
@@ -373,7 +373,7 @@ class ImageResource
      */
     public function toFile($file)
     {
-        switch($this->type) {
+        switch($this->type->toInt()) {
             case IMAGETYPE_BMP:
                 imagewbmp($this->resource, $file);
                 break;
