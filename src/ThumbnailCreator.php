@@ -153,23 +153,28 @@ class ThumbnailCreator implements ResizeInterface
      **/
     protected function doResize($src, $width, $height, $crop = false, $fit = false, $border = false)
     {
-        if (!list($w, $h) = getimagesize($src)) {
+        if (!list($w, $h, $type) = getimagesize($src)) {
             return false;
         }
 
-        $type = strtolower(substr(strrchr($src, '.'), 1));
-        if ($type == 'jpeg') {
-            $type = 'jpg';
-        }
+        $fileExtension = null;
 
-        switch ($type) {
-            case 'bmp':
+        switch($type)
+        {
+            case IMG_WBMP:
+            case IMAGETYPE_BMP:
+            case IMAGETYPE_WBMP:
                 $img = imagecreatefromwbmp($src);
+                $fileExtension = 'bmp';
                 break;
-            case 'gif':
+            case IMG_GIF:
+            case IMAGETYPE_GIF:
                 $img = imagecreatefromgif($src);
+                $fileExtension = 'gif';
                 break;
-            case 'jpg':
+            case IMG_JPG:
+            case IMG_JPEG:
+            case IMAGETYPE_JPEG:
                 $img = imagecreatefromjpeg($src);
                 // Handle exif orientation
                 if ($this->exifOrientation && function_exists('exif_read_data')) {
@@ -185,9 +190,12 @@ class ThumbnailCreator implements ResizeInterface
                     $w = imagesx($img);
                     $h = imagesy($img);
                 }
+                $fileExtension = 'jpg';
                 break;
-            case 'png':
+            case IMG_PNG:
+            case IMAGETYPE_PNG:
                 $img = imagecreatefrompng($src);
+                $fileExtension = 'png';
                 break;
             default:
                 return false;
@@ -237,7 +245,7 @@ class ThumbnailCreator implements ResizeInterface
 
         // Preserve transparency where available
 
-        if ($type == 'gif' or $type == 'png') {
+        if ($fileExtension == 'gif' or $fileExtension == 'png') {
             imagecolortransparent($new, imagecolorallocatealpha($new, 0, 0, 0, 127));
             imagealphablending($new, false);
             imagesavealpha($new, true);
@@ -251,7 +259,7 @@ class ThumbnailCreator implements ResizeInterface
             imagecopyresampled($new, $img, 0, 0, $x, $y, $width, $height, $w, $h);
         }
 
-        return $this->getOutput($new, $type);
+        return $this->getOutput($new, $fileExtension);
     }
 
     /**
