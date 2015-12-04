@@ -3,7 +3,7 @@
 namespace Bolt\Thumbs;
 
 use Bolt\Filesystem\AggregateFilesystemInterface;
-use Bolt\Filesystem\Image;
+use Bolt\Filesystem\Handler\Image;
 
 class Finder implements FinderInterface
 {

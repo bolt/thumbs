@@ -19,7 +19,7 @@ class Responder implements ResponderInterface
     protected $creator;
     /** @var FinderInterface */
     protected $finder;
-    /** @var Filesystem\Image */
+    /** @var Filesystem\Handler\Image */
     protected $errorImage;
 
     /** @var Filesystem\FilesystemInterface|null */
@@ -34,7 +34,7 @@ class Responder implements ResponderInterface
      *
      * @param CreatorInterface                    $creator
      * @param FinderInterface                     $finder
-     * @param Filesystem\Image                    $errorImage
+     * @param Filesystem\Handler\Image            $errorImage
      * @param Filesystem\FilesystemInterface|null $webFs
      * @param Cache                               $cache
      * @param int                                 $cacheTime
@@ -42,7 +42,7 @@ class Responder implements ResponderInterface
     public function __construct(
         CreatorInterface $creator,
         FinderInterface $finder,
-        Filesystem\Image $errorImage,
+        Filesystem\Handler\Image $errorImage,
         Filesystem\FilesystemInterface $webFs = null,
         Cache $cache = null,
         $cacheTime = 0

@@ -88,7 +88,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
             $this->setAutoLastModified();
         }
 
-        $this->headers->set('Content-Type', $thumbnail->getImage()->getMimetype());
+        $this->headers->set('Content-Type', $thumbnail->getImage()->getMimeType());
     }
 
     /**

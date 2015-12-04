@@ -3,7 +3,7 @@
 namespace Bolt\Thumbs\Tests;
 
 use Bolt\Filesystem\Filesystem;
-use Bolt\Filesystem\Local;
+use Bolt\Filesystem\Adapter\Local;
 use Bolt\Thumbs\Dimensions;
 use Bolt\Thumbs\ImageResource;
 use Bolt\Thumbs\Point;

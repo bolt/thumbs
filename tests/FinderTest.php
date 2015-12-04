@@ -3,6 +3,7 @@
 namespace Bolt\Thumbs\Tests;
 
 use Bolt\Filesystem;
+use Bolt\Filesystem\Adapter\Local;
 use Bolt\Thumbs\Finder;
 
 class FinderTest extends \PHPUnit_Framework_TestCase
@@ -14,9 +15,9 @@ class FinderTest extends \PHPUnit_Framework_TestCase
 
     public function setup()
     {
-        $samples = new Filesystem\Filesystem(new Filesystem\Local(__DIR__ . '/images/samples'));
-        $subdir = new Filesystem\Filesystem(new Filesystem\Local(__DIR__ . '/images/subdir'));
-        $images = new Filesystem\Filesystem(new Filesystem\Local(__DIR__ . '/images'));
+        $samples = new Filesystem\Filesystem(new Local(__DIR__ . '/images/samples'));
+        $subdir = new Filesystem\Filesystem(new Local(__DIR__ . '/images/subdir'));
+        $images = new Filesystem\Filesystem(new Local(__DIR__ . '/images'));
         $filesystems = [
             'samples' => $samples,
             'subdir'  => $subdir,

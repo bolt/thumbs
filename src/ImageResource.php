@@ -2,7 +2,7 @@
 
 namespace Bolt\Thumbs;
 
-use Bolt\Filesystem\Image;
+use Bolt\Filesystem\Handler\Image;
 use InvalidArgumentException;
 use PHPExif\Exif;
 
@@ -67,7 +67,7 @@ class ImageResource
     public static function createFromFile($file)
     {
         $info = Image\Info::createFromFile($file);
-        switch ($info->getType()->toInt()) {
+        switch ($info->getType()->toId()) {
             case IMAGETYPE_BMP:
                 $resource = imagecreatefromwbmp($file);
                 break;
@@ -373,7 +373,7 @@ class ImageResource
      */
     public function toFile($file)
     {
-        switch($this->type->toInt()) {
+        switch($this->type->toId()) {
             case IMAGETYPE_BMP:
                 imagewbmp($this->resource, $file);
                 break;

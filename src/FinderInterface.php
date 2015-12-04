@@ -2,7 +2,7 @@
 
 namespace Bolt\Thumbs;
 
-use Bolt\Filesystem\Image;
+use Bolt\Filesystem\Handler\Image;
 
 /**
  * @author Carson Full <carsonfull@gmail.com>

@@ -2,7 +2,8 @@
 namespace Bolt\Thumbs\Tests;
 
 use Bolt\Filesystem;
-use Bolt\Filesystem\Image;
+use Bolt\Filesystem\Adapter\Local;
+use Bolt\Filesystem\Handler\Image;
 use Bolt\Thumbs\CreatorInterface;
 use Bolt\Thumbs\FinderInterface;
 use Bolt\Thumbs\Responder;
@@ -26,9 +27,9 @@ class ResponderTest extends \PHPUnit_Framework_TestCase
 
     public function setup()
     {
-        $images = new Filesystem\Filesystem(new Filesystem\Local(__DIR__ . '/images'));
-        $tmp = new Filesystem\Filesystem(new Filesystem\Local(__DIR__ . '/tmp'));
-        $web = new Filesystem\Filesystem(new Filesystem\Local(__DIR__ . '/tmp/web'));
+        $images = new Filesystem\Filesystem(new Local(__DIR__ . '/images'));
+        $tmp = new Filesystem\Filesystem(new Local(__DIR__ . '/tmp'));
+        $web = new Filesystem\Filesystem(new Local(__DIR__ . '/tmp/web'));
         $this->fs = new Filesystem\Manager(
             [
                 'web'    => $web,

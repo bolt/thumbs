@@ -2,7 +2,7 @@
 
 namespace Bolt\Thumbs\Tests;
 
-use Bolt\Filesystem\Image;
+use Bolt\Filesystem\Handler\Image;
 use Bolt\Thumbs\Dimensions;
 use Bolt\Thumbs\Thumbnail;
 use Bolt\Thumbs\Controller;
