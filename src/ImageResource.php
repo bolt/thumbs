@@ -67,7 +67,7 @@ class ImageResource
     public static function createFromFile($file)
     {
         $info = Image\Info::createFromFile($file);
-        switch ($info->getType()->toId()) {
+        switch ($info->getType()->getId()) {
             case IMAGETYPE_BMP:
                 $resource = imagecreatefromwbmp($file);
                 break;
@@ -373,7 +373,7 @@ class ImageResource
      */
     public function toFile($file)
     {
-        switch($this->type->toId()) {
+        switch($this->type->getId()) {
             case IMAGETYPE_BMP:
                 imagewbmp($this->resource, $file);
                 break;
