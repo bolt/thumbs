@@ -3,6 +3,7 @@
 namespace Bolt\Thumbs;
 
 use Bolt\Filesystem\Handler\Image;
+use Bolt\Filesystem\Handler\Image\Dimensions;
 
 /**
  * A storage entity for a thumbnail creation request.

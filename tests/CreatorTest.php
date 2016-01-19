@@ -4,8 +4,8 @@ namespace Bolt\Thumbs\Tests;
 use Bolt\Filesystem\Filesystem;
 use Bolt\Filesystem\Handler\Image;
 use Bolt\Filesystem\Adapter\Local;
+use Bolt\Filesystem\Handler\Image\Dimensions;
 use Bolt\Thumbs\Action;
-use Bolt\Thumbs\Dimensions;
 use Bolt\Thumbs\Creator;
 use Bolt\Thumbs\Transaction;
 

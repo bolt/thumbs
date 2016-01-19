@@ -3,7 +3,7 @@
 namespace Bolt\Thumbs\Tests;
 
 use Bolt\Filesystem\Handler\Image;
-use Bolt\Thumbs\Dimensions;
+use Bolt\Filesystem\Handler\Image\Dimensions;
 use Bolt\Thumbs\Thumbnail;
 use Bolt\Thumbs\Controller;
 use Bolt\Thumbs\Transaction;
