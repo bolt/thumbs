@@ -82,6 +82,11 @@ class ThumbnailResponder
         if ($this->app['config']->get('general/thumbnails/quality')) {
             $this->resizer->quality = $this->app['config']->get('general/thumbnails/quality', 80);
         }
+
+        if ($this->app['config']->get('general/thumbnails/canvas')) {
+            $this->resizer->canvas = $this->app['config']->get('general/thumbnails/canvas', array(255,255,255));
+        }
+        
         $dimensions = $this->app['config']->get('general/thumbnails/default_thumbnail');
         if (is_array($dimensions)) {
             $this->resizer->targetWidth = $dimensions[0];
