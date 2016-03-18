@@ -16,6 +16,7 @@ class ThumbnailResponder
     public $height;
     public $file;
     public $action;
+    public $hdpi; // retina
 
     public $allowCache = false;
     public $cacheTime = 2592000;
@@ -107,6 +108,27 @@ class ThumbnailResponder
     }
 
     /**
+     * Checks if allowed size exists under thumbnail presets
+     *
+     * @return Boolean
+     **/
+    public function sizeAllowed($width, $height)
+    {
+        $thumb_presets = $this->app['config']->get('general/thumbnails/presets');
+        if (empty($thumb_presets)) {
+            return true; // backward compatible, no presets found
+        }
+        foreach ($thumb_presets as $name => $value) {
+            if (isset($value['size'])){
+                if ($value['size'][0]==$width && $value['size'][1]==$height) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Takes the request object and separates into required components. The format is:
      * /thumbs/<width>x<height><command>/<file>
      *
@@ -132,8 +154,9 @@ class ThumbnailResponder
         // Check for retina image request
         if (strpos($this->file, '@2x') !== false) {
             $this->file = str_replace('@2x', '', $this->file);
-            $this->width = $this->width * 2;
-            $this->height = $this->height * 2;
+            $this->hdpi = true;
+        } else {
+            $this->hdpi = false;
         }
     }
 
@@ -145,6 +168,17 @@ class ThumbnailResponder
     public function respond()
     {
         $this->initialize();
+        if (false === $this->sizeAllowed($this->width, $this->height, $this->action)) {
+            $response = new Response;
+            $response->setContent('<h1>403 Forbidden</h1><p>The specified image dimensions are not allowed</p>');
+            $response->setStatusCode(Response::HTTP_FORBIDDEN); // 403
+            return $response;
+        }
+        if ($this->hdpi) {
+            $this->width = $this->width * 2;
+            $this->height = $this->height * 2;
+        }
+
         $imageContent = $this->createResponse();
         $this->saveStatic($imageContent);
         $response = isset($this->app['thumbnails.response']) ? $this->app['thumbnails.response'] : new Response;
