@@ -40,7 +40,7 @@ class Controller implements ControllerProviderInterface
             ->assert('width', '\d+')
             ->convert('width', $toInt)
             ->assert('height', '\d+')
-            ->convert('width', $toInt)
+            ->convert('height', $toInt)
             ->assert('action', '[a-z]?')
             ->convert('action', $toAction)
             ->assert('file', '.+')
