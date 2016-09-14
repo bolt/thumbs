@@ -24,6 +24,7 @@ class Controller implements ControllerProviderInterface
         /** @var ControllerCollection $ctr */
         $ctr = $app['controllers_factory'];
 
+        // Specific resolutions
         $toInt = function ($value) {
             return intval($value);
         };
@@ -46,6 +47,12 @@ class Controller implements ControllerProviderInterface
             ->assert('file', '.+')
             ->bind('thumb');
 
+        // Aliases
+        $ctr->get('/{alias}/{file}', 'controller.thumbnails:alias')
+            ->assert('alias', '[a-zA-Z0-9-_]+')
+            ->assert('file', '.+')
+            ->bind('alias');
+
         return $ctr;
     }
 
@@ -63,6 +70,56 @@ class Controller implements ControllerProviderInterface
      */
     public function thumbnail(Application $app, Request $request, $file, $action, $width, $height)
     {
+        // Set to default 404 image if restricted to aliases
+        if($this->isRestricted($app, $request)) {
+            $transaction = $this->defaultTransaction($app, $request);
+            $thumbnail = $app['thumbnails']->respond($transaction);
+            return new Response($thumbnail);
+        }
+
+        return $this->serve($app, $request, $file, $action, $width, $height);
+    }
+
+    /**
+     * Returns a thumbnail response.
+     *
+     * @param Application $app
+     * @param Request     $request
+     * @param string      $file
+     * @param string      $alias
+     *
+     * @return Response
+     */
+    public function alias(Application $app, Request $request, $file, $alias)
+    {
+        $config = $app["config"]->get("theme/image_aliases/".$alias, false);
+
+        // Set to default 404 image if alias does not exist
+        if(!$config) {
+            $transaction = $this->defaultTransaction($app, $request);
+            $thumbnail = $app['thumbnails']->respond($transaction);
+            return new Response($thumbnail);
+        }
+
+        $width  = isset($config["size"][0])  ? $config["size"][0]  : 0;
+        $height = isset($config["size"][1])  ? $config["size"][1]  : 0;
+        $action = isset($config["cropping"]) ? $config["cropping"] : Action::CROP;
+
+        return $this->serve($app, $request, $file, $action, $width, $height);
+    }
+
+    /**
+     * Serve a request for a thumbnail
+     * @param Application $app
+     * @param Request $request
+     * @param string $file
+     * @param string $action
+     * @param int $width
+     * @param int $height
+     * @return Response
+     */
+    protected function serve(Application $app, Request $request, $file, $action, $width, $height)
+    {
         if (strpos($file, '@2x') !== false) {
             $file = str_replace('@2x', '', $file);
             $width *= 2;
@@ -70,10 +127,43 @@ class Controller implements ControllerProviderInterface
         }
 
         $requestPath = urldecode($request->getPathInfo());
-        $transaction = new Transaction($file, $action, new Dimensions($width, $height), $requestPath);
+
+        $transaction = new Transaction( $file, $action, new Dimensions( $width, $height ), $requestPath );
 
         $thumbnail = $app['thumbnails']->respond($transaction);
 
         return new Response($thumbnail);
+    }
+
+    /**
+     * Check if thumbnail request for specific resolution is allowed
+     * @param Application $app
+     * @param Request $request
+     * @return boolean
+     */
+    protected function isRestricted(Application $app, Request $request)
+    {
+        return $app["config"]->get("general/thumbnails/restrict_alias", false);
+    }
+
+    /**
+     * Get the default error image on restriction errors or undefined aliases
+     * @param Application $app
+     * @param Request $request
+     * @return Transaction
+     */
+    protected function defaultTransaction(Application $app, Request $request)
+    {
+        $requestPath = urldecode($request->getPathInfo());
+
+        return new Transaction(
+            $app["config"]->get("general/thumbnails/notfound_image"),
+            Action::CROP,
+            new Dimensions(
+                $app["config"]->get("general/thumbnails/default_thumbnail")[0],
+                $app["config"]->get("general/thumbnails/default_thumbnail")[1]
+            ),
+            $requestPath
+        );
     }
 }
