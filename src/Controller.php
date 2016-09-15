@@ -49,9 +49,9 @@ class Controller implements ControllerProviderInterface
 
         // Aliases
         $ctr->get('/{alias}/{file}', 'controller.thumbnails:alias')
-            ->assert('alias', '[a-zA-Z0-9-_]+')
+            ->assert('alias', '[\w-]+')
             ->assert('file', '.+')
-            ->bind('alias');
+            ->bind('thumb_alias');
 
         return $ctr;
     }
@@ -71,10 +71,8 @@ class Controller implements ControllerProviderInterface
     public function thumbnail(Application $app, Request $request, $file, $action, $width, $height)
     {
         // Set to default 404 image if restricted to aliases
-        if($this->isRestricted($app, $request)) {
-            $transaction = $this->defaultTransaction($app, $request);
-            $thumbnail = $app['thumbnails']->respond($transaction);
-            return new Response($thumbnail);
+        if ($this->isRestricted($app, $request)) {
+            return $this->defaultResponse($app, $request);
         }
 
         return $this->serve($app, $request, $file, $action, $width, $height);
@@ -96,9 +94,7 @@ class Controller implements ControllerProviderInterface
 
         // Set to default 404 image if alias does not exist
         if(!$config) {
-            $transaction = $this->defaultTransaction($app, $request);
-            $thumbnail = $app['thumbnails']->respond($transaction);
-            return new Response($thumbnail);
+            return $this->defaultResponse($app, $request);
         }
 
         $width  = isset($config["size"][0])  ? $config["size"][0]  : 0;
@@ -143,7 +139,7 @@ class Controller implements ControllerProviderInterface
      */
     protected function isRestricted(Application $app, Request $request)
     {
-        return $app["config"]->get("general/thumbnails/restrict_alias", false);
+        return $app["config"]->get("general/thumbnails/only_aliases", false);
     }
 
     /**
@@ -152,18 +148,20 @@ class Controller implements ControllerProviderInterface
      * @param Request $request
      * @return Transaction
      */
-    protected function defaultTransaction(Application $app, Request $request)
+    protected function defaultResponse(Application $app, Request $request)
     {
         $requestPath = urldecode($request->getPathInfo());
 
-        return new Transaction(
+        $size = $app["config"]->get("general/thumbnails/default_thumbnail");
+
+        $transaction = new Transaction(
             $app["config"]->get("general/thumbnails/notfound_image"),
             Action::CROP,
-            new Dimensions(
-                $app["config"]->get("general/thumbnails/default_thumbnail")[0],
-                $app["config"]->get("general/thumbnails/default_thumbnail")[1]
-            ),
+            new Dimensions($size[0],$size[1]),
             $requestPath
         );
+        $thumbnail = $app['thumbnails']->respond($transaction);
+
+        return new Response($thumbnail);
     }
 }

@@ -52,7 +52,7 @@ class ServiceProvider implements ServiceProviderInterface
         $app['thumbnails.error_image'] = null;
         $app['thumbnails.cache_time'] = null;
         $app['thumbnails.limit_upscaling'] = true;
-        $app['thumbnails.restrict_alias'] = false;
+        $app['thumbnails.only_aliases'] = false;
     }
 
     /**
