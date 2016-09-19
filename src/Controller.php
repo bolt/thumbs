@@ -90,7 +90,7 @@ class Controller implements ControllerProviderInterface
      */
     public function alias(Application $app, Request $request, $file, $alias)
     {
-        $config = $app["config"]->get("theme/image_aliases/".$alias, false);
+        $config = isset($app["thumbnails.aliases"][$alias]) ? $app["thumbnails.aliases"][$alias] : false;
 
         // Set to default 404 image if alias does not exist
         if(!$config) {
@@ -139,7 +139,7 @@ class Controller implements ControllerProviderInterface
      */
     protected function isRestricted(Application $app, Request $request)
     {
-        return $app["config"]->get("general/thumbnails/only_aliases", false);
+        return isset($app["thumbnails.only_aliases"]) ? $app["thumbnails.only_aliases"] : false;
     }
 
     /**
@@ -152,14 +152,15 @@ class Controller implements ControllerProviderInterface
     {
         $requestPath = urldecode($request->getPathInfo());
 
-        $size = $app["config"]->get("general/thumbnails/default_thumbnail");
+        $size = $app['thumbnails.default_imagesize'];
 
         $transaction = new Transaction(
-            $app["config"]->get("general/thumbnails/notfound_image"),
+            $app["thumbnails.default_image"],
             Action::CROP,
             new Dimensions($size[0],$size[1]),
             $requestPath
         );
+
         $thumbnail = $app['thumbnails']->respond($transaction);
 
         return new Response($thumbnail);
