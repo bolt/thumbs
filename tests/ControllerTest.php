@@ -58,7 +58,6 @@ class ControllerTest extends WebTestCase
 
     protected function mockResponder($path, $file, $action, $width, $height)
     {
-
         /** @var \PHPUnit_Framework_MockObject_MockObject $mock */
         $mock = $this->app['thumbnails'];
         $mock->expects($this->once())

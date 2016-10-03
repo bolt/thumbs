@@ -28,13 +28,14 @@ class Controller implements ControllerProviderInterface
         $toInt = function ($value) {
             return intval($value);
         };
-        $toAction = function($value) {
+        $toAction = function ($value) {
             $actions = [
                 'c' => Action::CROP,
                 'r' => Action::RESIZE,
                 'b' => Action::BORDER,
                 'f' => Action::FIT,
             ];
+
             return isset($actions[$value]) ? $actions[$value] : Action::CROP;
         };
         $ctr->get('/{width}x{height}{action}/{file}', 'controller.thumbnails:thumbnail')
@@ -45,13 +46,15 @@ class Controller implements ControllerProviderInterface
             ->assert('action', '[a-z]?')
             ->convert('action', $toAction)
             ->assert('file', '.+')
-            ->bind('thumb');
+            ->bind('thumb')
+        ;
 
         // Aliases
         $ctr->get('/{alias}/{file}', 'controller.thumbnails:alias')
             ->assert('alias', '[\w-]+')
             ->assert('file', '.+')
-            ->bind('thumb_alias');
+            ->bind('thumb_alias')
+        ;
 
         return $ctr;
     }
@@ -90,28 +93,30 @@ class Controller implements ControllerProviderInterface
      */
     public function alias(Application $app, Request $request, $file, $alias)
     {
-        $config = isset($app["thumbnails.aliases"][$alias]) ? $app["thumbnails.aliases"][$alias] : false;
+        $config = isset($app['thumbnails.aliases'][$alias]) ? $app['thumbnails.aliases'][$alias] : false;
 
         // Set to default 404 image if alias does not exist
-        if(!$config) {
+        if (!$config) {
             return $this->defaultResponse($app, $request);
         }
 
-        $width  = isset($config["size"][0])  ? $config["size"][0]  : 0;
-        $height = isset($config["size"][1])  ? $config["size"][1]  : 0;
-        $action = isset($config["cropping"]) ? $config["cropping"] : Action::CROP;
+        $width = isset($config['size'][0]) ? $config['size'][0] : 0;
+        $height = isset($config['size'][1]) ? $config['size'][1] : 0;
+        $action = isset($config['cropping']) ? $config['cropping'] : Action::CROP;
 
         return $this->serve($app, $request, $file, $action, $width, $height);
     }
 
     /**
      * Serve a request for a thumbnail
+     *
      * @param Application $app
-     * @param Request $request
-     * @param string $file
-     * @param string $action
-     * @param int $width
-     * @param int $height
+     * @param Request     $request
+     * @param string      $file
+     * @param string      $action
+     * @param int         $width
+     * @param int         $height
+     *
      * @return Response
      */
     protected function serve(Application $app, Request $request, $file, $action, $width, $height)
@@ -124,7 +129,7 @@ class Controller implements ControllerProviderInterface
 
         $requestPath = urldecode($request->getPathInfo());
 
-        $transaction = new Transaction( $file, $action, new Dimensions( $width, $height ), $requestPath );
+        $transaction = new Transaction($file, $action, new Dimensions($width, $height), $requestPath);
 
         $thumbnail = $app['thumbnails']->respond($transaction);
 
@@ -133,20 +138,24 @@ class Controller implements ControllerProviderInterface
 
     /**
      * Check if thumbnail request for specific resolution is allowed
+     *
      * @param Application $app
-     * @param Request $request
+     * @param Request     $request
+     *
      * @return boolean
      */
     protected function isRestricted(Application $app, Request $request)
     {
-        return isset($app["thumbnails.only_aliases"]) ? $app["thumbnails.only_aliases"] : false;
+        return isset($app['thumbnails.only_aliases']) ? $app['thumbnails.only_aliases'] : false;
     }
 
     /**
      * Get the default error image on restriction errors or undefined aliases
+     *
      * @param Application $app
-     * @param Request $request
-     * @return Transaction
+     * @param Request     $request
+     *
+     * @return Response
      */
     protected function defaultResponse(Application $app, Request $request)
     {
@@ -155,9 +164,9 @@ class Controller implements ControllerProviderInterface
         $size = $app['thumbnails.default_imagesize'];
 
         $transaction = new Transaction(
-            $app["thumbnails.default_image"],
+            $app['thumbnails.default_image'],
             Action::CROP,
-            new Dimensions($size[0],$size[1]),
+            new Dimensions($size[0], $size[1]),
             $requestPath
         );
 
