@@ -10,6 +10,7 @@ use Bolt\Thumbs\Transaction;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 
 class ControllerTest extends WebTestCase
 {
@@ -38,6 +39,49 @@ class ControllerTest extends WebTestCase
 
         $this->mockResponder($path, $file, $action, $width, $height);
         $client->request('GET', $path);
+    }
+
+    /**
+     * Test alias restriction functionality
+     */
+    public function testIsRestricted()
+    {
+        $app = $this->createApplication();
+        $app['thumbnails.only_aliases'] = false;
+        $controller = new Controller();
+        $request = Request::create('/thumbs/123x456c/herp/derp.png');
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
+
+        $app['thumbnails.only_aliases'] = true;
+        $this->setExpectedException('Symfony\Component\HttpKernel\Exception\HttpException');
+        $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456);
+    }
+
+    public function testNotIsRestrictedWhenLoggedIn()
+    {
+        $app = $this->createApplication();
+        $controller = new Controller();
+        $request = Request::create('/thumbs/123x456c/herp/derp.png');
+
+
+        $session = $this->getMock('Symfony\Component\HttpFoundation\Session\Session');
+        $user = $this->getMock('stdClass', ['getEnabled']);
+        $user->expects($this->any())
+            ->method('getEnabled')
+            ->willReturn(true);
+        $auth = $this->getMock('stdClass', ['getUser']);
+        $auth->expects($this->any())
+            ->method('getUser')
+            ->willReturn($user);
+        $session->expects($this->any())
+            ->method('get')
+            ->with('authentication')
+            ->willReturn($auth);
+        $request->setSession($session);
+
+
+        $app['thumbnails.only_aliases'] = true;
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
     }
 
     /**
