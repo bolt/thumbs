@@ -74,7 +74,7 @@ class Controller implements ControllerProviderInterface
      */
     public function thumbnail(Application $app, Request $request, $file, $action, $width, $height)
     {
-        // Set to default 404 image if restricted to aliases
+        // Return 403 response if restricted to aliases
         if ($this->isRestricted($app, $request)) {
             $app->abort(Response::HTTP_FORBIDDEN);
         }
