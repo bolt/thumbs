@@ -58,6 +58,7 @@ class Creator implements CreatorInterface
     {
         try {
             $transaction->getSrcImage()->getInfo();
+
             return;
         } catch (IOException $e) {
         }

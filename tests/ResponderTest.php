@@ -124,6 +124,7 @@ class CreatorTester implements CreatorInterface
     public function create(Transaction $transaction)
     {
         $this->transaction = $transaction;
+
         return $transaction->getHash();
     }
 }

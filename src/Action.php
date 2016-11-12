@@ -14,5 +14,10 @@ final class Action
     const BORDER = 'border';
     const FIT = 'fit';
 
-    private function __construct() { }
+    /**
+     * Singleton constructor.
+     */
+    private function __construct()
+    {
+    }
 }

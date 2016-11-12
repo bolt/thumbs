@@ -18,7 +18,7 @@ class Finder implements FinderInterface
      * Finder constructor.
      *
      * @param AggregateFilesystemInterface $filesystem
-     * @param string[]                    $filesystemsToCheck
+     * @param string[]                     $filesystemsToCheck
      * @param Image                        $defaultImage
      */
     public function __construct(

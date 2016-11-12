@@ -55,6 +55,7 @@ class Transaction
     public function getHash()
     {
         $path = str_replace('/', '_', $this->getFilePath());
+
         return join('-', [$path, $this->action, $this->target->getWidth(), $this->target->getHeight()]);
     }
 

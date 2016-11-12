@@ -4,8 +4,8 @@ namespace Bolt\Thumbs\Tests;
 
 use Bolt\Filesystem\Handler\Image;
 use Bolt\Filesystem\Handler\Image\Dimensions;
-use Bolt\Thumbs\Thumbnail;
 use Bolt\Thumbs\Controller;
+use Bolt\Thumbs\Thumbnail;
 use Bolt\Thumbs\Transaction;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
@@ -63,7 +63,6 @@ class ControllerTest extends WebTestCase
         $controller = new Controller();
         $request = Request::create('/thumbs/123x456c/herp/derp.png');
 
-
         $session = $this->getMock('Symfony\Component\HttpFoundation\Session\Session');
         $user = $this->getMock('stdClass', ['getEnabled']);
         $user->expects($this->any())
@@ -78,7 +77,6 @@ class ControllerTest extends WebTestCase
             ->with('authentication')
             ->willReturn($auth);
         $request->setSession($session);
-
 
         $app['thumbnails.only_aliases'] = true;
         $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));

@@ -99,6 +99,7 @@ class ImageResource
     {
         $info = Image\Info::createFromString($data);
         $resource = imagecreatefromstring($data);
+
         return new static($resource, null, $info);
     }
 
@@ -164,6 +165,7 @@ class ImageResource
         if (!$this->info) {
             $this->info = Image\Info::createFromString($this);
         }
+
         return $this->info;
     }
 
@@ -374,7 +376,7 @@ class ImageResource
      */
     public function toFile($file)
     {
-        switch($this->type->getId()) {
+        switch ($this->type->getId()) {
             case IMAGETYPE_BMP:
                 imagewbmp($this->resource, $file);
                 break;
@@ -516,6 +518,7 @@ class ImageResource
     {
         $quality = (100 - $quality) / 10;
         $quality = min(ceil($quality), 9);
+
         return $quality;
     }
 
