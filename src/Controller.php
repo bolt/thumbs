@@ -7,6 +7,7 @@ use Silex\Application;
 use Silex\ControllerCollection;
 use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Controller for the thumbnail route.
@@ -73,9 +74,9 @@ class Controller implements ControllerProviderInterface
      */
     public function thumbnail(Application $app, Request $request, $file, $action, $width, $height)
     {
-        // Set to default 404 image if restricted to aliases
+        // Return 403 response if restricted to aliases
         if ($this->isRestricted($app, $request)) {
-            return $this->defaultResponse($app, $request);
+            $app->abort(Response::HTTP_FORBIDDEN);
         }
 
         return $this->serve($app, $request, $file, $action, $width, $height);
@@ -146,6 +147,13 @@ class Controller implements ControllerProviderInterface
      */
     protected function isRestricted(Application $app, Request $request)
     {
+        $session = $request->getSession();
+        $auth = (isset($session)) ? $session->get('authentication') : null;
+
+        if ($auth && ($auth->getUser()->getEnabled())) {
+            return false;
+        }
+
         return isset($app['thumbnails.only_aliases']) ? $app['thumbnails.only_aliases'] : false;
     }
 
