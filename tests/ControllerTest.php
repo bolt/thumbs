@@ -50,7 +50,7 @@ class ControllerTest extends WebTestCase
         $app['thumbnails.only_aliases'] = false;
         $controller = new Controller();
         $request = Request::create('/thumbs/123x456c/herp/derp.png');
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
+        $this->assertInstanceOf('Bolt\Thumbs\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
 
         $app['thumbnails.only_aliases'] = true;
         $this->setExpectedException('Symfony\Component\HttpKernel\Exception\HttpException');
@@ -79,7 +79,7 @@ class ControllerTest extends WebTestCase
         $request->setSession($session);
 
         $app['thumbnails.only_aliases'] = true;
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
+        $this->assertInstanceOf('Bolt\Thumbs\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
     }
 
     /**
