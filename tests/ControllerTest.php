@@ -2,6 +2,8 @@
 
 namespace Bolt\Thumbs\Tests;
 
+use Bolt\Filesystem\Adapter\Local;
+use Bolt\Filesystem\Filesystem;
 use Bolt\Filesystem\Handler\Image;
 use Bolt\Filesystem\Handler\Image\Dimensions;
 use Bolt\Thumbs\Controller;
@@ -93,6 +95,11 @@ class ControllerTest extends WebTestCase
         $app->register(new ServiceControllerServiceProvider());
 
         $mock = $this->getMock('Bolt\Thumbs\ThumbnailResponder', ['respond'], [], '', false);
+        $mock
+            ->expects($this->any())
+            ->method('respond')
+            ->willReturn(new Thumbnail(new Image(new Filesystem(new Local(__DIR__))), ''))
+        ;
         $app['thumbnails'] = $mock;
 
         return $app;
