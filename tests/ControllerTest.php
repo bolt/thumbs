@@ -2,6 +2,8 @@
 
 namespace Bolt\Thumbs\Tests;
 
+use Bolt\Filesystem\Adapter\Local;
+use Bolt\Filesystem\Filesystem;
 use Bolt\Filesystem\Handler\Image;
 use Bolt\Filesystem\Handler\Image\Dimensions;
 use Bolt\Thumbs\Controller;
@@ -50,7 +52,7 @@ class ControllerTest extends WebTestCase
         $app['thumbnails.only_aliases'] = false;
         $controller = new Controller();
         $request = Request::create('/thumbs/123x456c/herp/derp.png');
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
+        $this->assertInstanceOf('Bolt\Thumbs\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
 
         $app['thumbnails.only_aliases'] = true;
         $this->setExpectedException('Symfony\Component\HttpKernel\Exception\HttpException');
@@ -79,7 +81,7 @@ class ControllerTest extends WebTestCase
         $request->setSession($session);
 
         $app['thumbnails.only_aliases'] = true;
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
+        $this->assertInstanceOf('Bolt\Thumbs\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
     }
 
     /**
@@ -93,6 +95,11 @@ class ControllerTest extends WebTestCase
         $app->register(new ServiceControllerServiceProvider());
 
         $mock = $this->getMock('Bolt\Thumbs\ThumbnailResponder', ['respond'], [], '', false);
+        $mock
+            ->expects($this->any())
+            ->method('respond')
+            ->willReturn(new Thumbnail(new Image(new Filesystem(new Local(__DIR__))), ''))
+        ;
         $app['thumbnails'] = $mock;
 
         return $app;
