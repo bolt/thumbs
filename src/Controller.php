@@ -147,9 +147,9 @@ class Controller implements ControllerProviderInterface
     protected function isRestricted(Application $app, Request $request)
     {
         $session = $request->getSession();
-        $auth = (isset($session)) ? $session->get('authentication') : null;
+        $auth = $session && $session->isStarted() ? $session->get('authentication') : null;
 
-        if ($auth && ($auth->getUser()->getEnabled())) {
+        if ($auth && $auth->getUser()->getEnabled()) {
             return false;
         }
 
