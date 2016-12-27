@@ -7,12 +7,15 @@ use Bolt\Filesystem\Filesystem;
 use Bolt\Filesystem\Handler\Image;
 use Bolt\Filesystem\Handler\Image\Dimensions;
 use Bolt\Thumbs\Controller;
+use Bolt\Thumbs;
 use Bolt\Thumbs\Thumbnail;
 use Bolt\Thumbs\Transaction;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ControllerTest extends WebTestCase
 {
@@ -52,10 +55,10 @@ class ControllerTest extends WebTestCase
         $app['thumbnails.only_aliases'] = false;
         $controller = new Controller();
         $request = Request::create('/thumbs/123x456c/herp/derp.png');
-        $this->assertInstanceOf('Bolt\Thumbs\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
+        $this->assertInstanceOf(Thumbs\Response::class, $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
 
         $app['thumbnails.only_aliases'] = true;
-        $this->setExpectedException('Symfony\Component\HttpKernel\Exception\HttpException');
+        $this->setExpectedException(HttpException::class);
         $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456);
     }
 
@@ -65,23 +68,39 @@ class ControllerTest extends WebTestCase
         $controller = new Controller();
         $request = Request::create('/thumbs/123x456c/herp/derp.png');
 
-        $session = $this->getMock('Symfony\Component\HttpFoundation\Session\Session');
-        $user = $this->getMock('stdClass', ['getEnabled']);
+        $user = $this->getMockBuilder('stdClass')
+            ->setMethods(['getEnabled'])
+            ->getMock()
+        ;
         $user->expects($this->any())
             ->method('getEnabled')
-            ->willReturn(true);
-        $auth = $this->getMock('stdClass', ['getUser']);
+            ->willReturn(true)
+        ;
+
+        $auth = $this->getMockBuilder('stdClass')
+            ->setMethods(['getUser'])
+            ->getMock()
+        ;
         $auth->expects($this->any())
             ->method('getUser')
-            ->willReturn($user);
+            ->willReturn($user)
+        ;
+
+        $session = $this->getMockBuilder(Session::class)->getMock();
         $session->expects($this->any())
             ->method('get')
             ->with('authentication')
-            ->willReturn($auth);
+            ->willReturn($auth)
+        ;
+        $session->expects($this->atLeastOnce())
+            ->method('isStarted')
+            ->willReturn(true)
+        ;
+        /** @var Session $session */
         $request->setSession($session);
 
         $app['thumbnails.only_aliases'] = true;
-        $this->assertInstanceOf('Bolt\Thumbs\Response', $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
+        $this->assertInstanceOf(Thumbs\Response::class, $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
     }
 
     /**
@@ -94,7 +113,11 @@ class ControllerTest extends WebTestCase
         $app->mount('/thumbs', $app['controller.thumbnails']);
         $app->register(new ServiceControllerServiceProvider());
 
-        $mock = $this->getMock('Bolt\Thumbs\ThumbnailResponder', ['respond'], [], '', false);
+        $mock = $this->getMockBuilder(Thumbs\Responder::class)
+            ->setMethods(['respond'])
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
         $mock
             ->expects($this->any())
             ->method('respond')
