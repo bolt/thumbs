@@ -2,6 +2,7 @@
 
 namespace Bolt\Thumbs;
 
+use Contao\ImagineSvg\Imagine as SvgImagine;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -33,7 +34,11 @@ class ServiceProvider implements ServiceProviderInterface
         });
 
         $app['thumbnails.creator'] = $app->share(function ($app) {
-            return new Creator($app['thumbnails.limit_upscaling']);
+            return new Creator($app['thumbnails.limit_upscaling'], $app['imagine.svg']);
+        });
+
+        $app['imagine.svg'] = $app->share(function () {
+            return new SvgImagine();
         });
 
         $app['thumbnails.finder'] = $app->share(function ($app) {

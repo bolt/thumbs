@@ -20,6 +20,8 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
     protected $landscapeImage;
     /** @var Image 427x640 */
     protected $portraitImage;
+    /** @var Image */
+    protected $svgImage;
 
     public function setup()
     {
@@ -27,6 +29,7 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
         $this->logoJpg = $this->fs->getImage('generic-logo.jpg');
         $this->landscapeImage = $this->fs->getImage('samples/sample1.jpg');
         $this->portraitImage = $this->fs->getImage('samples/sample2.jpg');
+        $this->svgImage = $this->fs->getImage('samples/nut.svg');
     }
 
     /**
@@ -169,6 +172,15 @@ class CreatorTest extends \PHPUnit_Framework_TestCase
         $result = (new Creator())->create($transaction);
 
         $this->assertDimensions($expected, $result);
+    }
+
+    public function testSvg()
+    {
+        $transaction = new Transaction($this->portraitImage, Action::RESIZE, new Dimensions(200, 500));
+
+        $result = (new Creator())->create($transaction);
+
+        $this->assertDimensions(new Dimensions(200, 299), $result);
     }
 
     /**

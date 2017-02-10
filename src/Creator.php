@@ -2,7 +2,10 @@
 namespace Bolt\Thumbs;
 
 use Bolt\Filesystem\Exception\IOException;
+use Contao\ImagineSvg\Imagine as SvgImagine;
 use Exception;
+use Imagine\Image\Box;
+use Imagine\Exception\RuntimeException as ImagineRuntimeException;
 use RuntimeException;
 
 /**
@@ -13,6 +16,8 @@ use RuntimeException;
  */
 class Creator implements CreatorInterface
 {
+    /** @var SvgImagine */
+    protected $svgImagine;
     /** @var bool */
     protected $limitUpscaling;
     /** @var Color */
@@ -21,11 +26,13 @@ class Creator implements CreatorInterface
     /**
      * Creator constructor.
      *
-     * @param bool  $limitUpscaling
-     * @param Color $background
+     * @param bool       $limitUpscaling
+     * @param SvgImagine $svgImagine
+     * @param Color      $background
      */
-    public function __construct($limitUpscaling = true, Color $background = null)
+    public function __construct($limitUpscaling = true, SvgImagine $svgImagine = null, Color $background = null)
     {
+        $this->svgImagine = $svgImagine ?: new SvgImagine();
         $this->limitUpscaling = (bool) $limitUpscaling;
         $this->background = $background ?: Color::white();
     }
@@ -131,6 +138,25 @@ class Creator implements CreatorInterface
         $fit = $transaction->getAction() === Action::FIT;
         $border = $transaction->getAction() === Action::BORDER;
 
+        if ($transaction->getSrcImage()->getMimeType() === 'image/svg+xml') {
+            try {
+                return $this->resizeSvg($transaction);
+            } catch (ImagineRuntimeException $e) {
+                // If the image is the fallback image throw exception
+                if ($transaction->getSrcImage()->getFullPath() === $transaction->getErrorImage()->getFullPath()) {
+                    throw new RuntimeException(
+                        'There was an error with the thumbnail image requested and additionally the fallback image could not be displayed.',
+                        0,
+                        $e
+                    );
+                }
+
+                // Fallback to error image
+                $transaction->setErrorImage($transaction->getSrcImage());
+                return $this->create($transaction);
+            }
+        }
+
         try {
             $img = ImageResource::createFromString($transaction->getSrcImage()->read());
         } catch (Exception $e) {
@@ -185,5 +211,23 @@ class Creator implements CreatorInterface
         }
 
         return $img->toString();
+    }
+
+    /**
+     * Resize SVG image.
+     *
+     * @param Transaction $transaction
+     *
+     * @return string
+     */
+    protected function resizeSvg(Transaction $transaction)
+    {
+        $image = $this->svgImagine->load($transaction->getSrcImage()->read());
+
+        $target = $transaction->getTarget();
+
+        $image->resize(new Box($target->getWidth(), $target->getHeight()));
+
+        return $image->get('svg');
     }
 }
