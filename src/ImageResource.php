@@ -18,7 +18,7 @@ class ImageResource
 {
     /** @var resource */
     protected $resource;
-    /** @var Image\Type */
+    /** @var Image\TypeInterface */
     protected $type;
     /** @var Image\Info */
     protected $info;
@@ -29,15 +29,15 @@ class ImageResource
     protected static $normalizeJpegOrientation = true;
 
     /**
-     * ImageResource constructor.
+     * Constructor.
      *
      * Either type or info need to be provided.
      *
-     * @param resource   $resource A GD resource
-     * @param Image\Type $type     Image type
-     * @param Image\Info $info     Image info
+     * @param resource            $resource A GD resource
+     * @param Image\TypeInterface $type     Image type
+     * @param Image\Info          $info     Image info
      */
-    public function __construct($resource, Image\Type $type = null, Image\Info $info = null)
+    public function __construct($resource, Image\TypeInterface $type = null, Image\Info $info = null)
     {
         if (!is_resource($resource) || !get_resource_type($resource) === 'gd') {
             throw new InvalidArgumentException('Given resource must be a GD resource');
@@ -106,12 +106,12 @@ class ImageResource
     /**
      * Creates a new image given the width and height.
      *
-     * @param Dimensions $dimensions Image dimensions
-     * @param Image\Type $type       Type of image
+     * @param Dimensions          $dimensions Image dimensions
+     * @param Image\TypeInterface $type       Type of image
      *
      * @return ImageResource
      */
-    public static function createNew(Dimensions $dimensions, Image\Type $type)
+    public static function createNew(Dimensions $dimensions, Image\TypeInterface $type)
     {
         $resource = imagecreatetruecolor($dimensions->getWidth(), $dimensions->getHeight());
         if ($resource === false) {
@@ -148,7 +148,7 @@ class ImageResource
     /**
      * Returns the image type.
      *
-     * @return Image\Type
+     * @return Image\TypeInterface
      */
     public function getType()
     {
