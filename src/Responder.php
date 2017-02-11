@@ -73,7 +73,7 @@ class Responder implements ResponderInterface
         $this->saveStaticThumbnail($transaction->getRequestPath(), $thumbnail);
 
         // Return thumbnail
-        return new Thumbnail($image, $thumbnail);
+        return new Thumbnail($transaction->getSrcImage(), $thumbnail);
     }
 
     /**

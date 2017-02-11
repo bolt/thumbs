@@ -14,7 +14,8 @@
     ],
 
     "require": {
-        "bolt/filesystem": "^2.0",
+        "bolt/filesystem": "^2.1",
+        "contao/imagine-svg": "^0.1.2",
         "doctrine/cache": "^1.4",
         "ext-gd": "*",
         "php": "^5.5.9 || ^7.0"
