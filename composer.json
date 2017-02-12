@@ -14,7 +14,7 @@
     ],
 
     "require": {
-        "bolt/filesystem": "^2.1",
+        "bolt/filesystem": "dev-svgs as 2.1",
         "contao/imagine-svg": "^0.1.2",
         "doctrine/cache": "^1.4",
         "ext-gd": "*",
