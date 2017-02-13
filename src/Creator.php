@@ -4,8 +4,8 @@ namespace Bolt\Thumbs;
 use Bolt\Filesystem\Exception\IOException;
 use Contao\ImagineSvg\Imagine as SvgImagine;
 use Exception;
-use Imagine\Image\Box;
 use Imagine\Exception\RuntimeException as ImagineRuntimeException;
+use Imagine\Image\Box;
 use RuntimeException;
 
 /**
@@ -153,6 +153,7 @@ class Creator implements CreatorInterface
 
                 // Fallback to error image
                 $transaction->setErrorImage($transaction->getSrcImage());
+
                 return $this->create($transaction);
             }
         }
