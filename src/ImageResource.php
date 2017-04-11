@@ -53,7 +53,7 @@ class ImageResource
             throw new InvalidArgumentException('Type or ImageInfo need to be provided');
         }
 
-        if ($this->type === IMAGETYPE_JPEG && static::$normalizeJpegOrientation) {
+        if ($this->type->getId() === IMAGETYPE_JPEG && static::$normalizeJpegOrientation) {
             $this->normalizeJpegOrientation();
         }
     }
