@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "bolt/filesystem": "^2.0",
+        "bolt/filesystem": "^2.3",
         "contao/imagine-svg": "~0.1.2",
         "doctrine/cache": "^1.4",
         "ext-gd": "*",
