@@ -8,7 +8,7 @@ use Bolt\Filesystem\Handler\Image\Dimensions;
 use Bolt\Thumbs\ImageResource;
 use Bolt\Thumbs\Point;
 
-class ImageResourceTests extends \PHPUnit_Framework_TestCase
+class ImageResourceTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Filesystem */
     protected $fs;
@@ -44,6 +44,16 @@ class ImageResourceTests extends \PHPUnit_Framework_TestCase
                 'Wrong orientation'
             );
         }
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid image data
+     */
+    public function testInvalidImageFromString()
+    {
+        ImageResource::createFromString('');
+        $this->addToAssertionCount(1);
     }
 
     protected function assertDimensions(Dimensions $expected, Dimensions $actual)

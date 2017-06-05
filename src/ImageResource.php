@@ -98,7 +98,10 @@ class ImageResource
     public static function createFromString($data)
     {
         $info = Image\Info::createFromString($data);
-        $resource = imagecreatefromstring($data);
+        $resource = @imagecreatefromstring($data);
+        if ($resource === false) {
+            throw new InvalidArgumentException('Invalid image data');
+        }
 
         return new static($resource, null, $info);
     }
