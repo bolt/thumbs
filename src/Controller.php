@@ -3,9 +3,9 @@
 namespace Bolt\Thumbs;
 
 use Bolt\Filesystem\Handler\Image\Dimensions;
-use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
 use Silex\ControllerCollection;
+use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
