@@ -153,11 +153,7 @@ class Creator implements CreatorInterface
             }
         }
 
-        try {
-            $img = ImageResource::createFromString($transaction->getSrcImage()->read());
-        } catch (Exception $e) {
-            return false;
-        }
+        $img = ImageResource::createFromString($transaction->getSrcImage()->read());
 
         $target = clone $transaction->getTarget();
 
