@@ -58,7 +58,7 @@ class ControllerTest extends WebTestCase
         $this->assertInstanceOf(Thumbs\Response::class, $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456));
 
         $app['thumbnails.only_aliases'] = true;
-        $this->setExpectedException(HttpException::class);
+        $this->expectException(HttpException::class);
         $controller->thumbnail($app, $request, 'herp/derp.png', 'c', 123, 456);
     }
 
