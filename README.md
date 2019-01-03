@@ -11,16 +11,16 @@ Bolt Thumbs is installed as a default dependency of Bolt. However, for use
 independently it can be included in your Composer project:
 
 ```bash
-composer require bolt/thumbs:^3.2
+composer require bolt/thumbs:^3.3
 ```
 
 Should you want to work with the development branch(es), you can specficy those
 as Composer requirements instead.
 
-To install the 3.3 _develoment_ branch:
+To install the 3.4 _develoment_ branch:
 
 ```bash
-composer require bolt/thumbs:3.3.x@dev
+composer require bolt/thumbs:3.4.x@dev
 ```
 
 Alternatively to install the master branch:
