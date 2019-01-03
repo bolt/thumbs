@@ -17,7 +17,7 @@ composer require bolt/thumbs:^3.3
 Should you want to work with the development branch(es), you can specficy those
 as Composer requirements instead.
 
-To install the 3.4 _develoment_ branch:
+To install the 3.4 _development_ branch:
 
 ```bash
 composer require bolt/thumbs:3.4.x@dev
@@ -35,7 +35,7 @@ If you've already got a working installation of Bolt, you can safely skip this.
 
 To use the Botl Thumbs service provider onto your Silex based application, 
 simply `->register()` the `\Bolt\Provider\ThumbnailsServiceProvider` class in 
-your reigstration phase, e.g.:
+your registration phase, e.g.:
 
 
 ```php
