@@ -23,7 +23,7 @@ To install the 3.x _development_ branch:
 composer require bolt/thumbs:dev-3.x@dev
 ```
 
-Alternatively to install the master branch:
+Alternatively to install the master branch (which requires Silex 2):
 
 ```bash
 composer require bolt/thumbs:dev-master@dev
