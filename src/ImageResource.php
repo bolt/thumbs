@@ -81,6 +81,9 @@ class ImageResource
             case IMAGETYPE_PNG:
                 $resource = imagecreatefrompng($file);
                 break;
+            case IMAGETYPE_WEBP:
+                $resource = imagecreatefromwebp($file);
+                break;
             default:
                 throw new InvalidArgumentException('Unknown image file');
         }
@@ -393,6 +396,9 @@ class ImageResource
             case IMAGETYPE_PNG:
                 $compression = static::convertJpegQualityToPngCompression(static::$quality);
                 imagepng($this->resource, $file, $compression);
+                break;
+            case IMAGETYPE_WEBP:
+                imagewebp($this->resource, $file, static::$quality);
                 break;
             default:
                 throw new \RuntimeException('Unknown image type');
